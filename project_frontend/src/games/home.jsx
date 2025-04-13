@@ -57,7 +57,7 @@ export default function Home() {
             </div>
             <div className='footer'>
                 <div className='team_members'>
-                    <p className='member' style={{fontWeight:'bold'}}>Group Members</p>
+                    <p className='member' style={{fontWeight:'bold', fontSize:'large'}}>Group Members</p>
                     <p className='member'>COBSCCOMP242P-026 - M.Z.M.B. Hamza</p>
                     <p className='member'>COBSCCOMP242P-026</p>
                     <p className='member'>COBSCCOMP242P-026</p>
