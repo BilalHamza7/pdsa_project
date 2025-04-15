@@ -9,7 +9,7 @@ export default function Main() {
   return (
     <div className="game-container">
       <div className="game-card">
-        <h1 className="game-title">Tic Tac Toe - 5x5 Grid</h1>
+        <h1 className="game-title">Tic Tac Toe</h1>
         <p className="turn-indicator">
           <span className={isXNext ? 'x-turn' : 'o-turn'}>
             {isXNext ? "X's Turn" : "O's Turn"}

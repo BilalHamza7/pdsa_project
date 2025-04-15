@@ -3,12 +3,14 @@ body {
 }
 
 .game-container {
-  background: #ff8000;
+  background: url('https://m.media-amazon.com/images/I/71V21L1U9CL.jpg') no-repeat center center;
+  background-size: cover;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 
 .game-card {
   background: #fff;
@@ -20,7 +22,7 @@ body {
 }
 
 .game-title {
-  color: white;
+  color: rgb(189, 174, 39);
   font-size: 2rem;
   font-weight: bold;
   background: #380529;
@@ -32,7 +34,7 @@ body {
 
 .game-body {
   display: flex;
-  gap: 30px;
+  gap: 300px;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
@@ -59,7 +61,7 @@ body {
 }
 
 .cell:hover {
-  background: #f5f5f5;
+  background: #033755;
 }
 
 .cell.X {
