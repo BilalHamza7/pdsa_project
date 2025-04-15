@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Grid from './grid';  
+ 
 import { useGameLogic } from './gameLogic';  
 
 export default function Main() {
