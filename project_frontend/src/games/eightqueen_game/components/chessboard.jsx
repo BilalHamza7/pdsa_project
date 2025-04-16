@@ -41,14 +41,14 @@ export default function Chessboard({ onBoardChange }) {
                 <p>1</p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div className="board">
+                <div className="chessboard">
                     {board.map((row, rowIndex) =>
                         row.map((hasQueen, colIndex) => {
                             const isWhite = (rowIndex + colIndex) % 2 === 0;
                             return (
                                 <div
                                     key={`${rowIndex}-${colIndex}`}
-                                    className={`cell ${isWhite ? 'white' : 'black'}`}
+                                    className={`board_cell ${isWhite ? 'white' : 'black'}`}
                                     onClick={() => toggleQueen(rowIndex, colIndex)}
                                 >
                                     {hasQueen && <span className="queen">♛</span>}
