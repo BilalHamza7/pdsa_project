@@ -1,6 +1,23 @@
 import React, { useState } from 'react';
-
 import './Game.css';
+
+function Grid({ cells, handleCellClick }) {
+  return (
+    <div className="grid">
+      {cells.map((row, rowIndex) =>
+        row.map((cell, colIndex) => (
+          <div
+            key={`${rowIndex}-${colIndex}`}
+            className={`cell ${cell}`}
+            onClick={() => handleCellClick(rowIndex, colIndex)}
+          >
+            {cell}
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
 
 export default function Game() {
   const [cells, setCells] = useState(Array(5).fill(null).map(() => Array(5).fill('')));
@@ -29,11 +46,19 @@ export default function Game() {
           <Grid cells={cells} handleCellClick={handleCellClick} />
           <div className="game-info">
             <div className="players">
-              <div><span className="symbol x">X</span> <p>You</p></div>
-              <div><span className="symbol o">O</span> <p>Computer</p></div>
+              <div className="player">
+                <span className="symbol x">❌</span>
+                <p>You</p>
+              </div>
+              <div className="player">
+                <span className="symbol o">⭕</span>
+                <p>Computer</p>
+              </div>
             </div>
-            <button className="info-btn">ℹ️ Info</button>
-            <button className="restart-btn" onClick={handleRestart}>🔄 Restart</button>
+            <div className="buttons">
+              <button className="info-btn">ℹ️ Info</button>
+              <button className="restart-btn" onClick={handleRestart}>🔄 Restart</button>
+            </div>
           </div>
         </div>
       </div>

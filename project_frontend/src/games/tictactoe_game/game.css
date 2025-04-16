@@ -1,5 +1,7 @@
 body {
   font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 .game-container {
@@ -11,14 +13,13 @@ body {
   align-items: center;
 }
 
-
 .game-card {
-  background: #fff;
+  background: #ffffff;
   padding: 30px;
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   width: 90%;
-  max-width: 700px;
+  max-width: 900px;
 }
 
 .game-title {
@@ -34,16 +35,16 @@ body {
 
 .game-body {
   display: flex;
-  gap: 300px;
-  align-items: center;
+  gap: 50px;
+  align-items: flex-start;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(5, 60px);
-  grid-template-rows: repeat(5, 60px);
+  grid-template-columns: repeat(5, 80px);
+  grid-template-rows: repeat(5, 80px);
   gap: 8px;
 }
 
@@ -61,7 +62,7 @@ body {
 }
 
 .cell:hover {
-  background: #033755;
+  background: #b3ddf6;
 }
 
 .cell.X {
@@ -75,19 +76,30 @@ body {
 .game-info {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .players {
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 10px;
-  font-weight: bold;
-  color: #000;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f4f4f4;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .symbol {
-  font-size: 2rem;
+  font-size: 3rem;
+  margin-bottom: 8px;
 }
 
 .symbol.x {
@@ -98,6 +110,13 @@ body {
   color: #1e90ff;
 }
 
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
 .info-btn,
 .restart-btn {
   padding: 10px 20px;
@@ -105,6 +124,8 @@ body {
   border-radius: 10px;
   border: none;
   cursor: pointer;
+  width: 150px;
+  text-align: center;
 }
 
 .info-btn {
