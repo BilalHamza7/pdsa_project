@@ -111,7 +111,52 @@ h1 {
 
 .restart-btn:hover {
   background-color: #d81922;
-  transform: scale(2.05);
+  transform: scale(1.05);
+}
+
+.quit-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Add this to your existing CSS for positioning buttons */
+.restart-btn,
+.quit-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.quit-btn {
+  background-color: #e74c3c;
+  color: white;
+  font-size: 16px;
+  padding: 30px 60px;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.quit-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Style for restart button */
+.restart-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: #d44313;
+  color: #fffaf5;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.restart-btn:hover {
+  background-color: #d81922;
+  transform: scale(1.05);
 }
 
 /* Global styles for name form */
@@ -185,4 +230,15 @@ h1 {
     font-size: 1rem;
     padding: 0.6rem 1.2rem;
   }
+  .quit-btn {
+    background-color: #e74c3c;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+ 
 }

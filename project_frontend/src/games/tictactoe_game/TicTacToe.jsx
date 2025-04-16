@@ -94,9 +94,7 @@ const TicTacToe = () => {
               row.map((cell, j) => (
                 <button
                   key={`${i}-${j}`}
-                  className={`cell ${cell === 'X' ? 'cell-x' : ''} ${cell === 'O' ? 'cell-o' : ''}`}
-
-
+                  className={`cell ${cell === 'X' ? 'cell-x' : cell === 'O' ? 'cell-o' : ''}`}
                   onClick={() => makeMove(i, j)}
                 >
                   {cell}
