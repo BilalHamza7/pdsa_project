@@ -3,12 +3,14 @@ import {
   solveHanoiRecursive,
   solveHanoiIterative,
 } from "./hanoiAlgorithms";
+
 import "./TowerOfHanoi.css";
 
 // Generate a random number between 5 and 10
 const getRandomDisks = () => Math.floor(Math.random() * 6) + 5;
 
 const TowerOfHanoi = () => {
+    
   const [diskCount, setDiskCount] = useState(getRandomDisks());
   const [playerName, setPlayerName] = useState("");
   const [userMoves, setUserMoves] = useState("");
@@ -85,10 +87,33 @@ const TowerOfHanoi = () => {
     setIsRunning(true);
   };
 
+  const getDiskColor = (size) => {
+    const colors = ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#9D4EDD", "#FF8E00", "#2EC4B6", "#8D6E63", "#00B8D9", "#FF69B4"];
+    return colors[(size - 1) % colors.length];
+  };
+  
+
   return (
     <div className="hanoi-container">
       <h2>🗼 Tower of Hanoi (3-Peg - Text Version)</h2>
       <p>Disks this round: <strong>{diskCount}</strong></p>
+
+      <div className="visual-board">
+  <div className="peg">
+    <div className="peg-label">A</div>
+    {Array.from({ length: diskCount }, (_, i) => {
+      const size = diskCount - i;
+      return (
+        <div key={size} className="disk" style={{ width: `${size * 20 + 40}px`, backgroundColor: getDiskColor(size) }}>
+          {size}
+        </div>
+      );
+    })}
+  </div>
+  <div className="peg"><div className="peg-label">B</div></div>
+  <div className="peg"><div className="peg-label">C</div></div>
+</div>
+
       <p>Enter move sequence in format like: <em>A→C, A→B, B→C...</em></p>
 
       <form onSubmit={handleSubmit} className="hanoi-form">
@@ -169,6 +194,15 @@ const TowerOfHanoi = () => {
 
     </div>
   );
+
+
 };
+
+<hr />
+
+
+       
+      
+    
 
 export default TowerOfHanoi;
