@@ -1,7 +1,10 @@
+// Main.jsx
+import TicTacToe from './TicTacToe';
+
 export default function Main() {
-    return (
-        <div>
-            <p>Tic Tac Toe</p>
-        </div>
-    )
-};
+  return (
+    <div>
+      <TicTacToe />
+    </div>
+  );
+}
