@@ -1,56 +1,68 @@
-export function getBestMoveMinimax(board, player) {
-    const opponent = player === 'X' ? 'O' : 'X';
-    let bestScore = -Infinity;
-    let bestMove = null;
-  
-    function minimax(board, depth, isMaximizing) {
-      const winner = checkWinner(board);
-      if (winner === player) return 10 - depth;
-      if (winner === opponent) return depth - 10;
-      if (winner === 'Draw') return 0;
-  
-      if (isMaximizing) {
-        let maxEval = -Infinity;
-        for (let i = 0; i < 5; i++) {
-          for (let j = 0; j < 5; j++) {
-            if (board[i][j] === '') {
-              board[i][j] = player;
-              const evalScore = minimax(board, depth + 1, false);
-              board[i][j] = '';
-              maxEval = Math.max(evalScore, maxEval);
-            }
-          }
+// minimax.jsx
+const getBestMoveMinimax = (board) => {
+  let bestScore = -Infinity;
+  let move = null;
+
+  for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 5; j++) {
+      if (!board[i][j]) {
+        board[i][j] = 'O';
+        const score = minimax(board, 0, false, -Infinity, Infinity);
+        board[i][j] = null;
+
+        if (score > bestScore) {
+          bestScore = score;
+          move = { row: i, col: j };
         }
-        return maxEval;
-      } else {
-        let minEval = Infinity;
-        for (let i = 0; i < 5; i++) {
-          for (let j = 0; j < 5; j++) {
-            if (board[i][j] === '') {
-              board[i][j] = opponent;
-              const evalScore = minimax(board, depth + 1, true);
-              board[i][j] = '';
-              minEval = Math.min(evalScore, minEval);
-            }
-          }
-        }
-        return minEval;
       }
     }
-  
+  }
+
+  return move;
+};
+
+export function minimax(board, depth, isMaximizing, alpha, beta) {
+  const winner = checkWinner(board);
+  if (winner === 'X') return -1; // Player wins
+  if (winner === 'O') return 1;  // Computer wins
+  if (isDraw(board)) return 0;   // Draw
+
+  if (isMaximizing) {
+    let maxEval = -Infinity;
     for (let i = 0; i < 5; i++) {
       for (let j = 0; j < 5; j++) {
-        if (board[i][j] === '') {
-          board[i][j] = player;
-          const score = minimax(board, 0, false);
-          board[i][j] = '';
-          if (score > bestScore) {
-            bestScore = score;
-            bestMove = [i, j];
-          }
+        if (!board[i][j]) {
+          board[i][j] = 'O';  // Computer's move
+          const evaluation = minimax(board, depth + 1, false, alpha, beta);
+          board[i][j] = null;  // Undo move
+          maxEval = Math.max(maxEval, evaluation);
+          alpha = Math.max(alpha, evaluation);
+
+          if (beta <= alpha) break; // Beta cutoff
         }
       }
     }
-  
-    return bestMove;
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < 5; j++) {
+        if (!board[i][j]) {
+          board[i][j] = 'X';  // Player's move
+          const evaluation = minimax(board, depth + 1, true, alpha, beta);
+          board[i][j] = null;  // Undo move
+          minEval = Math.min(minEval, evaluation);
+          beta = Math.min(beta, evaluation);
+          if (beta <= alpha) break; // Alpha cutoff
+        }
+      }
+    }
+    return minEval;
   }
+  
+    
+  
+
+
+
+}
