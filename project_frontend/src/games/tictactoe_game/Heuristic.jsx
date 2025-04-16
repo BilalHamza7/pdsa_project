@@ -1,9 +1,6 @@
-//heuristic.jsx
-
 export const getBestMoveHeuristic = (board, player) => {
   const opponent = player === 'X' ? 'O' : 'X';
-  let bestScore = -Infinity;
-  let move = null;
+  let moveOptions = [];
 
   for (let i = 0; i < 5; i++) {
     for (let j = 0; j < 5; j++) {
@@ -12,19 +9,19 @@ export const getBestMoveHeuristic = (board, player) => {
         const score = evaluateBoard(board, player, opponent);
         board[i][j] = null;
 
-        if (score > bestScore) {
-          bestScore = score;
-          move = { row: i, col: j };
-        }
+        moveOptions.push({ row: i, col: j, score });
       }
     }
   }
 
-  return move;
+  // Sort and choose one from top 3 scored moves
+  moveOptions.sort((a, b) => b.score - a.score);
+  const topChoices = moveOptions.slice(0, 3);
+  return topChoices[Math.floor(Math.random() * topChoices.length)];
 };
+
 const evaluateBoard = (board, player, opponent) => {
   let score = 0;
-
   const lines = getAllLines(board);
 
   lines.forEach(line => {
@@ -32,17 +29,14 @@ const evaluateBoard = (board, player, opponent) => {
     const opponentCount = line.filter(cell => cell === opponent).length;
 
     if (playerCount > 0 && opponentCount === 0) {
-      // Less aggressive boost
-      score += playerCount * 2;
+      score += playerCount * 1.5; // Less aggressive
     } else if (opponentCount > 0 && playerCount === 0) {
-      // Less defensive penalty
-      score -= opponentCount * 1.5;
+      score -= opponentCount * 1; // Less defensive
     }
   });
 
   return score;
 };
-
 
 const getAllLines = (board) => {
   const lines = [];

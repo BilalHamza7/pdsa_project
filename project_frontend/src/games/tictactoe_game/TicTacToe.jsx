@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './TicTacToe.css';
-import { minimax } from './minimax';
+import { getBestMoveMinimax } from './minimax';
 import { getBestMoveHeuristic } from './Heuristic';
 import { checkWinner } from './checkWinner';
 
-
-
 const emptyBoard = Array(5).fill(null).map(() => Array(5).fill(null));
-
-
 const isDraw = board => board.flat().every(cell => cell);
 
 const TicTacToe = () => {
@@ -27,29 +23,24 @@ const TicTacToe = () => {
     setPlayerTurn(false);
   };
 
-
   const computerMove = () => {
     const start = performance.now();
-  
-    // Choose your algorithm here:
-    const best = getBestMoveHeuristic(board, 'O'); // smarter algorithm
-    // const best = getBestMove(board, 'O'); // minimax alternative
-  
+    const best = getBestMoveHeuristic(board, 'O'); // or use getBestMoveMinimax(board, 'O')
     const end = performance.now();
-  
+
     if (best) {
       const updated = board.map(r => [...r]);
       updated[best.row][best.col] = 'O';
       setBoard(updated);
     }
+
     console.log('Computer move time (ms):', (end - start).toFixed(2));
     setPlayerTurn(true);
   };
-  
 
   useEffect(() => {
     const winner = checkWinner(board);
-  
+
     if (winner) {
       setGameOver(true);
       if (winner === 'X') {
@@ -61,21 +52,11 @@ const TicTacToe = () => {
       }
       return;
     }
-  
+
     if (!playerTurn) {
       setTimeout(() => computerMove(), 500);
     }
   }, [board, playerTurn]);
-  
-
-  const getFirstAvailableMove = (brd) => {
-    for (let i = 0; i < 5; i++) {
-      for (let j = 0; j < 5; j++) {
-        if (!brd[i][j]) return { row: i, col: j };
-      }
-    }
-    return null;
-  };
 
   const resetGame = () => {
     setBoard(emptyBoard);
@@ -93,7 +74,7 @@ const TicTacToe = () => {
 
   return (
     <div className="tictactoe-container">
-      <h1>Tic Tac Toe 5x5</h1>
+      <h1>Tic Tac Toe</h1>
 
       {!nameSubmitted ? (
         <form className="name-form" onSubmit={handleNameSubmit}>
@@ -104,7 +85,7 @@ const TicTacToe = () => {
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
           />
-          <button type="submit" className="name-submit-btn">Start Game</button>
+          <button type="submit" className="name-submit-btn">Let's Start Game</button>
         </form>
       ) : (
         <>
@@ -113,7 +94,9 @@ const TicTacToe = () => {
               row.map((cell, j) => (
                 <button
                   key={`${i}-${j}`}
-                  className="cell"
+                  className={`cell ${cell === 'X' ? 'cell-x' : ''} ${cell === 'O' ? 'cell-o' : ''}`}
+
+
                   onClick={() => makeMove(i, j)}
                 >
                   {cell}
@@ -132,14 +115,3 @@ const TicTacToe = () => {
 };
 
 export default TicTacToe;
-
-
-
-
-
-/*Best Non-AI Algorithms for Your Exam:
-Minimax is ideal for demonstrating a deep understanding of game theory and recursive algorithms.
-It's computationally expensive but guarantees an optimal solution.
-
-Heuristic Evaluation is faster and more efficient, suitable for a real-time strategy where you want a 
-computer to play effectively without the computational overhead of Minimax.*/
