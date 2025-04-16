@@ -10,8 +10,8 @@ const getRandomDisks = () => Math.floor(Math.random() * 6) + 5;
 const TowerOfHanoi = () => {
   const [diskCount, setDiskCount] = useState(getRandomDisks());
   const [playerName, setPlayerName] = useState("");
-  const [userMoves, setUserMoves] = useState("");
   const [userMoveCount, setUserMoveCount] = useState("");
+  const [userMoves, setUserMoves] = useState([]);
   const [result, setResult] = useState(null);
   const [timer, setTimer] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -32,25 +32,39 @@ const TowerOfHanoi = () => {
     setIsRunning(true);
   };
 
+  const handleMoveCountChange = (e) => {
+    const count = parseInt(e.target.value);
+    setUserMoveCount(count);
+    setUserMoves(Array(count).fill({ disk: "", from: "", to: "" }));
+  };
+
+  const handleMoveChange = (index, field, value) => {
+    const updatedMoves = [...userMoves];
+    updatedMoves[index] = { ...updatedMoves[index], [field]: value };
+    setUserMoves(updatedMoves);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!playerName || !userMoves || !userMoveCount) return alert("Please fill all fields.");
+    if (!playerName || userMoves.some(move => !move.disk || !move.from || !move.to)) {
+      return alert("Please fill all fields correctly.");
+    }
 
     setIsRunning(false);
     const recursiveSolution = solveHanoiRecursive(diskCount, "A", "C", "B");
     const iterativeSolution = solveHanoiIterative(diskCount, "A", "C", "B");
 
-    const userSequence = userMoves.split(",").map((m) => m.trim().toUpperCase());
+    const formattedUserMoves = userMoves.map(move => `${move.disk} Disk ${move.from.toUpperCase()}→${move.to.toUpperCase()}`);
 
     const isCorrect =
-      parseInt(userMoveCount) === recursiveSolution.length &&
-      JSON.stringify(userSequence) === JSON.stringify(recursiveSolution);
+      formattedUserMoves.length === recursiveSolution.length &&
+      JSON.stringify(formattedUserMoves) === JSON.stringify(recursiveSolution);
 
     setResult({
       playerName,
       diskCount,
-      userMoveCount: parseInt(userMoveCount),
-      userSequence,
+      userMoveCount: formattedUserMoves.length,
+      userSequence: formattedUserMoves,
       isCorrect,
       timeTaken: timer,
       recursiveTime: recursiveSolution.length,
@@ -63,8 +77,8 @@ const TowerOfHanoi = () => {
   const resetGame = () => {
     setDiskCount(getRandomDisks());
     setPlayerName("");
-    setUserMoves("");
     setUserMoveCount("");
+    setUserMoves([]);
     setResult(null);
     setTimer(0);
     setIsStarted(false);
@@ -122,18 +136,51 @@ const TowerOfHanoi = () => {
           type="number"
           placeholder="Your Move Count"
           value={userMoveCount}
-          onChange={(e) => setUserMoveCount(e.target.value)}
+          onChange={handleMoveCountChange}
           required
           disabled={!isStarted}
+          min={1}
         />
-        <textarea
-          placeholder="Move Sequence (e.g. A→C, A→B...)"
-          value={userMoves}
-          onChange={(e) => setUserMoves(e.target.value)}
-          required
-          rows={4}
-          disabled={!isStarted}
-        />
+
+        {userMoves.map((move, index) => (
+          <div key={index} className="move-input">
+            <label>Move {index + 1}:</label>
+            <input
+              type="number"
+              min="1"
+              max={diskCount}
+              placeholder="Disk #"
+              value={move.disk}
+              onChange={(e) => handleMoveChange(index, "disk", e.target.value)}
+              disabled={!isStarted}
+              required
+            />
+            <select
+              value={move.from}
+              onChange={(e) => handleMoveChange(index, "from", e.target.value)}
+              disabled={!isStarted}
+              required
+            >
+              <option value="">From</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+            </select>
+            →
+            <select
+              value={move.to}
+              onChange={(e) => handleMoveChange(index, "to", e.target.value)}
+              disabled={!isStarted}
+              required
+            >
+              <option value="">To</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+            </select>
+          </div>
+        ))}
+
         <button type="submit" disabled={!isStarted}>Submit Answer</button>
         <button type="button" onClick={resetGame}>Reset</button>
       </form>
@@ -151,10 +198,7 @@ const TowerOfHanoi = () => {
 
           <h4>
             🔁 Recursive Solution
-            <button
-              onClick={() => setShowRecursive(!showRecursive)}
-              className="toggle-btn"
-            >
+            <button onClick={() => setShowRecursive(!showRecursive)} className="toggle-btn">
               {showRecursive ? "Hide" : "Show"}
             </button>
           </h4>
@@ -169,10 +213,7 @@ const TowerOfHanoi = () => {
 
           <h4>
             🔂 Iterative Solution
-            <button
-              onClick={() => setShowIterative(!showIterative)}
-              className="toggle-btn"
-            >
+            <button onClick={() => setShowIterative(!showIterative)} className="toggle-btn">
               {showIterative ? "Hide" : "Show"}
             </button>
           </h4>
@@ -189,5 +230,6 @@ const TowerOfHanoi = () => {
     </div>
   );
 };
+
 
 export default TowerOfHanoi;
