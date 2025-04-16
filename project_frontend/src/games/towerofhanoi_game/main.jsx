@@ -92,8 +92,8 @@ const TowerOfHanoi = () => {
 
   return (
     <div className="hanoi-container">
-      <h2>🗼 Tower of Hanoi (3-Peg - Text + Visual)</h2>
-      <p>Disks this round: <strong>{diskCount}</strong></p>
+      <h2>Tower of Hanoi (3-Peg) </h2>
+      <h3>Disks for this round: <strong>{diskCount}</strong></h3>
 
       <div className="visual-board">
         {["A", "B", "C"].map((peg, pegIndex) => (
@@ -126,7 +126,7 @@ const TowerOfHanoi = () => {
       <form onSubmit={handleSubmit} className="hanoi-form">
         <input
           type="text"
-          placeholder="Your Name"
+          placeholder="Enter Your Name"
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
           required
@@ -134,16 +134,18 @@ const TowerOfHanoi = () => {
         />
         <input
           type="number"
-          placeholder="Your Move Count"
+          placeholder="Enter Your Move Count"
           value={userMoveCount}
           onChange={handleMoveCountChange}
           required
           disabled={!isStarted}
           min={1}
         />
-
+         <p>Enter sequence of moves ([disk number] Disk [From] → [To]) </p>
         {userMoves.map((move, index) => (
+          
           <div key={index} className="move-input">
+          
             <label>Move {index + 1}:</label>
             <input
               type="number"
@@ -185,7 +187,7 @@ const TowerOfHanoi = () => {
         <button type="button" onClick={resetGame}>Reset</button>
       </form>
 
-      <p>⏱️ Time Elapsed: <strong>{timer}s</strong></p>
+      <h3>⏱️ Time Elapsed: <strong>{timer}s</strong></h3>
 
       {result && (
         <div className="result">
