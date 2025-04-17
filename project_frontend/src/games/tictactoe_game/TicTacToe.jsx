@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './TicTacToe.css';
-import { getBestMoveMinimax } from './minimax';
-import { getBestMoveHeuristic } from './Heuristic';
+// Import logical algorithm functions
+import { getBestMoveMinimaxLite } from './minimaxLite';
+import { getBestMoveHeuristicLite } from './heuristicLite';
+
+// Import the computer's move strategy handler (with randomness)
+import { computerMove } from './computerMoveStrategy';
+
+// Import the winner/draw check function
 import { checkWinner } from './checkWinner';
 
 const emptyBoard = Array(5).fill(null).map(() => Array(5).fill(null));
@@ -26,24 +32,9 @@ const TicTacToe = () => {
     setPlayerTurn(false);
   };
 
-  const computerMove = () => {
-    const start = performance.now();
-    const best = getBestMoveHeuristic(board, 'O'); // or use getBestMoveMinimax(board, 'O')
-    const end = performance.now();
-
-    if (best) {
-      const updated = board.map(r => [...r]);
-      updated[best.row][best.col] = 'O';
-      setBoard(updated);
-    }
-
-    console.log('Computer move time (ms):', (end - start).toFixed(2));
-    setPlayerTurn(true);
-  };
-
   useEffect(() => {
     const winner = checkWinner(board);
-
+  
     if (winner) {
       setGameOver(true);
       if (winner === 'X') {
@@ -55,11 +46,17 @@ const TicTacToe = () => {
       }
       return;
     }
-
+  
     if (!playerTurn) {
-      setTimeout(() => computerMove(), 500);
+      setTimeout(() => {
+        // Pass the algorithm and the player ('O') to computerMove
+        const newBoard = computerMove(board, 'minimax', 'O');
+        setBoard(newBoard); // Update the board after computer's move
+        setPlayerTurn(true); // Switch back to player's turn
+      }, 500);
     }
-  }, [board, playerTurn]);
+  }, [board, playerTurn, playerName]);
+  
 
   const resetGame = () => {
     setBoard(emptyBoard);
