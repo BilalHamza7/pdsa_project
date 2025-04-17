@@ -11,7 +11,6 @@ app.use(express.json());
 const tictactoeRoute = require('./routes/tictactoe');
 app.use('/api/tictactoe', tictactoeRoute);
 
-<<<<<<< HEAD
 
 // TIC TAC TOE
 // app.post('/api/tictactoe', async (req, res) => {                 // sample
@@ -64,10 +63,3 @@ app.post('/api/eightqueenpuzzle/solutions', async (req, res) => {
 app.listen(5000, () => {
     console.log('Express server running on port 5000');
 });
-=======
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
->>>>>>> 26ab972cb6dc05f829335017962abea6436d9e6d
