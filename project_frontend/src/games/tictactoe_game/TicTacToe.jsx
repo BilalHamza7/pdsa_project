@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './TicTacToe.css';
 import { getBestMoveMinimax } from './minimax';
 import { getBestMoveHeuristic } from './Heuristic';
@@ -8,6 +9,8 @@ const emptyBoard = Array(5).fill(null).map(() => Array(5).fill(null));
 const isDraw = board => board.flat().every(cell => cell);
 
 const TicTacToe = () => {
+  const navigate = useNavigate();
+
   const [board, setBoard] = useState(emptyBoard);
   const [playerTurn, setPlayerTurn] = useState(true);
   const [message, setMessage] = useState('');
@@ -105,7 +108,10 @@ const TicTacToe = () => {
 
           {message && <div className="message">{message}</div>}
 
-          <button className="restart-btn" onClick={resetGame}>Restart</button>
+          <div className="button-group">
+            <button className="quit-btn" onClick={() => navigate('/')}>Quit</button>
+            <button className="restart-btn" onClick={resetGame}>Restart</button>
+          </div>
         </>
       )}
     </div>

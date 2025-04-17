@@ -1,21 +1,19 @@
-/* File: D:/pdsa_project/project_frontend/src/games/tictactoe_game/TicTacToe.css */
-
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap');
 
+/* Global Container */
 .tictactoe-container {
   min-height: 100vh;
-  background-image: url('https://plus.unsplash.com/premium_photo-1673735396428-d51dc2a7a62d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+  padding: 2rem;
+  background-image: url('https://img.freepik.com/free-vector/glowing-light-effects-collection-isolated-dark-background_260559-192.jpg?t=st=1744885567~exp=1744889167~hmac=0db090e55cc82ba643e7116b304c2a9eccea8f89d4bd5674bf5af35b8684ca34&w=1380');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-family: 'Playfair Display', serif;
-  padding: 2rem;
-  color: #71215c;
+  color: #104a48;
   animation: fadeIn 1s ease-in-out;
 }
 
@@ -24,34 +22,36 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Header */
 h1 {
   font-family: 'Playfair Display', serif;
-  color: #1f0215;
   font-size: 3rem;
+  color: #e2d0db;
   text-shadow: 2px 2px #d7ccc8;
   margin-bottom: 2rem;
 }
 
+/* Game Board */
 .board {
   display: grid;
   grid-template-columns: repeat(5, 80px);
   gap: 12px;
-  background: #c6b295;
   padding: 20px;
+  background: #c8a97a;
+  border: 2px solid #7e5606;
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  border: 2px solid #fae9e3;
 }
 
+/* Game Cell */
 .cell {
   width: 80px;
   height: 80px;
-  background: #fffaf5;
-  border: 2px solid #a1887f;
+  background: #ebe9e2;
+  border: 3px solid #768312;
   border-radius: 10px;
   font-size: 2rem;
   font-weight: bold;
-  color: hsl(311, 73%, 30%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,99 +59,59 @@ h1 {
   transition: transform 0.2s, background 0.3s, box-shadow 0.3s;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 }
-/* Color for X (Electric Purple) */
-.cell-x {
-  color: #13cb26;
-}
 
-/* Color for O (Sky Blue) */
-.cell-o {
-  color: #e02909;
-  
-}
-
+/* Cell Hover */
 .cell:hover {
   transform: scale(1.08);
   background: #f5ebe0;
   box-shadow: 0 0 10px rgba(78, 52, 46, 0.2);
 }
 
-/* Change color for X (Electric Purple) */
-.cell.x {
-  color: #bf00ff;
-}
+/* Player Colors */
+.cell-x, .cell.x { color: #13cb26; } /* Custom or override with green */
+.cell-o, .cell.o { color: #e02909; } /* Custom or override with red */
+.cell.x { color: #bf00ff; }           /* Electric Purple */
+.cell.o { color: #00bcd4; }           /* Sky Blue */
 
-/* Change color for O (Sky Blue) */
-.cell.o {
-  color: #00bcd4;
-}
-
-
+/* Game Message */
 .message {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1e096f;
+  color: #92db0a;
   text-shadow: 1px 1px #d7ccc8;
   margin-bottom: 1.2rem;
 }
 
-.restart-btn {
-  padding: 0.75rem 1.5rem;
-  background-color: #d44313;
-  color: #fffaf5;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  margin-top: 1rem;
-}
-
-.restart-btn:hover {
-  background-color: #d81922;
-  transform: scale(1.05);
-}
-
-.quit-btn:hover {
-  background-color: #c0392b;
-}
-
-/* Add this to your existing CSS for positioning buttons */
-.restart-btn,
-.quit-btn {
+/* Buttons Group */
+.button-group {
+  display: flex;
+  gap: 1rem;
   position: absolute;
   top: 20px;
   right: 20px;
+  z-index: 10;
 }
 
+/* Shared Button Styles */
+.restart-btn,
 .quit-btn {
-  background-color: #e74c3c;
-  color: white;
-  font-size: 16px;
-  padding: 30px 60px;
-  border: none;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.quit-btn:hover {
-  background-color: #c0392b;
-}
-
-/* Style for restart button */
-.restart-btn {
+  font-size: 1rem;
   padding: 0.75rem 1.5rem;
-  background-color: #d44313;
-  color: #fffaf5;
   border: none;
   border-radius: 8px;
   font-weight: bold;
-  font-size: 1rem;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease, transform 0.2s ease;
+  position: absolute;
+  top: 20px;
+}
+
+/* Restart Button */
+.restart-btn {
+  right: 140px;
+  background-color: #c72626;
+  color: #fffaf5;
 }
 
 .restart-btn:hover {
@@ -159,36 +119,48 @@ h1 {
   transform: scale(1.05);
 }
 
-/* Global styles for name form */
+/* Quit Button */
+.quit-btn {
+  right: 20px;
+  background-color: #f3bb12;
+  color: #fffaf5;
+}
+
+.quit-btn:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+/* Name Input Form */
 .name-form {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
-  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
   padding: 2rem;
   border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .name-input {
+  width: 280px;
   padding: 0.75rem 1.2rem;
   font-size: 1.2rem;
-  border: 2px solid #188e24;
+  border: 2px solid #075f0f;
   border-radius: 10px;
   outline: none;
   font-family: 'Playfair Display', serif;
-  color: #1329d7;
+  color: #07342a;
   background-color: #fffaf5;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-  transition: border 0.3s ease;
-  width: 280px;
   text-align: center;
+  transition: border 0.3s ease;
 }
 
 .name-input:focus {
-  border-color: #3f0939;
+  border-color: #05313a;
 }
 
 .name-submit-btn {
@@ -205,11 +177,11 @@ h1 {
 }
 
 .name-submit-btn:hover {
-  background-color: #1f77bf;
+  background-color: #0f7e6d;
   transform: scale(1.05);
 }
 
-/* Responsive layout */
+/* Responsive Design */
 @media (max-width: 600px) {
   .board {
     grid-template-columns: repeat(5, 60px);
@@ -230,15 +202,14 @@ h1 {
     font-size: 1rem;
     padding: 0.6rem 1.2rem;
   }
+
   .quit-btn {
-    background-color: #e74c3c;
-    color: white;
-    font-size: 16px;
+    font-size: 14px;
     padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    margin-top: 10px;
   }
-  
- 
+
+  .button-group {
+    top: 10px;
+    right: 10px;
+  }
 }
