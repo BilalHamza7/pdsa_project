@@ -1,151 +1,220 @@
 .hanoi-container {
   max-width: 800px;
-  margin:  auto;
+  margin: auto;
   padding: 1rem;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  font-family: sans-serif;
-  background-color: #f9f9f9;
+border: 2px solid #ccc;
+border-radius: 8px;
+font-family: sans-serif;
+background-color: #f9f9f9;
   text-align: center;
 }
 
 .hanoi-container h2 {
-  text-align: center;
+  font-size: 2.5rem;
+text-align: center;
+color:	#191970;
+
+}
+
+.hanoi-container h3{
+  font-size: 1.2rem;
+  color:#e60000;
 }
 
 .hanoi-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 1rem;
+display: flex;
+flex-direction: column;
+gap: 10px;
+margin-top: 1rem;
+}
+
+.hanoi-form p{
+  font-size: 1rem;
+  text-align: left;
 }
 
 .hanoi-form input,
+.hanoi-form select,
 .hanoi-form textarea {
-  padding: 8px;
-  font-size: 1rem;
+padding: 8px;
+font-size: 1rem;
+border-radius: 4px;
+border: 1px solid #ccc;
 }
 
 .hanoi-form button {
-  padding: 10px;
-  margin-top: 0.5rem;
+padding: 10px;
+margin-top: 0.5rem;
+font-size: 1rem;
+cursor: pointer;
+border-radius: 5px;
+border: none;
+background-color: #00468B;
+color: white;
+
+}
+
+.hanoi-form button:hover {
+  background-color: #4b9ce2; /* A nicer blue on hover */
+  color: white;
+  transition: all 0.2s ease;
+}
+
+
+
+.hanoi-form button:disabled{
+ background-color: #D3D3D3;
+ color:grey;
+} 
+
+
+
+.result {
+  background-color: #f9f9f9;
+  border: 2px solid #ccc;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.result h3 {
+  margin-bottom: 1rem;
+  color: 	#005073 ;
+  font-size: 2rem;
+  padding-bottom: 1rem;
+}
+
+.result h4 {
+  margin-top: 1.2rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.1rem;
+  color: #107dac;
+}
+
+.toggle-btn {
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  background-color: #23b13a;
+  color:white;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-btn:hover {
+  background-color: red;
+}
+
+.result ol {
+  margin-left: 1.5rem;
+  padding-left: 1rem;
+  list-style-type: decimal;
+  color: #333;
+  text-align: left;
+  
+}
+
+.result p {
+  margin: 0.3rem 0;
+  text-align: left;
+  padding-bottom: 1rem;
+  font-size: larger;
+  font-family:'Times New Roman', Times, serif;
+}
+
+.visual-board {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  margin: 2rem auto;
+  max-width: 600px;
+  height: 350px;
+  background-color: #f2f2f2;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.peg {
+  position: relative;
+  width: 100px;
+  height: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 10px;
+  
+}
+
+.peg::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 10px;
+  height: 90%;
+  background-color: #888;
+  border-radius: 4px;
+  z-index: 0;
+}
+
+.peg-label {
+  margin-top: 10px;
+  font-weight: bold;
   font-size: 1rem;
+  text-align: center;
+  z-index: 1;
+  position: relative;
+}
+
+.disk {
+  height: 21px;
+  margin: 3px 0;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  line-height: 20px;
+  z-index: 1;
+  position: relative;
+}
+
+.start-btn {
+  margin: 1rem 0;
+  padding: 10px 20px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  font-size: 1.1rem;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-.result {
-    background-color: #f9f9f9;
-    border: 2px solid #ccc;
-    padding: 1.5rem;
-    border-radius: 10px;
-    margin-top: 1.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .result h3 {
-    margin-bottom: 1rem;
-    color: #333;
-  }
-  
-  .result h4 {
-    margin-top: 1.2rem;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-size: 1.1rem;
-    color: #444;
-  }
-  
-  .toggle-btn {
-    padding: 5px 12px;
-    font-size: 0.85rem;
-    background-color: #e0e0e0;
-    color: #333;
-    border: 1px solid #bbb;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .toggle-btn:hover {
-    background-color: #d3d3d3;
-  }
-  
-  .result ol {
-    margin-left: 1.5rem;
-    padding-left: 1rem;
-    list-style-type: decimal;
-    color: #333;
-  }
-  
-  .result p {
-    margin: 0.3rem 0;
-  }
-  
-  .visual-board {
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-end;
-    margin: 2rem auto;
-    max-width: 600px;
-    height: 350px;
-    background-color: #f2f2f2;
-    padding: 1rem;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    
-  }
-  
-  .peg {
-    position: relative;
-    width: 100px;
-    height: 100%;
-    display: flex;
-    flex-direction: column-reverse;
-    align-items: center;
-    justify-content: flex-start;
-    padding-top: 10px;
-  }
-  
-  .peg::before {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    width: 10px;
-    height: 90%;
-    background-color: #888;
-    border-radius: 4px;
-    z-index: 0; /* Behind disks */
-  }
-  
-  .peg-label {
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 1rem;
-    text-align: center;
-    z-index: 1;
-    position: relative;
-  }
-  
-  .disk {
-    height: 21px;
-    margin: 3px 0;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    line-height: 20px;
-    z-index: 1;
-    position: relative;
-  }
-  .start-btn {
-    margin: 1rem 0;
-    padding: 10px 20px;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    font-size: 1.1rem;
-    border-radius: 5px;
-  }
+/* New styling for structured user move input */
+.move-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.move-input label {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.move-input input[type="number"] {
+  width: 70px;
+}
+
+.move-input select {
+  width: 70px;
+}
