@@ -12,13 +12,13 @@ background-color: #f9f9f9;
 .hanoi-container h2 {
   font-size: 2.5rem;
 text-align: center;
-color: #00004B;
+color:	#191970;
 
 }
 
 .hanoi-container h3{
-  font-size: 1.3rem;
-  color: #8B0000;
+  font-size: 1.2rem;
+  color:#e60000;
 }
 
 .hanoi-form {
@@ -26,6 +26,11 @@ display: flex;
 flex-direction: column;
 gap: 10px;
 margin-top: 1rem;
+}
+
+.hanoi-form p{
+  font-size: 1rem;
+  text-align: left;
 }
 
 .hanoi-form input,
@@ -44,12 +49,30 @@ font-size: 1rem;
 cursor: pointer;
 border-radius: 5px;
 border: none;
+background-color: #00468B;
+color: white;
+
 }
+
+.hanoi-form button:hover {
+  background-color: #4b9ce2; /* A nicer blue on hover */
+  color: white;
+  transition: all 0.2s ease;
+}
+
+
+
+.hanoi-form button:disabled{
+ background-color: #D3D3D3;
+ color:grey;
+} 
+
+
 
 .result {
   background-color: #f9f9f9;
   border: 2px solid #ccc;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 10px;
   margin-top: 1.5rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -57,7 +80,9 @@ border: none;
 
 .result h3 {
   margin-bottom: 1rem;
-  color: #333;
+  color: 	#005073 ;
+  font-size: 2rem;
+  padding-bottom: 1rem;
 }
 
 .result h4 {
@@ -67,14 +92,14 @@ border: none;
   align-items: center;
   gap: 1rem;
   font-size: 1.1rem;
-  color: #444;
+  color: #107dac;
 }
 
 .toggle-btn {
   padding: 5px 12px;
   font-size: 0.85rem;
-  background-color: #e0e0e0;
-  color: #333;
+  background-color: #23b13a;
+  color:white;
   border: 1px solid #bbb;
   border-radius: 5px;
   cursor: pointer;
@@ -82,7 +107,7 @@ border: none;
 }
 
 .toggle-btn:hover {
-  background-color: #d3d3d3;
+  background-color: red;
 }
 
 .result ol {
@@ -90,10 +115,16 @@ border: none;
   padding-left: 1rem;
   list-style-type: decimal;
   color: #333;
+  text-align: left;
+  
 }
 
 .result p {
   margin: 0.3rem 0;
+  text-align: left;
+  padding-bottom: 1rem;
+  font-size: larger;
+  font-family:'Times New Roman', Times, serif;
 }
 
 .visual-board {

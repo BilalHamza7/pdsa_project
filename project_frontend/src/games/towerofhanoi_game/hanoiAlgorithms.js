@@ -1,5 +1,5 @@
-// Recursive solution for Tower of Hanoi
-export const solveHanoiRecursive = (n, source, destination, auxiliary, result = []) => {
+
+export const solveHanoiRecursive = (n, source, destination, auxiliary, result = []) => { // Recursive solution for Tower of Hanoi
   const recordMove = (disk, from, to) => {
     result.push(`${disk} Disk ${from} → ${to}`);
   };

@@ -124,6 +124,7 @@ const TowerOfHanoi = () => {
       {!isStarted && <button className="start-btn" onClick={handleStart}>Start Game</button>}
 
       <form onSubmit={handleSubmit} className="hanoi-form">
+        <p>Player's Name:</p>
         <input
           type="text"
           placeholder="Enter Your Name"
@@ -132,26 +133,29 @@ const TowerOfHanoi = () => {
           required
           disabled={!isStarted}
         />
+        <p>Total Number of Moves :</p>
         <input
           type="number"
-          placeholder="Enter Your Move Count"
+          placeholder="Enter Your Move Count (e.g. 7)"
           value={userMoveCount}
           onChange={handleMoveCountChange}
           required
           disabled={!isStarted}
           min={1}
         />
-         <p>Enter sequence of moves ([disk number] Disk [From] → [To]) </p>
+        
+        <p>Enter your move sequence : </p>
         {userMoves.map((move, index) => (
           
           <div key={index} className="move-input">
           
             <label>Move {index + 1}:</label>
+            
             <input
               type="number"
               min="1"
               max={diskCount}
-              placeholder="Disk #"
+              placeholder="Disk No:"
               value={move.disk}
               onChange={(e) => handleMoveChange(index, "disk", e.target.value)}
               disabled={!isStarted}
@@ -183,23 +187,23 @@ const TowerOfHanoi = () => {
           </div>
         ))}
 
-        <button type="submit" disabled={!isStarted}>Submit Answer</button>
-        <button type="button" onClick={resetGame}>Reset</button>
+        <button type="submit" disabled={!isStarted}>Submit Answer</button>  
+        <button type="button-reset" onClick={resetGame}>Reset</button> 
       </form>
 
-      <h3>⏱️ Time Elapsed: <strong>{timer}s</strong></h3>
+      <h3>⏱️ Time Elapsed: {timer}s</h3>
 
       {result && (
         <div className="result">
           <h3>Game Result</h3>
           <p><strong>Player:</strong> {result.playerName}</p>
           <p><strong>Disks:</strong> {result.diskCount}</p>
-          <p><strong>Correct:</strong> {result.isCorrect ? "✅ Yes" : "❌ No"}</p>
+          <p><strong>Result:</strong> {result.isCorrect ? "🏆 WIN" : "❌ Lose"}</p>
           <p><strong>Your Move Count:</strong> {result.userMoveCount}</p>
           <p><strong>Time Taken:</strong> {result.timeTaken}s</p>
 
           <h4>
-            🔁 Recursive Solution
+            Recursive Solution
             <button onClick={() => setShowRecursive(!showRecursive)} className="toggle-btn">
               {showRecursive ? "Hide" : "Show"}
             </button>
@@ -214,7 +218,7 @@ const TowerOfHanoi = () => {
           )}
 
           <h4>
-            🔂 Iterative Solution
+            Iterative Solution
             <button onClick={() => setShowIterative(!showIterative)} className="toggle-btn">
               {showIterative ? "Hide" : "Show"}
             </button>
