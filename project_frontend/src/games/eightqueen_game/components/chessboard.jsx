@@ -5,17 +5,38 @@ export default function Chessboard({ onBoardChange }) {
 
     const [board, setBoard] = useState(Array(8).fill(null).map(() => Array(8).fill(false)));
 
+    // const toggleQueen = (row, col) => {
+    //     const newBoard = board.map(row => [...row]);
+    //     const currentQueenCount = newBoard.flat().filter(Boolean).length; // counts of true value in the board
+
+    //     if (!newBoard[row][col] && currentQueenCount >= 8) {
+    //         alert("You can only place 8 queens.");
+    //         return;
+    //     }
+
+    //     newBoard[row][col] = !newBoard[row][col]; // changes the chosen position to true or false
+    //     setBoard(newBoard); // updates the board [row,col] with true/false
+    // };
+
     const toggleQueen = (row, col) => {
-        const newBoard = board.map(row => [...row]);
-        const currentQueenCount = newBoard.flat().filter(Boolean).length; // counts of true value in the board
+        const newBoard = board.map((r, i) => {
+            // Creates a new row, if it's the target row (same as `row`), copy the row
+            if (i === row) {
+                return [...r]; // Copies the specific row
+            }
+            return r; // Leaves the other rows unchanged
+        });
+
+        const currentQueenCount = newBoard.flat().filter(cell => cell === true).length; // counts how many true values (queens)
 
         if (!newBoard[row][col] && currentQueenCount >= 8) {
             alert("You can only place 8 queens.");
             return;
         }
 
-        newBoard[row][col] = !newBoard[row][col]; // changes the chosen position to true or false
-        setBoard(newBoard); // updates the board [row,col] with true/false
+        // Toggle the queen on or off (true/false)
+        newBoard[row][col] = !newBoard[row][col];
+        setBoard(newBoard); // Update the state with the new board
     };
 
     useEffect(() => {
@@ -67,7 +88,7 @@ export default function Chessboard({ onBoardChange }) {
                     <p>7</p>
                     <p>8</p>
                 </div>
-                <button className='button_style' style={{ backgroundColor:'rgb(46, 15, 21, .5)' }} onClick={() => resetBoard()}>Clear Board</button>
+                <button className='button_style' style={{ backgroundColor: 'rgb(46, 15, 21, .5)' }} onClick={() => resetBoard()}>Clear Board</button>
             </div>
         </div>
     )

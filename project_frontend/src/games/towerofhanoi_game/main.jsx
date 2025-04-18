@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   solveHanoiRecursive,
   solveHanoiIterative,
-} from "./hanoiAlgorithms";
-import "./TowerOfHanoi.css";
+} from "./hanoiAlgorithms"; 
+import "./TowerOfHanoi.css"; 
 
 const getRandomDisks = () => Math.floor(Math.random() * 6) + 5;
 
@@ -51,14 +51,23 @@ const TowerOfHanoi = () => {
     }
 
     setIsRunning(false);
+    // Measure Recursive Time
+    const t0Recursive = performance.now();
     const recursiveSolution = solveHanoiRecursive(diskCount, "A", "C", "B");
+    const t1Recursive = performance.now();
+    const recursiveTimeMs = (t1Recursive - t0Recursive).toFixed(2);
+
+    // Measure Iterative Time
+    const t0Iterative = performance.now();
     const iterativeSolution = solveHanoiIterative(diskCount, "A", "C", "B");
+    const t1Iterative = performance.now();
+    const iterativeTimeMs = (t1Iterative - t0Iterative).toFixed(2);
 
     const formattedUserMoves = userMoves.map(move => `${move.disk} Disk ${move.from.toUpperCase()}→${move.to.toUpperCase()}`);
 
     const isCorrect =
-      formattedUserMoves.length === recursiveSolution.length &&
-      JSON.stringify(formattedUserMoves) === JSON.stringify(recursiveSolution);
+    formattedUserMoves.length === recursiveSolution.length &&
+    JSON.stringify(formattedUserMoves) === JSON.stringify(recursiveSolution);
 
     setResult({
       playerName,
@@ -69,6 +78,8 @@ const TowerOfHanoi = () => {
       timeTaken: timer,
       recursiveTime: recursiveSolution.length,
       iterativeTime: iterativeSolution.length,
+      recursiveTimeMs,
+      iterativeTimeMs,
       recursiveSolution,
       iterativeSolution,
     });
@@ -209,6 +220,8 @@ const TowerOfHanoi = () => {
             </button>
           </h4>
           <p><strong>Total Moves:</strong> {result.recursiveTime}</p>
+          <p><strong>Execution Time:</strong> {result.recursiveTimeMs} ms</p>
+
           {showRecursive && (
             <ol>
               {result.recursiveSolution.map((move, index) => (
@@ -224,6 +237,8 @@ const TowerOfHanoi = () => {
             </button>
           </h4>
           <p><strong>Total Moves:</strong> {result.iterativeTime}</p>
+          <p><strong>Execution Time:</strong> {result.iterativeTimeMs} ms</p>
+
           {showIterative && (
             <ol>
               {result.iterativeSolution.map((move, index) => (

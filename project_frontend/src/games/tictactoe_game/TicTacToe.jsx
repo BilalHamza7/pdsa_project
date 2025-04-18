@@ -23,6 +23,7 @@ const TicTacToe = () => {
   const [gameOver, setGameOver] = useState(false);
   const [playerName, setPlayerName] = useState('');
   const [nameSubmitted, setNameSubmitted] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);  // To toggle information display
 
   const makeMove = (row, col) => {
     if (board[row][col] || gameOver) return;
@@ -72,6 +73,10 @@ const TicTacToe = () => {
     }
   };
 
+  const toggleInfoDisplay = () => {
+    setShowInfo(!showInfo);  // Toggle the information display
+  };
+
   return (
     <div className="tictactoe-container">
       <h1>Tic Tac Toe</h1>
@@ -85,10 +90,11 @@ const TicTacToe = () => {
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
           />
-          <button type="submit" className="name-submit-btn">Let's Start Game</button>
+          <button type="submit" className="name-submit-btn"> Let's start the game!</button>
         </form>
       ) : (
         <>
+        
           <div className="board">
             {board.map((row, i) =>
               row.map((cell, j) => (
@@ -108,7 +114,24 @@ const TicTacToe = () => {
           <div className="button-group">
             <button className="quit-btn" onClick={() => navigate('/')}>Quit</button>
             <button className="restart-btn" onClick={resetGame}>Restart</button>
+            <button className="info-btn" onClick={toggleInfoDisplay}>Info</button>
           </div>
+
+          {showInfo && (
+        <div className="info-container">
+  <div className="info-content">
+    <button className="close-info-btn" onClick={toggleInfoDisplay}>❌</button>
+    <h2>🎮 Tic Tac Toe Game 🎮</h2>
+    <p><strong>Welcome to the Tic Tac Toe game! 🎉</strong></p>
+    <p><i>Get ready to challenge yourself and have fun! 😎</i></p>
+    <p>The goal of the game is to get <strong>three of your marks</strong> (either X or O) in a row, column, or diagonal. 🏆</p>
+    <p>The computer will make its move automatically based on an algorithm. 🤖</p>
+    <p><strong>Keep playing, strategize well, and claim victory! 💪</strong></p>
+    <p><i>Every move counts. Best of luck! 🍀</i></p>
+  </div>
+</div>
+
+          )}
         </>
       )}
     </div>
