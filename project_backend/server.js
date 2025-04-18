@@ -13,17 +13,17 @@ app.use('/api/tictactoe', tictactoeRoute);
 
 
 // TIC TAC TOE
-// app.post('/api/tictactoe', async (req, res) => {                 // sample
-//     const round_number = 10; const player_name = "PDSA";
-//     const { data, error } = await supabase
-//         .from('tic_tac_toe')
-//         .insert([{ round_number, player_name }]);
+app.post('/api/tictactoe', async (req, res) => {                 // sample
+    const round_number = 10; const player_name = "PDSA";
+    const { data, error } = await supabase
+        .from('tic_tac_toe')
+        .insert([{ round_number, player_name }]);
 
-//     if (error) return res.status(400).json({ error });
-//     res.json(data);
-//     console.log(data);
-//     console.error(error);
-// });
+    if (error) return res.status(400).json({ error });
+    res.json(data);
+    console.log(data);
+    console.error(error);
+});
 
 
 //Traveling Salesman Problem
