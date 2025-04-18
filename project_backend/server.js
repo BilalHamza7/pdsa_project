@@ -1,29 +1,31 @@
 // server.js
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-
+import express from 'express';
+import cors from 'cors';
+import env from 'dotenv';
+import tictactoeRoute from './routes/tictactoe.js';
 const app = express();
+env.config();
+
 app.use(cors());
 app.use(express.json());
 
+
 // Import the game routes
-const tictactoeRoute = require('./routes/tictactoe');
 app.use('/api/tictactoe', tictactoeRoute);
 
 
 // TIC TAC TOE
-// app.post('/api/tictactoe', async (req, res) => {                 // sample
-//     const round_number = 10; const player_name = "PDSA";
-//     const { data, error } = await supabase
-//         .from('tic_tac_toe')
-//         .insert([{ round_number, player_name }]);
+app.post('/api/tictactoe', async (req, res) => {                 // sample
+    const round_number = 10; const player_name = "PDSA";
+    const { data, error } = await supabase
+        .from('tic_tac_toe')
+        .insert([{ round_number, player_name }]);
 
-//     if (error) return res.status(400).json({ error });
-//     res.json(data);
-//     console.log(data);
-//     console.error(error);
-// });
+    if (error) return res.status(400).json({ error });
+    res.json(data);
+    console.log(data);
+    console.error(error);
+});
 
 
 //Traveling Salesman Problem
