@@ -1,14 +1,15 @@
 // server.js
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
+import dotenv from 'dotenv';
+dotenv.config();
+import express, { json } from 'express';
+import cors from 'cors';
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(json());
 
 // Import the game routes
-const tictactoeRoute = require('./routes/tictactoe');
+import tictactoeRoute from './routes/tictactoe.js';
 app.use('/api/tictactoe', tictactoeRoute);
 
 
