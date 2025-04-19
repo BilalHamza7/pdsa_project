@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import './main.css';
 import Home from './games/home';
 import EightQueensGame from './games/eightqueen_game/components/main';
-import knightstour_main from './games/knighttour_game/main';
+import knightstour_main from './games/knighttour_game/knightstour_main';
 import TicTacToeGame from './games/tictactoe_game/main';
 import TowerOfHanoiGame from './games/towerofhanoi_game/main';
 import TravelingSalesmanGame from './games/travelingsalesman_game/main';
