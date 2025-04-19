@@ -1,4 +1,4 @@
-// checkWinner.jsx
+
 const isDraw = board => board.flat().every(cell => cell);
 
 export function checkWinner(board) {
