@@ -2,64 +2,24 @@
 import express from 'express';
 import cors from 'cors';
 import env from 'dotenv';
-import tictactoeRoute from './routes/tictactoe.js';
+import { createClient } from 'jsr:@supabase/supabase-js@2'
+
+import eightQueenRoutes from './routes/eightqueenspuzzle.js';
+
 const app = express();
 env.config();
 
 app.use(cors());
 app.use(express.json());
 
+export const supabase = createClient('https://utnftazcykytpjmjomzi.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0bmZ0YXpjeWt5dHBqbWpvbXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0NzUwMzMsImV4cCI6MjA2MDA1MTAzM30.Bgnnd6tmnGwIiBEtdfuinkSvpbZxBycIZIX0Z69iSK0')
+
 
 // Import the game routes
-app.use('/api/tictactoe', tictactoeRoute);
+app.use('/api/eightQueensPuzzle', eightQueenRoutes);   // Eight Queens Puzzle Games routes
 
 
-// TIC TAC TOE
-app.post('/api/tictactoe', async (req, res) => {                 // sample
-    const round_number = 10; const player_name = "PDSA";
-    const { data, error } = await supabase
-        .from('tic_tac_toe')
-        .insert([{ round_number, player_name }]);
 
-    if (error) return res.status(400).json({ error });
-    res.json(data);
-    console.log(data);
-    console.error(error);
-});
-
-
-//Traveling Salesman Problem
-
-
-//Tower of Hanoi
-
-
-//Eight Queen's Puzzle
-app.post('/api/eightqueenpuzzle', async (req, res) => {
-    const { data, error } = await supabase
-        .from('eight_queen_puzzle')
-        .insert([{ player_solution: { player_name: 'Bilal', solution: [7, 6, 5, 4, 3, 2, 1, 0] } }]);
-
-    if (error) return res.status(400).json({ error });
-    const result = res.json(data);
-    console.log(result);
-    console.error(error);
-});
-
-app.post('/api/eightqueenpuzzle/solutions', async (req, res) => {
-    const { count, solution, time_taken } = req.body();
-    const { data, error } = await supabase
-        .from('eight_queen_puzzle')
-        .insert([{ sequential_solution_count: count, sequential_solution: solution, sequential_time_taken: time_taken }]);
-
-    if (error) return res.status(400).json({ error });
-    const result = res.json(data);
-    console.log(result);
-    console.error(error);
-});
-
-
-//Knight Tour Problem
 
 
 app.listen(5000, () => {
