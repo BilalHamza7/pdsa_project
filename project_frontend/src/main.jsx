@@ -10,8 +10,6 @@ import TowerOfHanoiGame from './games/towerofhanoi_game/main';
 import TravelingSalesmanGame from './games/travelingsalesman_game/main';
 
 
-
-
 function App() {
   return (
     <BrowserRouter>
