@@ -1,9 +1,9 @@
 import React from 'react'
 
-const knightstour_main = () => {
+const Knightstour_main = () => {
   return (
     <div>knightstour_main</div>
   )
 }
 
-export default knightstour_main
+export default Knightstour_main
