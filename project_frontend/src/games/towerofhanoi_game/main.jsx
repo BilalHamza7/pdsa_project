@@ -246,9 +246,9 @@ const TowerOfHanoi = () => {
               ))}
             </ol>
           )}
-        </div>
-      )}
-    </div>
+        </div>  
+      )}  
+    </div> 
   );
 };
 

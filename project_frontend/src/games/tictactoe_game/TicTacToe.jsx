@@ -5,6 +5,7 @@ import './TicTacToe.css';
 import { getBestMoveMinimaxLite } from './minimaxLite';
 import { getBestMoveHeuristicLite } from './heuristicLite';
 
+
 // Import the computer's move strategy handler (with randomness)
 import { computerMove } from './computerMoveStrategy';
 
@@ -23,7 +24,8 @@ const TicTacToe = () => {
   const [gameOver, setGameOver] = useState(false);
   const [playerName, setPlayerName] = useState('');
   const [nameSubmitted, setNameSubmitted] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);  // To toggle information display
+  const [showInfo, setShowInfo] = useState(false); 
+  const [showMessage, setShowMessage] = useState(true); 
 
   const makeMove = (row, col) => {
     if (board[row][col] || gameOver) return;
@@ -52,8 +54,8 @@ const TicTacToe = () => {
       setTimeout(() => {
         // Pass the algorithm and the player ('O') to computerMove
         const newBoard = computerMove(board, 'minimax', 'O');
-        setBoard(newBoard); // Update the board after computer's move
-        setPlayerTurn(true); // Switch back to player's turn
+        setBoard(newBoard); 
+        setPlayerTurn(true); 
       }, 500);
     }
   }, [board, playerTurn, playerName]);
@@ -64,6 +66,7 @@ const TicTacToe = () => {
     setPlayerTurn(true);
     setGameOver(false);
     setMessage('');
+    setShowMessage(true); 
   };
 
   const handleNameSubmit = (e) => {
@@ -74,7 +77,11 @@ const TicTacToe = () => {
   };
 
   const toggleInfoDisplay = () => {
-    setShowInfo(!showInfo);  // Toggle the information display
+    setShowInfo(!showInfo);  
+  };
+
+  const closeMessage = () => {
+    setShowMessage(false); 
   };
 
   return (
@@ -94,7 +101,6 @@ const TicTacToe = () => {
         </form>
       ) : (
         <>
-        
           <div className="board">
             {board.map((row, i) =>
               row.map((cell, j) => (
@@ -109,7 +115,14 @@ const TicTacToe = () => {
             )}
           </div>
 
-          {message && <div className="message">{message}</div>}
+          {showMessage && message && (
+            <div className="message-container">
+              <div className="message">
+                <button className="close-btn" onClick={closeMessage}>❌</button>
+                <p>{message}</p>
+              </div>
+            </div>
+          )}
 
           <div className="button-group">
             <button className="quit-btn" onClick={() => navigate('/')}>Quit</button>
@@ -118,19 +131,23 @@ const TicTacToe = () => {
           </div>
 
           {showInfo && (
-        <div className="info-container">
-  <div className="info-content">
-    <button className="close-info-btn" onClick={toggleInfoDisplay}>❌</button>
-    <h2>🎮 Tic Tac Toe Game 🎮</h2>
-    <p><strong>Welcome to the Tic Tac Toe game! 🎉</strong></p>
-    <p><i>Get ready to challenge yourself and have fun! 😎</i></p>
-    <p>The goal of the game is to get <strong>three of your marks</strong> (either X or O) in a row, column, or diagonal. 🏆</p>
-    <p>The computer will make its move automatically based on an algorithm. 🤖</p>
-    <p><strong>Keep playing, strategize well, and claim victory! 💪</strong></p>
-    <p><i>Every move counts. Best of luck! 🍀</i></p>
-  </div>
+            <div className="info-container">
+              <div className="info-content">
+  <button className="close-info-btn" onClick={toggleInfoDisplay}>❌</button>
+  <h2>🎮 Welcome to the Ultimate 5x5 Tic Tac Toe Challenge! 🧠✨</h2>
+
+  <p>Your mission, should you choose to accept it: <strong>Get 5 X’s in a row</strong> — be it across rows, columns, or diagonals. 💡</p>
+
+  <p>But beware! 🤖 The computer is no slouch. It uses clever algorithms to try and outsmart you. Can you think faster? Move smarter? 🕵️‍♂️💥</p>
+
+  <p><i>Every game round is a battle of wits — make your move count!</i> ⏳</p>
+
+  <p><strong>Score high, beat the bot, and write your name into Tic Tac Toe history! 🏆🔥</strong></p>
+
+  <p><i>Ready? Let’s play. Let the best mind win! 🧠⚔️</i></p>
 </div>
 
+            </div>
           )}
         </>
       )}
