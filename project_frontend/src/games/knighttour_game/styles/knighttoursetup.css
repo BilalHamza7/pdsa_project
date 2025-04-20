@@ -1,0 +1,44 @@
+.knighttour-setup-container{
+    height: calc(53vh - 20px);
+    display: flex;
+    flex-direction: column;
+}
+.knighttour-setup-container h2{
+    margin: 10px auto;
+}
+.knighttour-setup-container .knighttour-setup-input{
+    display: grid;
+    align-items: center;
+    grid-template-rows: auto;
+    margin: 8px ;
+    font-size: 16px;
+}
+.knighttour-setup-container .knighttour-setup-input input,
+.knighttour-setup-container .knighttour-setup-input select{
+    height: 35px;
+    font-size: 14px;
+    border: none;
+    border-radius: 10px;
+    padding: 5px;
+    box-shadow: 1px 1px 10px #aaaaaa;
+}
+.knighttour-setup-container .knighttour-setup-input input:focus,
+.knighttour-setup-container .knighttour-setup-input select:focus{
+    border: 1px solid #E6B31E;
+    outline: none; 
+}
+.knighttour-setup-container .knighttour-setup-input button{
+    height: 45px;
+    border: none;
+    font-size: 16px;
+    margin-top: 10px;
+    box-shadow: 1px 1px 10px #aaaaaa;
+    background-color: #343434;
+    color: #FCFAF1;
+    border-radius: 10px;
+}
+.knighttour-setup-container .knighttour-setup-input button:active{
+    outline: none;
+    background-color: #CACACA;
+    color: #343434;
+}

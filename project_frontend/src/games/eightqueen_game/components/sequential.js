@@ -11,7 +11,7 @@ function isSafe(board, row, col) {
     return true;
 }
 
-function solveSequentially(row = 0, board = [], solutions = []) {
+async function solveSequentially(row = 0, board = [], solutions = []) {
     if (row === 8) {
         solutions.push([...board]); // Found a valid solution
         return;
@@ -24,20 +24,20 @@ function solveSequentially(row = 0, board = [], solutions = []) {
     }
 }
 
-export default function findSequentialSolutions() {
+export default async function findSequentialSolutions() {
     const start = performance.now();
     const solutions = [];
-    solveSequentially(0, [], solutions); // Start solving from row 0
+    await solveSequentially(0, [], solutions); // Start solving from row 0
     const end = performance.now();
     return {
         type: "sequential",
-        timeTaken: end - start,
+        timeTaken: +(end - start).toFixed(2),
         numberOfSolutions: solutions.length, // Number of solutions found
         solutions, // Array of valid solutions
     };  
 }
 
 // Run the algorithm and log results
-const result = findSequentialSolutions();
+const result = await findSequentialSolutions();
 console.log(`Found ${result.numberOfSolutions} solutions.`);
 console.log("Time taken:", result.timeTaken, "ms");
