@@ -132,7 +132,8 @@ export default function Main() {
   const handleSubmit = () => {
     try {
       setError('');
-  
+      if (!playerName) throw new Error("Player name is required.");
+      if (selectedCities.length < 2) throw new Error("Select at least 2 cities.");
       setIsSubmitted(true);
     } catch (err) {
       setError(err.message);
