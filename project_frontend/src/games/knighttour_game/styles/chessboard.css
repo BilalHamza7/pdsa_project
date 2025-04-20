@@ -6,7 +6,7 @@
     height: 100%;
 }
 
-.chessboard {
+.knighttour-chessboard-wrapper .chessboard {
     
     display: grid;
     grid-template-columns: repeat(8, 1fr);
