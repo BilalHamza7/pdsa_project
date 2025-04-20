@@ -1,0 +1,45 @@
+.knighttour-container-main{
+    padding: 10px 30px;
+}
+.title-container{
+    display: grid;
+    grid-template-columns: 90% auto;
+    grid-template-rows: auto;
+    align-items: center;
+    justify-items: center;
+}
+.title-container button {
+    height: 50px;
+    width: 100%;
+    font-size: 18px;
+    border-radius: 10px;
+    border: none;
+    background-color: #E6B31E;
+    box-shadow: 2px 2px 20px #aaaaaa;
+    transition: 0.3s ease, transform 0.2s ease;
+}
+
+.title-container button:hover {
+    transform: translateY(-1px); 
+    box-shadow: 4px 4px 20px #888888; 
+    cursor: pointer;
+}
+
+.knighttour-container-main .title-container h1{
+    margin: 10px auto;
+    color: #343434;
+}
+.knighttour-container-main p{
+    font-size: 19px;
+    padding: 10px;
+    box-shadow: 2px 2px 20px #aaaaaa;
+    border-radius: 10px;
+}
+.knighttour-container-secondary{
+    display: grid;
+    grid-template-columns: 30% 1fr;
+    column-gap: 20px;
+    border-radius: 10px;
+    padding:10px;
+    height: 53vh;
+}

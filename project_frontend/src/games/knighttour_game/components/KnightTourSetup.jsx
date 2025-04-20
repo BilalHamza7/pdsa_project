@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import '../styles/knighttoursetup.css'
 const KnightTourSetup = ({ onStart }) => {
   const [playerName, setPlayerName] = useState("");
   const [algorithm, setAlgorithm] = useState("backtracking");
@@ -23,10 +23,9 @@ const KnightTourSetup = ({ onStart }) => {
   };
 
   return (
-    <div style={{ marginBottom: "20px" }}>
-      <h2>Knight’s Tour Setup</h2>
-
-      <div>
+    <div className="knighttour-setup-container">
+        <h2>Knight’s Tour Setup</h2>
+      <div className='knighttour-setup-input'>
         <label>Player Name:</label><br />
         <input
           type="text"
@@ -35,16 +34,14 @@ const KnightTourSetup = ({ onStart }) => {
           placeholder="Enter your name"
         />
       </div>
-
-      <div>
+      <div className='knighttour-setup-input'>
         <label>Algorithm:</label><br />
         <select value={algorithm} onChange={(e) => setAlgorithm(e.target.value)}>
           <option value="backtracking">Backtracking</option>
           <option value="warnsdorff">Warnsdorff’s Rule</option>
         </select>
       </div>
-
-      <div>
+      <div className='knighttour-setup-input'>
         <label>Start Row (0 - {boardSize - 1}):</label><br />
         <input
           type="number"
@@ -54,8 +51,7 @@ const KnightTourSetup = ({ onStart }) => {
           onChange={(e) => setStartRow(e.target.value)}
         />
       </div>
-
-      <div>
+      <div className='knighttour-setup-input'>
         <label>Start Column (0 - {boardSize - 1}):</label><br />
         <input
           type="number"
@@ -65,9 +61,8 @@ const KnightTourSetup = ({ onStart }) => {
           onChange={(e) => setStartCol(e.target.value)}
         />
       </div>
-
-      <div style={{ marginTop: "10px" }}>
-        <button onClick={handleStartClick}>Start Game</button>
+      <div className='knighttour-setup-input'>
+          <button onClick={handleStartClick}>Start Game</button>
       </div>
     </div>
   );
