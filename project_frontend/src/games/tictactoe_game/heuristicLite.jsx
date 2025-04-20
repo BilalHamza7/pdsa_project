@@ -1,4 +1,3 @@
-// heuristicLite.js
 export function getBestMoveHeuristicLite(board, player) {
   const opponent = player === 'X' ? 'O' : 'X';
 
@@ -53,10 +52,5 @@ export function getBestMoveHeuristicLite(board, player) {
     }
   }
 
-  const move = bestMoves.length > 0
-    ? bestMoves[Math.floor(Math.random() * bestMoves.length)]
-    : null;
-
-  console.log("Heuristic Lite selected move:", move);
-  return move;
+  return bestMoves.length > 0 ? bestMoves[0] : null;
 }
