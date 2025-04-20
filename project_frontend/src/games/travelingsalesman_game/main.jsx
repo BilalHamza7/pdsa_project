@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const cities = ['A','B','C','D','E','F','G','H','I','J'];
+const cities = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
 const generateDistanceMatrix = () => {
   const matrix = Array(10).fill(null).map(() => Array(10).fill(0));
@@ -97,13 +97,22 @@ const tspDynamicProgramming = (start, selectedCities, matrix) => {
   return { distance: minDistance, route: selectedCities }; // Approx route only
 };
 
+const saveGameData = (data) => {
+  const games = JSON.parse(localStorage.getItem('tspGames') || '[]');
+  games.push(data);
+  localStorage.setItem('tspGames', JSON.stringify(games));
+};
+
 export default function Main() {
   const [distanceMatrix, setDistanceMatrix] = useState([]);
   const [homeCity, setHomeCity] = useState(null);
   const [selectedCities, setSelectedCities] = useState([]);
   const [playerName, setPlayerName] = useState('');
+  const [playerPath, setPlayerPath] = useState('');
   const [results, setResults] = useState(null);
   const [error, setError] = useState('');
+  const [pathFeedback, setPathFeedback] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
     const matrix = generateDistanceMatrix();
@@ -125,6 +134,33 @@ export default function Main() {
       setError('');
       if (!playerName) throw new Error("Player name is required.");
       if (selectedCities.length < 2) throw new Error("Select at least 2 cities.");
+      setIsSubmitted(true);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleCheckPath = () => {
+    try {
+      setError('');
+      setPathFeedback('');
+      if (!playerPath) throw new Error("Please enter a path.");
+      const inputCities = playerPath.split(',').map((c) => c.trim().toUpperCase());
+      const selectedCityNames = selectedCities.map((i) => cities[i]);
+      const invalidCities = inputCities.filter((c) => !selectedCityNames.includes(c));
+      if (invalidCities.length > 0) throw new Error(`Invalid cities: ${invalidCities.join(', ')}`);
+      if (new Set(inputCities).size !== inputCities.length) throw new Error("Duplicate cities in path.");
+      if (inputCities.length !== selectedCities.length) throw new Error("Path must include all selected cities exactly once.");
+
+      const cityToIndex = Object.fromEntries(cities.map((c, i) => [c, i]));
+      const playerRouteIndices = inputCities.map((c) => cityToIndex[c]);
+      let playerDistance = 0;
+      let current = homeCity;
+      for (let city of playerRouteIndices) {
+        playerDistance += distanceMatrix[current][city];
+        current = city;
+      }
+      playerDistance += distanceMatrix[current][homeCity];
 
       const start = homeCity;
 
@@ -151,14 +187,70 @@ export default function Main() {
           brute: (t1 - t0).toFixed(2),
           nearest: (t3 - t2).toFixed(2),
           dp: (t5 - t4).toFixed(2),
-        }
+        },
       };
 
       setResults(resultData);
 
+      const optimalDistance = brute.distance;
+      const optimalRoute = brute.route.map((i) => cities[i]);
+      if (playerDistance === optimalDistance) {
+        setPathFeedback(`Correct! Your path distance (${playerDistance} km) matches the optimal distance.`);
+        saveGameData({
+          playerName,
+          homeCity: cities[homeCity],
+          selectedCities: selectedCities.map((i) => cities[i]),
+          shortestRoute: inputCities,
+          distance: playerDistance,
+          times: resultData.times,
+          timestamp: new Date().toISOString(),
+        });
+      } else {
+        setPathFeedback(
+          `Incorrect. Your path distance is ${playerDistance} km, but the optimal distance is ${optimalDistance} km. Correct path: ${optimalRoute.join(' → ')}`
+        );
+      }
     } catch (err) {
       setError(err.message);
+      // Still compute and show results even if path is invalid
+      const start = homeCity;
+      const t0 = performance.now();
+      const brute = tspBruteForce(start, selectedCities, distanceMatrix);
+      const t1 = performance.now();
+      const t2 = performance.now();
+      const nearest = tspNearestNeighbor(start, selectedCities, distanceMatrix);
+      const t3 = performance.now();
+      const t4 = performance.now();
+      const dp = tspDynamicProgramming(start, selectedCities, distanceMatrix);
+      const t5 = performance.now();
+
+      const resultData = {
+        playerName,
+        homeCity: cities[homeCity],
+        selected: selectedCities.map((i) => cities[i]),
+        brute,
+        nearest,
+        dp,
+        times: {
+          brute: (t1 - t0).toFixed(2),
+          nearest: (t3 - t2).toFixed(2),
+          dp: (t5 - t4).toFixed(2),
+        },
+      };
+      setResults(resultData);
     }
+  };
+
+  const resetGame = () => {
+    setDistanceMatrix(generateDistanceMatrix());
+    setHomeCity(Math.floor(Math.random() * cities.length));
+    setSelectedCities([]);
+    setPlayerName('');
+    setPlayerPath('');
+    setResults(null);
+    setError('');
+    setPathFeedback('');
+    setIsSubmitted(false);
   };
 
   const styles = {
@@ -175,10 +267,11 @@ export default function Main() {
       border: 'none',
       borderRadius: 5,
       fontSize: 16,
-      cursor: 'pointer'
+      cursor: 'pointer',
     },
     error: { color: 'red' },
-    resultBox: { backgroundColor: '#f4f4f4', padding: 15, borderRadius: 10, marginTop: 20 }
+    resultBox: { backgroundColor: '#f4f4f4', padding: 15, borderRadius: 10, marginTop: 20 },
+    feedback: { marginTop: 10, fontWeight: 'bold' },
   };
 
   return (
@@ -218,18 +311,39 @@ export default function Main() {
         </div>
       </div>
 
-      <button onClick={handleSubmit} style={styles.button}>Find Shortest Route</button>
+      <button onClick={handleSubmit} style={styles.button}>Submit</button>
       {error && <p style={styles.error}>{error}</p>}
+
+      {isSubmitted && !results && (
+        <div style={styles.section}>
+          <label>
+            <strong>Enter your proposed path (e.g., A,B,C):</strong>
+            <input
+              type="text"
+              placeholder="Enter path (e.g., A,B,C)"
+              style={styles.input}
+              value={playerPath}
+              onChange={(e) => setPlayerPath(e.target.value)}
+            />
+          </label>
+          <button onClick={handleCheckPath} style={styles.button}>Check Path</button>
+        </div>
+      )}
 
       {results && (
         <div style={styles.resultBox}>
           <h4>Results for {results.playerName}</h4>
+          <p style={styles.feedback}>{pathFeedback}</p>
           <p><strong>Brute Force:</strong> {results.brute.distance} km — Route: {results.brute.route.map(i => cities[i]).join(" → ")}</p>
           <p><strong>Nearest Neighbor:</strong> {results.nearest.distance} km — Route: {results.nearest.route.map(i => cities[i]).join(" → ")}</p>
           <p><strong>Dynamic Programming:</strong> {results.dp.distance} km</p>
           <p><strong>Execution Times (ms):</strong> Brute: {results.times.brute}, Nearest: {results.times.nearest}, DP: {results.times.dp}</p>
         </div>
       )}
+
+      <button onClick={resetGame} style={{ ...styles.button, backgroundColor: '#6B7280', marginTop: 20 }}>
+        New Game
+      </button>
     </div>
   );
 }
