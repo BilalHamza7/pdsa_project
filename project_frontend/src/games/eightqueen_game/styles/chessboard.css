@@ -40,6 +40,7 @@
     justify-content: center;
     cursor: pointer;
     font-size: 32px;
+    overflow-wrap: break-word;
 }
 
 .white {
