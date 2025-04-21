@@ -4,6 +4,7 @@ import {
   solveHanoiIterative,
 } from "./hanoiAlgorithms"; 
 import "./TowerOfHanoi.css"; 
+import { solveHanoi4Pegs } from "./hanoiAlgorithms";
 
 const getRandomDisks = () => Math.floor(Math.random() * 6) + 5;
 
@@ -18,6 +19,24 @@ const TowerOfHanoi = () => {
   const [isStarted, setIsStarted] = useState(false);
   const [showRecursive, setShowRecursive] = useState(false);
   const [showIterative, setShowIterative] = useState(false);
+  const [fourPegMoves, setFourPegMoves] = useState([]);
+  const [diskCount4Peg, setDiskCount4Peg] = useState(0);
+  const [playerName4Peg, setPlayerName4Peg] = useState("");
+  
+  const start4PegGame = () => {
+    const randomDisks = Math.floor(Math.random() * 6) + 5; // 5–10
+    setDiskCount4Peg(randomDisks);
+
+    const moves = solveHanoi4Pegs(randomDisks, "A", "B", "C", "D");
+    setFourPegMoves(moves);
+  };
+  
+  const reset4PegGame = () => {
+  setDiskCount4Peg(0);
+  setPlayerName4Peg("");
+  setFourPegMoves([]);
+};
+
 
   useEffect(() => {
     let interval = null;
@@ -248,8 +267,45 @@ const TowerOfHanoi = () => {
           )}
         </div>  
       )}  
+      
+      {/* 4-Peg Tower of Hanoi Section */}
+<div className="hanoi-section">
+  <h2>4-Peg Tower of Hanoi (Frame-Stewart Algorithm)</h2>
+
+  <label>
+    Player's Name:
+    <input
+      type="text"
+      placeholder="Enter Your Name"
+      value={playerName4Peg}
+      onChange={(e) => setPlayerName4Peg(e.target.value)}
+    />
+  </label>
+
+  
+  <button onClick={start4PegGame}>Start 4-Peg Game</button>
+  <button onClick={reset4PegGame}>Reset 4-Peg Game</button>
+
+
+
+  {fourPegMoves.length > 0 && (
+    <div className="move-list">
+      <h3>Moves ({diskCount4Peg} Disks)</h3>
+      <p><strong>Player:</strong> {playerName4Peg || "Not entered"}</p>
+      <ul>
+        {fourPegMoves.map((move, index) => (
+          <li key={index}>{move}</li>
+        ))}
+      </ul>
+    </div>
+  )}
+</div>
+
+
+   
     </div> 
   );
+  
 };
 
 

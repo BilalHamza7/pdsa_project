@@ -219,3 +219,29 @@ color: white;
 .move-input select {
   width: 70px;
 }
+
+
+.hanoi-section {
+  border-top: 2px solid #ccc;
+  margin-top: 30px;
+  padding-top: 20px;
+}
+
+.hanoi-section button {
+  margin: 10px 0;
+  padding: 8px 16px;
+  background-color: #5c6ac4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.move-list ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.move-list li {
+  margin: 5px 0;
+  font-family: monospace;
+}

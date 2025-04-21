@@ -1,6 +1,7 @@
 import express from 'express';
 const router = express.Router();
 
+
 import { supabase } from '../server.js';
 
 // sample
@@ -15,22 +16,18 @@ router.post('/', async (req, res) => {
 
 // Save solutions, including sequential and threaded algorithms'
 router.post('/solutions', async (req, res) => {
-    const { thrTimeTaken, thrCount, thrSolutions, seqTimeTaken, seqCount, seqSolutions } = req.body;
+    const { sequentialResult, threadedResult } = req.body;
+    console.log(req.body);
 
-    console.log("sequential: " + thrTimeTaken);
-    console.log("threaded: " + thrSolutions);
-
-
-    // Directly use the destructured values in the insert query
     const { data, error } = await supabase
         .from('eight_queen_puzzle')
         .insert([{
-            sequential_solution_count: seqCount,
-            sequential_solution: seqSolutions,
-            sequential_time_taken: seqTimeTaken,
-            threaded_solution_count: thrCount,
-            threaded_solution: thrSolutions,
-            threaded_time_taken: thrTimeTaken
+            sequential_solution_count: sequentialResult.numberOfSolutions,
+            sequential_solution: sequentialResult.solutions,
+            sequential_time_taken: sequentialResult.timeTaken,
+            threaded_solution_count: threadedResult.numberOfSolutions,
+            threaded_solution: threadedResult.solutions,
+            threaded_time_taken: threadedResult.timeTaken
         }]);
 
     if (error) return res.status(400).json({ error });
