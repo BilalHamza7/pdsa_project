@@ -1,19 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './TicTacToe.css';
-// Import logical algorithm functions
-import { getBestMoveMinimaxLite } from './minimaxLite';
-import { getBestMoveHeuristicLite } from './heuristicLite';
 
-
-// Import the computer's move strategy handler (with randomness)
-import { computerMove } from './computerMoveStrategy';
-
-// Import the winner/draw check function
+import { computerMove, resetAlgorithmicCounter } from './computerMoveStrategy';
 import { checkWinner } from './checkWinner';
 
 const emptyBoard = Array(5).fill(null).map(() => Array(5).fill(null));
-const isDraw = board => board.flat().every(cell => cell);
 
 const TicTacToe = () => {
   const navigate = useNavigate();
@@ -37,7 +29,6 @@ const TicTacToe = () => {
 
   useEffect(() => {
     const winner = checkWinner(board);
-  
     if (winner) {
       setGameOver(true);
       if (winner === 'X') {
@@ -49,39 +40,40 @@ const TicTacToe = () => {
       }
       return;
     }
-  
-    if (!playerTurn) {
+
+    if (!playerTurn && !gameOver) {
       setTimeout(() => {
-        // Pass the algorithm and the player ('O') to computerMove
         const newBoard = computerMove(board, 'minimax', 'O');
-        setBoard(newBoard); 
-        setPlayerTurn(true); 
+        setBoard(newBoard);
+        setPlayerTurn(true);
       }, 500);
     }
-  }, [board, playerTurn, playerName]);
-  
+  }, [board, playerTurn, playerName, gameOver]);
 
   const resetGame = () => {
     setBoard(emptyBoard);
     setPlayerTurn(true);
     setGameOver(false);
     setMessage('');
-    setShowMessage(true); 
+    setShowMessage(true);
+    resetAlgorithmicCounter();
   };
 
   const handleNameSubmit = (e) => {
     e.preventDefault();
-    if (playerName.trim() !== '') {
+    if (playerName.trim()) {
       setNameSubmitted(true);
+      resetAlgorithmicCounter();
     }
   };
 
-  const toggleInfoDisplay = () => {
-    setShowInfo(!showInfo);  
-  };
+  const toggleInfoDisplay = () => setShowInfo(!showInfo);
 
   const closeMessage = () => {
-    setShowMessage(false); 
+    setShowMessage(false);
+    setPlayerName('');
+    setNameSubmitted(false);
+    resetGame();
   };
 
   return (
@@ -97,7 +89,7 @@ const TicTacToe = () => {
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
           />
-          <button type="submit" className="name-submit-btn"> Let's start the game!</button>
+          <button type="submit" className="name-submit-btn">Let's start the game!</button>
         </form>
       ) : (
         <>
@@ -133,20 +125,12 @@ const TicTacToe = () => {
           {showInfo && (
             <div className="info-container">
               <div className="info-content">
-  <button className="close-info-btn" onClick={toggleInfoDisplay}>❌</button>
-  <h2>🎮 Welcome to the Ultimate 5x5 Tic Tac Toe Challenge! 🧠✨</h2>
-
-  <p>Your mission, should you choose to accept it: <strong>Get 5 X’s in a row</strong> — be it across rows, columns, or diagonals. 💡</p>
-
-  <p>But beware! 🤖 The computer is no slouch. It uses clever algorithms to try and outsmart you. Can you think faster? Move smarter? 🕵️‍♂️💥</p>
-
-  <p><i>Every game round is a battle of wits — make your move count!</i> ⏳</p>
-
-  <p><strong>Score high, beat the bot, and write your name into Tic Tac Toe history! 🏆🔥</strong></p>
-
-  <p><i>Ready? Let’s play. Let the best mind win! 🧠⚔️</i></p>
-</div>
-
+                <button className="close-info-btn" onClick={toggleInfoDisplay}>❌</button>
+                <h2>🎮 Welcome to the Ultimate 5x5 Tic Tac Toe Challenge! 🧠✨</h2>
+                <p>Your mission: <strong>Get 5 X’s in a row</strong> — row, column, or diagonal. 💡</p>
+                <p>But beware! 🤖 The computer uses clever algorithms to outplay you!</p>
+                <p><strong>Think fast, play smart — beat the bot! 🏆</strong></p>
+              </div>
             </div>
           )}
         </>
