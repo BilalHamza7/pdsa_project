@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import {
   solveHanoiRecursive,
   solveHanoiIterative,
+  solveHanoi4Pegs,
 } from "./hanoiAlgorithms"; 
 import "./TowerOfHanoi.css"; 
-import { solveHanoi4Pegs } from "./hanoiAlgorithms";
+
 
 const getRandomDisks = () => Math.floor(Math.random() * 6) + 5;
 
@@ -22,21 +23,13 @@ const TowerOfHanoi = () => {
   const [fourPegMoves, setFourPegMoves] = useState([]);
   const [diskCount4Peg, setDiskCount4Peg] = useState(0);
   const [playerName4Peg, setPlayerName4Peg] = useState("");
-  
-  const start4PegGame = () => {
-    const randomDisks = Math.floor(Math.random() * 6) + 5; // 5–10
-    setDiskCount4Peg(randomDisks);
 
-    const moves = solveHanoi4Pegs(randomDisks, "A", "B", "C", "D");
-    setFourPegMoves(moves);
-  };
-  
-  const reset4PegGame = () => {
-  setDiskCount4Peg(0);
-  setPlayerName4Peg("");
-  setFourPegMoves([]);
-};
+  const [userMoveCount4Peg, setUserMoveCount4Peg] = useState("");
+  const [userMoves4Peg, setUserMoves4Peg] = useState([]);
+  const [isRunning4, setIsRunning4] = useState(false);
+  const [isStarted4, setIsStarted4] = useState(false);
 
+  
 
   useEffect(() => {
     let interval = null;
@@ -49,6 +42,11 @@ const TowerOfHanoi = () => {
   const handleStart = () => {
     setIsStarted(true);
     setIsRunning(true);
+  };
+
+  const handleStart4peg = () => {
+    setIsStarted4(true);
+    setIsRunning4(true);
   };
 
   const handleMoveCountChange = (e) => {
@@ -119,6 +117,68 @@ const TowerOfHanoi = () => {
     const colors = ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#9D4EDD", "#FF8E00", "#2EC4B6", "#8D6E63", "#00B8D9", "#FF69B4"];
     return colors[(size - 1) % colors.length];
   };
+
+//4-Peg Tower of Hanoi (Frame-Stewart Algorithm)
+
+  const start4PegGame = () => {
+    const randomDisks = Math.floor(Math.random() * 6) + 5; // 5–10
+    setDiskCount4Peg(randomDisks);
+
+    const moves = solveHanoi4Pegs(randomDisks, "A", "B", "C", "D");
+    setFourPegMoves(moves);
+  };
+  
+  const reset4PegGame = () => {
+  setDiskCount4Peg(0);
+  setPlayerName4Peg("");
+  setFourPegMoves([]);
+  setUserMoveCount4Peg("");
+  setUserMoves4Peg([]);
+  setIsStarted4(false);
+  setIsRunning4(tfalse);
+};
+
+// Handle user input for move count in 4-peg game
+const handle4PegMoveCountChange = (e) => {
+  const count = parseInt(e.target.value); // Parse input to integer
+  setUserMoveCount4Peg(count); // Set the user move count for 4-peg game
+  setUserMoves4Peg(Array(count).fill({ disk: "", from: "", to: "" })); // Initialize empty move sequence
+};
+
+// Handle user input for moves in 4-peg game
+const handle4PegMoveChange = (index, field, value) => {
+  const updatedMoves = [...userMoves4Peg]; // Copy existing moves
+  updatedMoves[index] = { ...updatedMoves[index], [field]: value }; // Update specific move field
+  setUserMoves4Peg(updatedMoves); // Update the state
+};
+
+const handle4PegSubmit = (e) => {
+  e.preventDefault(); // Prevent default form submission
+  // Validate user input
+  if (!playerName4Peg || userMoves4Peg.some((move) => !move.disk || !move.from || !move.to)) {
+    return alert("Please fill all fields correctly.");
+  }
+
+ // Format the user moves for 4-peg game
+ const formattedUserMoves4Peg = userMoves4Peg.map(
+  (move) => `${move.disk} Disk ${move.from.toUpperCase()}→${move.to.toUpperCase()}`
+);
+
+// Compare user moves with the correct 4-peg moves and check correctness
+const is4PegCorrect =
+  formattedUserMoves4Peg.length === fourPegMoves.length &&
+  JSON.stringify(formattedUserMoves4Peg) === JSON.stringify(fourPegMoves);
+
+// Set the result for 4-peg game
+setResult({
+  playerName: playerName4Peg,
+  diskCount: diskCount4Peg,
+  userMoveCount: formattedUserMoves4Peg.length,
+  userSequence: formattedUserMoves4Peg,
+  isCorrect: is4PegCorrect,
+  timeTaken: timer,
+});
+};
 
   return (
     <div className="hanoi-container">
@@ -217,7 +277,7 @@ const TowerOfHanoi = () => {
           </div>
         ))}
 
-        <button type="submit" disabled={!isStarted}>Submit Answer</button>  
+        <button type="submit" disabled={!isStarted} >Submit Answer</button>  
         <button type="button-reset" onClick={resetGame}>Reset</button> 
       </form>
 
@@ -268,37 +328,103 @@ const TowerOfHanoi = () => {
         </div>  
       )}  
       
+
+
+
       {/* 4-Peg Tower of Hanoi Section */}
 <div className="hanoi-section">
   <h2>4-Peg Tower of Hanoi (Frame-Stewart Algorithm)</h2>
+  <h3>Disks for this round: <strong>{diskCount}</strong></h3>
 
-  <label>
-    Player's Name:
-    <input
-      type="text"
-      placeholder="Enter Your Name"
-      value={playerName4Peg}
-      onChange={(e) => setPlayerName4Peg(e.target.value)}
-    />
-  </label>
+  {!isStarted4 && <button className="start-btn" onClick={handleStart4peg}>Start Game</button>}
+
+  <form onSubmit={handleSubmit} className="hanoi-form">
+
+    
+        <p>Player's Name:</p>
+        <input
+          type="text"
+          placeholder="Enter Your Name"
+          value={playerName4Peg}
+          onChange={(e) => setPlayerName4Peg(e.target.value)}
+          required
+          disabled={!isStarted4}
+        />
+
+        <p>Total Number of Moves :</p>
+        <input
+          type="number"
+          placeholder="Enter Your Move Count (e.g. 7)"
+          value={userMoveCount4Peg}
+          onChange={handle4PegMoveCountChange} // Handle move count for 4-peg
+          //max={Math.pow(2, diskCount4Peg) - 1}  Max number of moves is 2^n-1
+          required
+          min="1"
+          disabled={!isStarted4}
+        />
+
+       <p>Enter your move sequence : </p>
+       <div>  
+          {/* Render dynamic input fields for each move */}
+          {userMoves4Peg.map((move, index) => (
+            <div key={index} className="move-input"> 
+            <label>Move {index + 1}:</label>
+              <input
+                type="number"
+                placeholder={`Disk No`}
+                value={move.disk}
+                onChange={(e) =>
+                  handle4PegMoveChange(index, "disk", e.target.value) // Handle disk input for 4-peg move
+                }
+                disabled={!isStarted4}
+              />
+
+              <select
+              type="text"
+              value={move.from}
+              onChange={(e) =>
+                handle4PegMoveChange(index, "from", e.target.value)} // Handle "from" input for 4-peg move
+              placeholder="From"
+              required
+              disabled={!isStarted4}
+            >
+              <option value="">From</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="C">D</option>
+            </select>
+              
+              →
+              <select
+              type="text"
+              value={move.to}
+              onChange={(e) =>
+                handle4PegMoveChange(index, "to", e.target.value) // Handle "to" input for 4-peg move
+              }
+              required
+              disabled={!isStarted4}
+            >
+              <option value="">To</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="C">D</option>
+            </select>
+
+            </div>
+          ))}
+        </div>
+        
+        <button type="submit" disabled={!isStarted4} > Submit Answer</button> 
+        
+        
+        <button onClick={reset4PegGame}>Reset 4-Peg Game</button>
+
+        </form>
 
   
-  <button onClick={start4PegGame}>Start 4-Peg Game</button>
-  <button onClick={reset4PegGame}>Reset 4-Peg Game</button>
-
-
-
-  {fourPegMoves.length > 0 && (
-    <div className="move-list">
-      <h3>Moves ({diskCount4Peg} Disks)</h3>
-      <p><strong>Player:</strong> {playerName4Peg || "Not entered"}</p>
-      <ul>
-        {fourPegMoves.map((move, index) => (
-          <li key={index}>{move}</li>
-        ))}
-      </ul>
-    </div>
-  )}
+ 
 </div>
 
 
