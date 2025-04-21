@@ -1,6 +1,7 @@
 .parent_container {
     background-image: linear-gradient(rgb(255, 220, 220), rgb(204, 204, 204));
     min-height: 100vh;
+    padding: 24px 0 24px 0;
 }
 
 .puzzle_game_container {
@@ -14,7 +15,7 @@
     display: flex;
     width: 100%;
     justify-content: end;
-    margin-top: 20px;
+    /* margin-top: 20px; */
     margin-right: 36px;
     gap: 16px;
 }
@@ -74,8 +75,4 @@
     margin: 24px 0 32px 0;
     border-radius: 12px;
     padding-bottom: 24px;
-}
-
-.puzzle_game_overview {
-    margin: 0 64px 0 64px;
 }

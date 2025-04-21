@@ -36,8 +36,3 @@ export default async function findSequentialSolutions() {
         solutions, // Array of valid solutions
     };  
 }
-
-// Run the algorithm and log results
-const result = await findSequentialSolutions();
-console.log(`Found ${result.numberOfSolutions} solutions.`);
-console.log("Time taken:", result.timeTaken, "ms");
