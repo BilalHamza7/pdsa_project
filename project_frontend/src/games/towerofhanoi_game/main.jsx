@@ -187,7 +187,7 @@ const is4PegCorrect =
 // Set the result for 4-peg game
 setResult4Peg({
   playerName: playerName4Peg,
-  diskCount:diskCount4Peg,
+  diskCount,
   userMoveCount: formattedUserMoves4Peg.length,
   userSequence: formattedUserMoves4Peg,
   isCorrect: is4PegCorrect,
@@ -451,7 +451,11 @@ setResult4Peg({
           <p><strong>User Sequence:</strong> {result4Peg.userSequence.join(", ")}</p>
           <p><strong>Correct?</strong> {result4Peg.isCorrect ? "Yes" : "No"}</p>
           <p><strong>Time Taken:</strong> {result4Peg.timeTaken}s</p>
-          <p><strong>Solution:</strong> {result4Peg.solution.join(", ")}</p>
+          <div className="move-list">
+        {fourPegMoves.map((move, index) => (
+          <div key={index}>{move}</div>
+        ))}
+      </div>
           <p><strong>Solution Move Count:</strong> {result4Peg.solutionTime}</p>
           <p><strong>Result:</strong> {result4Peg.isCorrect ? "You Win!" : "Try Again!"}</p>
         </div>
