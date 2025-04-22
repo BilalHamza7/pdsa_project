@@ -255,96 +255,190 @@ export default function Main() {
   };
 
   const styles = {
-    container: { padding: 20, fontFamily: 'Arial, sans-serif', maxWidth: 800, margin: '0 auto' },
-    heading: { fontSize: 26, marginBottom: 10 },
-    section: { marginBottom: 20 },
-    input: { padding: 8, width: '100%', marginTop: 5, marginBottom: 10, fontSize: 16 },
-    checkboxContainer: { display: 'flex', flexWrap: 'wrap', gap: '10px' },
-    checkboxItem: { width: 'fit-content' },
-    button: {
-      padding: '10px 20px',
-      backgroundColor: '#007BFF',
-      color: 'white',
-      border: 'none',
-      borderRadius: 5,
-      fontSize: 16,
-      cursor: 'pointer',
+    container: {
+      maxWidth: "800px",
+      margin: "auto",
+      padding: "20px",
+      fontFamily: "'Segoe UI', sans-serif",
+      color: "#1F2937",
     },
-    error: { color: 'red' },
-    resultBox: { backgroundColor: '#f4f4f4', padding: 15, borderRadius: 10, marginTop: 20 },
-    feedback: { marginTop: 10, fontWeight: 'bold' },
+    heading: {
+      textAlign: "center",
+      marginBottom: "20px",
+      color: "#111827",
+      fontSize: "26px",
+    },
+    card: {
+      backgroundColor: "#F9FAFB",
+      padding: "20px",
+      borderRadius: "12px",
+      boxShadow: "0 4px 8px rgba(0,0,0,0.06)",
+      marginBottom: "20px",
+    },
+    section: {
+      marginBottom: "15px",
+    },
+    cityName: {
+      fontWeight: "bold",
+      color: "#3B82F6",
+    },
+    input: {
+      display: "block",
+      marginTop: "8px",
+      padding: "8px",
+      width: "100%",
+      borderRadius: "8px",
+      border: "1px solid #D1D5DB",
+      fontSize: "16px",
+    },
+    checkboxContainer: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "10px",
+      marginTop: "10px",
+    },
+    checkboxItem: {
+      backgroundColor: "#E5E7EB",
+      padding: "6px 12px",
+      borderRadius: "6px",
+    },
+    button: {
+      marginTop: "10px",
+      padding: "10px 20px",
+      backgroundColor: "#3B82F6",
+      color: "#FFFFFF",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      fontSize: "16px",
+      transition: "0.3s",
+    },
+    error: {
+      color: "#DC2626",
+      marginTop: "10px",
+    },
+    resultBox: {
+      backgroundColor: "#FEF3C7",
+      padding: "20px",
+      borderRadius: "12px",
+      marginTop: "20px",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+    },
+    resultHeading: {
+      fontSize: "20px",
+      marginBottom: "12px",
+      color: "#92400E",
+    },
+    feedback: {
+      fontStyle: "italic",
+      color: "#6B7280",
+      marginBottom: "12px",
+    },
   };
+  
 
+  
   return (
     <div style={styles.container}>
-      <h2 style={styles.heading}>Traveling Salesman Problem Visualizer</h2>
-      <div style={styles.section}>
-        <strong>Home City:</strong> {homeCity !== null && cities[homeCity]}
+  <h2 style={styles.heading}>🗺️ Traveling Salesman Problem Visualizer</h2>
+
+  <div style={styles.card}>
+    <div style={styles.section}>
+      <strong>🏡 Home City:</strong>{" "}
+      <span style={styles.cityName}>
+        {homeCity !== null && cities[homeCity]}
+      </span>
+    </div>
+
+    <div style={styles.section}>
+      <label>
+        <strong>🧑 Enter your name:</strong>
+        <input
+          type="text"
+          placeholder="Player Name"
+          style={styles.input}
+          value={playerName}
+          onChange={(e) => setPlayerName(e.target.value)}
+        />
+      </label>
+    </div>
+
+    <div style={styles.section}>
+      <strong>🏙️ Select cities to visit:</strong>
+      <div style={styles.checkboxContainer}>
+        {cities.map((c, i) =>
+          i !== homeCity ? (
+            <label key={i} style={styles.checkboxItem}>
+              <input
+                type="checkbox"
+                checked={selectedCities.includes(i)}
+                onChange={() => handleSelectCity(i)}
+              />{" "}
+              {c}
+            </label>
+          ) : null
+        )}
       </div>
+    </div>
 
-      <div style={styles.section}>
-        <label>
-          <strong>Enter your name:</strong>
-          <input
-            type="text"
-            placeholder="Player Name"
-            style={styles.input}
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-          />
-        </label>
-      </div>
+    <button onClick={handleSubmit} style={styles.button}>
+      🚀 Submit
+    </button>
+    {error && <p style={styles.error}>{error}</p>}
+  </div>
 
-      <div style={styles.section}>
-        <strong>Select cities to visit:</strong>
-        <div style={styles.checkboxContainer}>
-          {cities.map((c, i) => (
-            i !== homeCity && (
-              <label key={i} style={styles.checkboxItem}>
-                <input
-                  type="checkbox"
-                  checked={selectedCities.includes(i)}
-                  onChange={() => handleSelectCity(i)}
-                /> {c}
-              </label>
-            )
-          ))}
-        </div>
-      </div>
-
-      <button onClick={handleSubmit} style={styles.button}>Submit</button>
-      {error && <p style={styles.error}>{error}</p>}
-
-      {isSubmitted && !results && (
-        <div style={styles.section}>
-          <label>
-            <strong>Enter your proposed path (e.g., A,B,C):</strong>
-            <input
-              type="text"
-              placeholder="Enter path (e.g., A,B,C)"
-              style={styles.input}
-              value={playerPath}
-              onChange={(e) => setPlayerPath(e.target.value)}
-            />
-          </label>
-          <button onClick={handleCheckPath} style={styles.button}>Check Path</button>
-        </div>
-      )}
-
-      {results && (
-        <div style={styles.resultBox}>
-          <h4>Results for {results.playerName}</h4>
-          <p style={styles.feedback}>{pathFeedback}</p>
-          <p><strong>Brute Force:</strong> {results.brute.distance} km — Route: {results.brute.route.map(i => cities[i]).join(" → ")}</p>
-          <p><strong>Nearest Neighbor:</strong> {results.nearest.distance} km — Route: {results.nearest.route.map(i => cities[i]).join(" → ")}</p>
-          <p><strong>Dynamic Programming:</strong> {results.dp.distance} km</p>
-          <p><strong>Execution Times (ms):</strong> Brute: {results.times.brute}, Nearest: {results.times.nearest}, DP: {results.times.dp}</p>
-        </div>
-      )}
-
-      <button onClick={resetGame} style={{ ...styles.button, backgroundColor: '#6B7280', marginTop: 20 }}>
-        New Game
+  {isSubmitted && !results && (
+    <div style={styles.card}>
+      <label>
+        <strong>📝 Enter your proposed path (e.g., A,B,C):</strong>
+        <input
+          type="text"
+          placeholder="Enter path"
+          style={styles.input}
+          value={playerPath}
+          onChange={(e) => setPlayerPath(e.target.value)}
+        />
+      </label>
+      <button onClick={handleCheckPath} style={styles.button}>
+        ✅ Check Path
       </button>
     </div>
+  )}
+
+  {results && (
+    <div style={styles.resultBox}>
+      <h4 style={styles.resultHeading}>🎯 Results for {results.playerName}</h4>
+      <p style={styles.feedback}>{pathFeedback}</p>
+      <p>
+        <strong>🔍 Brute Force:</strong> {results.brute.distance} km — Route:{" "}
+        {results.brute.route.map((i) => cities[i]).join(" → ")}
+      </p>
+      <p>
+        <strong>📍 Nearest Neighbor:</strong> {results.nearest.distance} km — Route:{" "}
+        {results.nearest.route.map((i) => cities[i]).join(" → ")}
+      </p>
+      <p>
+        <strong>🧠 Dynamic Programming:</strong> {results.dp.distance} km
+      </p>
+      <p>
+        <strong>⏱️ Execution Times (ms):</strong> Brute: {results.times.brute}, Nearest:{" "}
+        {results.times.nearest}, DP: {results.times.dp}
+      </p>
+    </div>
+  )}
+
+  <button
+    onClick={resetGame}
+    style={{
+      ...styles.button,
+      backgroundColor: "#6B7280",
+      marginTop: 20,
+      color: "#fff",
+    }}
+  >
+    🔄 New Game
+  </button>
+</div>
+
   );
 }
