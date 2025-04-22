@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
+import MapVisualizer from './MapVisualizer';
 
 const cities = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
@@ -98,12 +99,6 @@ const tspDynamicProgramming = (start, selectedCities, matrix) => {
   return { distance: minDistance, route: selectedCities }; // Approx route only
 };
 
-const saveGameData = (data) => {
-  const games = JSON.parse(localStorage.getItem('tspGames') || '[]');
-  games.push(data);
-  localStorage.setItem('tspGames', JSON.stringify(games));
-};
-
 export default function Main() {
   const [distanceMatrix, setDistanceMatrix] = useState([]);
   const [homeCity, setHomeCity] = useState(null);
@@ -141,7 +136,44 @@ export default function Main() {
     }
   };
 
-  const handleCheckPath = () => {
+  const saveToSupabase = async (playerName, gameData, algorithmStats) => {
+    try {
+      // Step 1: Insert game session with player_name
+      const { data: session, error: sessionError } = await supabase
+        .from('travel_salesman_gamesessions')
+        .insert([{
+          player_name: playerName,
+          home_city: gameData.homeCity,
+          selected_cities: gameData.selectedCities,
+          player_route: gameData.shortestRoute,
+          distance: gameData.distance,
+          status: gameData.status,
+        }])
+        .select('session_id')
+        .single();
+      if (sessionError) throw sessionError;
+
+      const sessionId = session.session_id;
+
+      // Step 2: Insert algorithm stats
+      const algoStats = [
+        { session_id: sessionId, algorythm_name: 'Brute Force', time_taken_ms: parseFloat(algorithmStats.times.brute), distance: algorithmStats.brute.distance },
+        { session_id: sessionId, algorythm_name: 'Nearest Neighbor', time_taken_ms: parseFloat(algorithmStats.times.nearest), distance: algorithmStats.nearest.distance },
+        { session_id: sessionId, algorythm_name: 'Dynamic Programming', time_taken_ms: parseFloat(algorithmStats.times.dp), distance: algorithmStats.dp.distance },
+      ];
+
+      const { error: statsError } = await supabase
+        .from('travel_salesman_AlgorithmStats')
+        .insert(algoStats);
+      if (statsError) throw statsError;
+
+    } catch (err) {
+      console.error('Error saving to Supabase:', err);
+      setError('Failed to save game data: ' + err.message);
+    }
+  };
+
+  const handleCheckPath = async () => {
     try {
       setError('');
       setPathFeedback('');
@@ -195,22 +227,26 @@ export default function Main() {
 
       const optimalDistance = brute.distance;
       const optimalRoute = brute.route.map((i) => cities[i]);
+      let status = 'incorrect';
       if (playerDistance === optimalDistance) {
+        status = 'correct';
         setPathFeedback(`Correct! Your path distance (${playerDistance} km) matches the optimal distance.`);
-        saveGameData({
-          playerName,
-          homeCity: cities[homeCity],
-          selectedCities: selectedCities.map((i) => cities[i]),
-          shortestRoute: inputCities,
-          distance: playerDistance,
-          times: resultData.times,
-          timestamp: new Date().toISOString(),
-        });
       } else {
         setPathFeedback(
           `Incorrect. Your path distance is ${playerDistance} km, but the optimal distance is ${optimalDistance} km. Correct path: ${optimalRoute.join(' → ')}`
         );
       }
+
+      const gameData = {
+        homeCity: cities[homeCity],
+        selectedCities: selectedCities.map((i) => cities[i]),
+        shortestRoute: inputCities,
+        distance: playerDistance,
+        status: status,
+      };
+
+      await saveToSupabase(playerName, gameData, resultData);
+
     } catch (err) {
       setError(err.message);
       // Still compute and show results even if path is invalid
@@ -335,110 +371,112 @@ export default function Main() {
       marginBottom: "12px",
     },
   };
-  
 
-  
   return (
     <div style={styles.container}>
-  <h2 style={styles.heading}>🗺️ Traveling Salesman Problem Visualizer</h2>
+      <h2 style={styles.heading}>🗺️ Traveling Salesman Problem Visualizer</h2>
+      <MapVisualizer
+        cities={cities}
+        distanceMatrix={distanceMatrix}
+        homeCity={homeCity}
+        selectedCities={selectedCities}
+      />
+      <div style={styles.card}>
+        <div style={styles.section}>
+          <strong>🏡 Home City:</strong>{" "}
+          <span style={styles.cityName}>
+            {homeCity !== null && cities[homeCity]}
+          </span>
+        </div>
 
-  <div style={styles.card}>
-    <div style={styles.section}>
-      <strong>🏡 Home City:</strong>{" "}
-      <span style={styles.cityName}>
-        {homeCity !== null && cities[homeCity]}
-      </span>
-    </div>
+        <div style={styles.section}>
+          <label>
+            <strong>🧑 Enter your name:</strong>
+            <input
+              type="text"
+              placeholder="Player Name"
+              style={styles.input}
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+            />
+          </label>
+        </div>
 
-    <div style={styles.section}>
-      <label>
-        <strong>🧑 Enter your name:</strong>
-        <input
-          type="text"
-          placeholder="Player Name"
-          style={styles.input}
-          value={playerName}
-          onChange={(e) => setPlayerName(e.target.value)}
-        />
-      </label>
-    </div>
+        <div style={styles.section}>
+          <strong>🏙️ Select cities to visit:</strong>
+          <div style={styles.checkboxContainer}>
+            {cities.map((c, i) =>
+              i !== homeCity ? (
+                <label key={i} style={styles.checkboxItem}>
+                  <input
+                    type="checkbox"
+                    checked={selectedCities.includes(i)}
+                    onChange={() => handleSelectCity(i)}
+                  />{" "}
+                  {c}
+                </label>
+              ) : null
+            )}
+          </div>
+        </div>
 
-    <div style={styles.section}>
-      <strong>🏙️ Select cities to visit:</strong>
-      <div style={styles.checkboxContainer}>
-        {cities.map((c, i) =>
-          i !== homeCity ? (
-            <label key={i} style={styles.checkboxItem}>
-              <input
-                type="checkbox"
-                checked={selectedCities.includes(i)}
-                onChange={() => handleSelectCity(i)}
-              />{" "}
-              {c}
-            </label>
-          ) : null
-        )}
+        <button onClick={handleSubmit} style={styles.button}>
+          🚀 Submit
+        </button>
+        {error && <p style={styles.error}>{error}</p>}
       </div>
-    </div>
 
-    <button onClick={handleSubmit} style={styles.button}>
-      🚀 Submit
-    </button>
-    {error && <p style={styles.error}>{error}</p>}
-  </div>
+      {isSubmitted && !results && (
+        <div style={styles.card}>
+          <label>
+            <strong>📝 Enter your proposed path (e.g., A,B,C):</strong>
+            <input
+              type="text"
+              placeholder="Enter path"
+              style={styles.input}
+              value={playerPath}
+              onChange={(e) => setPlayerPath(e.target.value)}
+            />
+          </label>
+          <button onClick={handleCheckPath} style={styles.button}>
+            ✅ Check Path
+          </button>
+        </div>
+      )}
 
-  {isSubmitted && !results && (
-    <div style={styles.card}>
-      <label>
-        <strong>📝 Enter your proposed path (e.g., A,B,C):</strong>
-        <input
-          type="text"
-          placeholder="Enter path"
-          style={styles.input}
-          value={playerPath}
-          onChange={(e) => setPlayerPath(e.target.value)}
-        />
-      </label>
-      <button onClick={handleCheckPath} style={styles.button}>
-        ✅ Check Path
+      {results && (
+        <div style={styles.resultBox}>
+          <h4 style={styles.resultHeading}>🎯 Results for {results.playerName}</h4>
+          <p style={styles.feedback}>{pathFeedback}</p>
+          <p>
+            <strong>🔍 Brute Force:</strong> {results.brute.distance} km — Route:{" "}
+            {results.brute.route.map((i) => cities[i]).join(" → ")}
+          </p>
+          <p>
+            <strong>📍 Nearest Neighbor:</strong> {results.nearest.distance} km — Route:{" "}
+            {results.nearest.route.map((i) => cities[i]).join(" → ")}
+          </p>
+          <p>
+            <strong>🧠 Dynamic Programming:</strong> {results.dp.distance} km
+          </p>
+          <p>
+            <strong>⏱️ Execution Times (ms):</strong> Brute: {results.times.brute}, Nearest:{" "}
+            {results.times.nearest}, DP: {results.times.dp}
+          </p>
+        </div>
+      )}
+
+      <button
+        onClick={resetGame}
+        style={{
+          ...styles.button,
+          backgroundColor: "#6B7280",
+          marginTop: 20,
+          color: "#fff",
+        }}
+      >
+        🔄 New Game
       </button>
     </div>
-  )}
-
-  {results && (
-    <div style={styles.resultBox}>
-      <h4 style={styles.resultHeading}>🎯 Results for {results.playerName}</h4>
-      <p style={styles.feedback}>{pathFeedback}</p>
-      <p>
-        <strong>🔍 Brute Force:</strong> {results.brute.distance} km — Route:{" "}
-        {results.brute.route.map((i) => cities[i]).join(" → ")}
-      </p>
-      <p>
-        <strong>📍 Nearest Neighbor:</strong> {results.nearest.distance} km — Route:{" "}
-        {results.nearest.route.map((i) => cities[i]).join(" → ")}
-      </p>
-      <p>
-        <strong>🧠 Dynamic Programming:</strong> {results.dp.distance} km
-      </p>
-      <p>
-        <strong>⏱️ Execution Times (ms):</strong> Brute: {results.times.brute}, Nearest:{" "}
-        {results.times.nearest}, DP: {results.times.dp}
-      </p>
-    </div>
-  )}
-
-  <button
-    onClick={resetGame}
-    style={{
-      ...styles.button,
-      backgroundColor: "#6B7280",
-      marginTop: 20,
-      color: "#fff",
-    }}
-  >
-    🔄 New Game
-  </button>
-</div>
-
   );
 }
