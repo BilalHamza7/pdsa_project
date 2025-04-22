@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import '../styles/chessboard.css';
 
-export default function Chessboard({ onBoardChange }) {
+export default function Chessboard({ onBoardChange, positions }) {
 
     const [board, setBoard] = useState(Array(8).fill(null).map(() => Array(8).fill(false)));
+    const [updatedPos, setUpdatedPos] = useState([]);
 
     // const toggleQueen = (row, col) => {
     //     const newBoard = board.map(row => [...row]);
@@ -36,17 +37,26 @@ export default function Chessboard({ onBoardChange }) {
 
         // Toggle the queen on or off (true/false)
         newBoard[row][col] = !newBoard[row][col];
+        const pos = [...positions];
+        if (newBoard[row][col] === true) pos[row] = col;
+        else {
+            const existingIndex = newBoard[row].includes(true) ? newBoard[row].indexOf(true) : undefined;
+            pos[row] = existingIndex;
+        }
+        setUpdatedPos(pos);
         setBoard(newBoard); // Update the state with the new board
     };
 
     useEffect(() => {
         if (onBoardChange) {
-            onBoardChange(board);
+            onBoardChange(board, updatedPos);
         }
     }, [board]);
 
     const resetBoard = () => {
         setBoard(Array(8).fill(null).map(() => Array(8).fill(false)));
+        const pos = [];
+        setUpdatedPos(pos);
     }
 
     return (

@@ -23,6 +23,7 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 16px;
+    border-radius: 12px;
 }
 
 .comparison-table th,
