@@ -20,14 +20,17 @@ const TowerOfHanoi = () => {
   const [isStarted, setIsStarted] = useState(false);
   const [showRecursive, setShowRecursive] = useState(false);
   const [showIterative, setShowIterative] = useState(false);
+
   const [fourPegMoves, setFourPegMoves] = useState([]);
   const [diskCount4Peg, setDiskCount4Peg] = useState(0);
   const [playerName4Peg, setPlayerName4Peg] = useState("");
-
   const [userMoveCount4Peg, setUserMoveCount4Peg] = useState("");
   const [userMoves4Peg, setUserMoves4Peg] = useState([]);
   const [isRunning4, setIsRunning4] = useState(false);
   const [isStarted4, setIsStarted4] = useState(false);
+  const [timer4Peg, setTimer4Peg] = useState(0);
+  const [result4Peg, setResult4Peg] = useState(null);
+  
 
   
 
@@ -42,11 +45,6 @@ const TowerOfHanoi = () => {
   const handleStart = () => {
     setIsStarted(true);
     setIsRunning(true);
-  };
-
-  const handleStart4peg = () => {
-    setIsStarted4(true);
-    setIsRunning4(true);
   };
 
   const handleMoveCountChange = (e) => {
@@ -127,6 +125,21 @@ const TowerOfHanoi = () => {
     const moves = solveHanoi4Pegs(randomDisks, "A", "B", "C", "D");
     setFourPegMoves(moves);
   };
+
+  useEffect(() => {
+    let interval4 = null;
+    if (isRunning4) {
+      interval4 = setInterval(() => setTimer4Peg((t) => t + 1), 1000);
+    }
+    return () => clearInterval(interval4);
+  }, [isRunning4]);
+
+  const handleStart4peg = () => {
+    setIsStarted4(true);
+    setIsRunning4(true);
+    start4PegGame();
+  };
+
   
   const reset4PegGame = () => {
   setDiskCount4Peg(0);
@@ -135,7 +148,9 @@ const TowerOfHanoi = () => {
   setUserMoveCount4Peg("");
   setUserMoves4Peg([]);
   setIsStarted4(false);
-  setIsRunning4(tfalse);
+  setIsRunning4(false);
+  setResult4Peg(null);
+  setTimer4Peg(0);
 };
 
 // Handle user input for move count in 4-peg game
@@ -170,13 +185,15 @@ const is4PegCorrect =
   JSON.stringify(formattedUserMoves4Peg) === JSON.stringify(fourPegMoves);
 
 // Set the result for 4-peg game
-setResult({
+setResult4Peg({
   playerName: playerName4Peg,
-  diskCount: diskCount4Peg,
+  diskCount:diskCount4Peg,
   userMoveCount: formattedUserMoves4Peg.length,
   userSequence: formattedUserMoves4Peg,
   isCorrect: is4PegCorrect,
-  timeTaken: timer,
+  timeTaken: timer4Peg,
+  solution: fourPegMoves,
+  solutionTime: fourPegMoves.length,
 });
 };
 
@@ -336,10 +353,11 @@ setResult({
   <h2>4-Peg Tower of Hanoi (Frame-Stewart Algorithm)</h2>
   <h3>Disks for this round: <strong>{diskCount}</strong></h3>
 
-  {!isStarted4 && <button className="start-btn" onClick={handleStart4peg}>Start Game</button>}
+  
+  <button className="start-btn" onClick={handleStart4peg} disabled={isStarted4}>Start 4-Peg Game</button>
 
-  <form onSubmit={handleSubmit} className="hanoi-form">
-
+  {isStarted4 && (
+        <form onSubmit={handle4PegSubmit} className="hanoi-form">
     
         <p>Player's Name:</p>
         <input
@@ -371,6 +389,8 @@ setResult({
             <label>Move {index + 1}:</label>
               <input
                 type="number"
+                min="1"
+                max={diskCount}
                 placeholder={`Disk No`}
                 value={move.disk}
                 onChange={(e) =>
@@ -392,7 +412,7 @@ setResult({
               <option value="A">A</option>
               <option value="B">B</option>
               <option value="C">C</option>
-              <option value="C">D</option>
+              <option value="D">D</option>
             </select>
               
               →
@@ -409,7 +429,7 @@ setResult({
               <option value="A">A</option>
               <option value="B">B</option>
               <option value="C">C</option>
-              <option value="C">D</option>
+              <option value="D">D</option>
             </select>
 
             </div>
@@ -417,18 +437,28 @@ setResult({
         </div>
         
         <button type="submit" disabled={!isStarted4} > Submit Answer</button> 
-        
-        
         <button onClick={reset4PegGame}>Reset 4-Peg Game</button>
-
         </form>
-
-  
+        
+ )}
+ <h3>⏱️ Time Elapsed: {timer4Peg}s</h3>
+        {result4Peg && (
+        <div className="result">
+          <h3>4-Peg Result</h3>
+          <p><strong>Player:</strong> {result4Peg.playerName}</p>
+          <p><strong>Disk Count:</strong> {result4Peg.diskCount}</p>
+          <p><strong>User Move Count:</strong> {result4Peg.userMoveCount}</p>
+          <p><strong>User Sequence:</strong> {result4Peg.userSequence.join(", ")}</p>
+          <p><strong>Correct?</strong> {result4Peg.isCorrect ? "Yes" : "No"}</p>
+          <p><strong>Time Taken:</strong> {result4Peg.timeTaken}s</p>
+          <p><strong>Solution:</strong> {result4Peg.solution.join(", ")}</p>
+          <p><strong>Solution Move Count:</strong> {result4Peg.solutionTime}</p>
+          <p><strong>Result:</strong> {result4Peg.isCorrect ? "You Win!" : "Try Again!"}</p>
+        </div>
+      )}
  
 </div>
-
-
-   
+ 
     </div> 
   );
   

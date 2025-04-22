@@ -89,20 +89,14 @@ export const solveHanoi4Pegs = (n, source, auxiliary1, auxiliary2, destination) 
       return;
     }
 
-    // Choose optimal k (approximation)
-    const k = n - Math.floor(Math.sqrt(2 * n + 1)) + 1;
-
-    // Move top k disks to aux1 using all 4 pegs
-    hanoi4(k, source, destination, auxiliary2, auxiliary1);
-
-    // Move remaining n-k disks using classic 3-peg solution
-    const subResult = solveHanoiRecursive(n - k, source, auxiliary2, destination);
-    result.push(...subResult);
-
-    // Move k disks from aux1 to destination
-    hanoi4(k, auxiliary1, source, auxiliary2, destination);
-  };
-
-  hanoi4(n, source, auxiliary1, auxiliary2, destination);
-  return result;
-};
+      const k = n - Math.floor(Math.sqrt(2 * n + 1)) + 1;
+    
+      hanoi4(k, source, destination, auxiliary2, auxiliary1); // Step 1: move top k to aux1
+      solveHanoiRecursive(n - k, source, destination, auxiliary2, result); // Step 2: move remaining n-k to dest using 3 pegs
+      hanoi4(k, auxiliary1, source, auxiliary2, destination); // Step 3: move k from aux1 to dest
+    };
+    
+    hanoi4(n, source, auxiliary1, auxiliary2, destination);
+    return result;
+    };
+    
