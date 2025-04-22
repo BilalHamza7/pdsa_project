@@ -79,24 +79,88 @@ const moveDisk = (pegs, from, to, result) => {
   }
 };
 
-export const solveHanoi4Pegs = (n, source, auxiliary1, auxiliary2, destination) => {
+export const solveHanoi4Pegs = (n, source, aux1, aux2, destination) => {
+  // Edge case: if there are no disks
+  if (n === 0) return [];
+
   const result = [];
 
-  const hanoi4 = (n, source, auxiliary1, auxiliary2, destination) => {
-    if (n === 0) return;
-    if (n === 1) {
-      result.push(`1 Disk ${source} → ${destination}`);
+  // Main 4-peg recursive function
+  const hanoi4 = (num, from, to, aux1, aux2, disks) => {
+    if (num === 0) return;
+
+    if (num === 1) {
+      const disk = disks[disks.length - 1];
+      result.push({ disk, from, to });
       return;
     }
 
-      const k = n - Math.floor(Math.sqrt(2 * n + 1)) + 1;
-    
-      hanoi4(k, source, destination, auxiliary2, auxiliary1); // Step 1: move top k to aux1
-      solveHanoiRecursive(n - k, source, destination, auxiliary2, result); // Step 2: move remaining n-k to dest using 3 pegs
-      hanoi4(k, auxiliary1, source, auxiliary2, destination); // Step 3: move k from aux1 to dest
+    // Find the optimal k for minimizing moves
+    let minMoves = Infinity;
+    let bestK = 1;
+
+    for (let k = 1; k < num; k++) {
+      const moves = 2 * moveCount4Peg(k) + Math.pow(2, num - k) - 1;
+      if (moves < minMoves) {
+        minMoves = moves;
+        bestK = k;
+      }
+    }
+
+    // Split the disks into top k and remaining disks
+    const topKDisks = disks.slice(0, bestK); // Smallest disks
+    const remainingDisks = disks.slice(bestK); // Larger disks
+
+    // Step 1: Move k disks to aux1
+    hanoi4(bestK, from, aux1, to, aux2, topKDisks);
+
+    // Step 2: Move remaining n-k disks to destination using 3 pegs
+    solveHanoiRecursiveDSA(remainingDisks.length, from, to, aux2, remainingDisks, result);
+
+    // Step 3: Move k disks from aux1 to destination
+    hanoi4(bestK, aux1, to, from, aux2, topKDisks);
+  };
+
+  // Move count with memoization
+  const moveCount4Peg = (() => {
+    const memo = {};
+    return function count(disks) {
+      if (disks <= 0) return 0;
+      if (disks === 1) return 1;
+      if (memo[disks]) return memo[disks];
+
+      let min = Infinity;
+      for (let k = 1; k < disks; k++) {
+        const moves = 2 * count(k) + Math.pow(2, disks - k) - 1;
+        if (moves < min) min = moves;
+      }
+
+      memo[disks] = min;
+      return min;
     };
-    
-    hanoi4(n, source, auxiliary1, auxiliary2, destination);
-    return result;
-    };
-    
+  })();
+
+  // Prepare the disk list [1, 2, 3, ..., n]
+  const diskList = Array.from({ length: n }, (_, i) => i + 1); 
+
+  // Start solving
+  hanoi4(n, source, destination, aux1, aux2, diskList);
+
+  // Format output for each move
+  return result.map((move, index) => `Move ${index + 1}: Disk ${move.disk} ${move.from} → ${move.to}`);
+};
+
+// Helper function for step 2 inside 4-peg: recursive 3-peg solution
+const solveHanoiRecursiveDSA = (n, source, destination, auxiliary, disks, result) => {
+  if (n === 1) {
+    result.push({ disk: disks[disks.length - 1], from: source, to: destination });
+    return;
+  }
+
+  const remainingDisks = disks.slice(0, disks.length - 1); // Top disks
+  const currentDisk = disks[disks.length - 1]; // Bottom disk
+
+  solveHanoiRecursiveDSA(n - 1, source, auxiliary, destination, remainingDisks, result);
+  result.push({ disk: currentDisk, from: source, to: destination });
+  solveHanoiRecursiveDSA(n - 1, auxiliary, destination, source, remainingDisks, result);
+};
