@@ -35,6 +35,8 @@ const TowerOfHanoi = () => {
   const [pegs, setPegs] = useState({ A: [], B: [], C: [] });
   const [selectedDisk, setSelectedDisk] = useState(null);
   
+  const [pegs4, setPegs4] = useState({ A: [], B: [], C: [], D: [] });
+  const [selectedDisk4, setSelectedDisk4] = useState(null);
   
 
   useEffect(() => {
@@ -72,6 +74,38 @@ const TowerOfHanoi = () => {
       if (currentPeg.length > 0) {
         const disk = currentPeg[currentPeg.length - 1];
         setSelectedDisk(disk);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const initialDisks = Array.from({ length: diskCount }, (_, i) => diskCount - i);
+    setPegs4({ A: initialDisks, B: [], C: [], D: [] });
+    setUserMoves4Peg([]);
+    setUserMoveCount4Peg(0);
+    setSelectedDisk4(null);
+  }, [diskCount]);
+
+  const handlePegClick4 = (pegName) => {
+    const currentPeg = pegs4[pegName];
+    if (selectedDisk4 !== null) {
+      const topDisk = currentPeg[currentPeg.length - 1];
+      if (!topDisk || selectedDisk4 < topDisk) {
+        const newPegs4 = { ...pegs4 };
+        const sourcePeg = Object.keys(pegs4).find((peg) => pegs4[peg].includes(selectedDisk4));
+        newPegs4[sourcePeg] = newPegs4[sourcePeg].filter((d) => d !== selectedDisk4);
+        newPegs4[pegName] = [...newPegs4[pegName], selectedDisk4];
+        setPegs4(newPegs4);
+        setUserMoves4Peg((prev) => [...prev, { disk: selectedDisk4, from: sourcePeg, to: pegName }]);
+        setUserMoveCount4Peg((prev) => prev + 1);
+        setSelectedDisk4(null);
+      } else {
+        alert("Invalid move! Cannot place larger disk on smaller disk.");
+      }
+    } else {
+      if (currentPeg.length > 0) {
+        const disk = currentPeg[currentPeg.length - 1];
+        setSelectedDisk4(disk);
       }
     }
   };
@@ -154,10 +188,7 @@ const TowerOfHanoi = () => {
     setIsRunning(false);
   };
 
-  const getDiskColor = (size) => {
-    const colors = ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#9D4EDD", "#FF8E00", "#2EC4B6", "#8D6E63", "#00B8D9", "#FF69B4"];
-    return colors[(size - 1) % colors.length];
-  };
+  
 
 //4-Peg Tower of Hanoi (Frame-Stewart Algorithm)
 
@@ -183,7 +214,7 @@ const TowerOfHanoi = () => {
 
   
   const reset4PegGame = () => {
-  
+  setDiskCount(getRandomDisks());
   setPlayerName4Peg("");
   setFourPegMoves([]);
   setUserMoveCount4Peg("");
@@ -401,29 +432,21 @@ if (isLoading) {
   <h3>Disks for this round: <strong>{diskCount}</strong></h3>
 
   <div className="visual-board">
-  {["A", "B", "C", "D"].map((peg, pegIndex) => (
-    <div className="peg" key={`4peg-${pegIndex}`}>
-      <div className="peg-bar" />
-      <div className="peg-label">{peg}</div>
-      {peg === "A" &&
-        isStarted4 &&
-        Array.from({ length: diskCount }, (_, i) => {
-          const size = diskCount - i;
-          return (
-            <div
-              key={size}
-              className="disk"
-              style={{
-                width: `${size * 20 + 40}px`,
-                backgroundColor: getDiskColor(size),
-              }}
-            >
-              {size}
-            </div>
-          );
-        })}
-    </div>
-  ))}
+  {Object.entries(pegs4).map(([pegName, pegDisks]) => (
+          <div className="peg" key={pegName} onClick={() => handlePegClick4(pegName)}>
+            <div className="peg-bar" />
+            <div className="peg-label">{pegName}</div>
+            {pegDisks.map((disk) => (
+              <div
+                key={disk}
+                className={`disk ${selectedDisk === disk ? "selected" : ""}`}
+                style={{ width: `${disk * 20 + 40}px`, backgroundColor: `hsl(${disk * 30}, 70%, 60%)` }}
+              >
+                {disk}
+              </div>
+            ))}
+          </div>
+        ))}
 </div>
 
   
