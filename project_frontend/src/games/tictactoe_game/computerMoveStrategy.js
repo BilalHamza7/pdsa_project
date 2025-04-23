@@ -8,46 +8,102 @@ export function resetAlgorithmicCounter() {
 }
 
 function applyMoveToBoard(board, move) {
-  const newBoard = board.map(row => [...row]);
-  if (move && newBoard[move.row][move.col] === null) {
-    newBoard[move.row][move.col] = 'O';
+  // Validate the board structure before attempting to apply a move
+  if (!Array.isArray(board) || board.length === 0 || !board.every(row => Array.isArray(row) && row.length === board[0].length)) {
+    throw new Error("Invalid board structure.");
   }
+
+  if (!move || typeof move.row !== 'number' || typeof move.col !== 'number') {
+    throw new Error("Invalid move object.");
+  }
+
+  const newBoard = board.map(row => [...row]);
+  if (newBoard[move.row][move.col] === null) {
+    newBoard[move.row][move.col] = 'O';  // Assuming 'O' is the computer's move
+  } else {
+    throw new Error("Move position is already occupied.");
+  }
+  
   return newBoard;
 }
 
 function measureAlgorithmTime(getBestMove, board, player) {
+  if (typeof getBestMove !== 'function') {
+    throw new Error("Invalid algorithm function provided.");
+  }
+
   const start = performance.now();
-  const move = getBestMove(board, player);
-  const timeTaken = performance.now() - start;
+  let move = null;
+  let timeTaken = null;
+
+  try {
+    if (!board || !Array.isArray(board)) {
+      throw new Error("Invalid board passed to algorithm.");
+    }
+    if (!player || (player !== 'X' && player !== 'O')) {
+      throw new Error("Invalid player passed to algorithm.");
+    }
+    move = getBestMove(board, player);
+    timeTaken = performance.now() - start;
+  } catch (error) {
+    console.error("Error in measuring algorithm time:", error);
+    move = null;
+    timeTaken = 0;
+  }
+
   return { move, timeTaken: timeTaken.toFixed(3) };
 }
 
 export function computerMove(board, algorithm, player) {
   let chosenMove = null;
 
-
-  algorithmicMoveCounter++;
-  console.log(`Algorithmic Move #${algorithmicMoveCounter}`);
-
-  // Measure algorithm times
-  const { move: minimaxMove, timeTaken: minimaxTime } = measureAlgorithmTime(getBestMoveMinimaxLite, board, player);
-  const { move: heuristicMove, timeTaken: heuristicTime } = measureAlgorithmTime(getBestMoveHeuristicLite, board, player);
-
-  console.log(`⏱️ Minimax Time: ${minimaxTime} ms`);
-  console.log(`⏱️ Heuristic Time: ${heuristicTime} ms`);
-
-  if (algorithm === 'both') {
-    if (minimaxMove.row === heuristicMove.row && minimaxMove.col === heuristicMove.col) {
-      chosenMove = minimaxMove;
-    } else {
-      chosenMove = Math.random() < 0.5 ? minimaxMove : heuristicMove;
+  try {
+    // Validate input parameters
+    if (!Array.isArray(board) || board.length === 0) {
+      throw new Error("Invalid board provided.");
     }
-  } else if (algorithm === 'minimax') {
-    chosenMove = minimaxMove;
-  } else if (algorithm === 'heuristic') {
-    chosenMove = heuristicMove;
-  }
+    if (typeof algorithm !== 'string' || !['minimax', 'heuristic', 'both'].includes(algorithm)) {
+      throw new Error("Invalid algorithm choice. Use 'minimax', 'heuristic', or 'both'.");
+    }
+    if (player !== 'X' && player !== 'O') {
+      throw new Error("Invalid player. Must be 'X' or 'O'.");
+    }
 
-  
-  return applyMoveToBoard(board, chosenMove);
+    algorithmicMoveCounter++;
+    console.log(`Algorithmic Move #${algorithmicMoveCounter}`);
+
+    // Measure algorithm times and handle errors for both algorithms
+    const { move: minimaxMove, timeTaken: minimaxTime } = measureAlgorithmTime(getBestMoveMinimaxLite, board, player);
+    const { move: heuristicMove, timeTaken: heuristicTime } = measureAlgorithmTime(getBestMoveHeuristicLite, board, player);
+
+    console.log(`⏱️ Minimax Time: ${minimaxTime} ms`);
+    console.log(`⏱️ Heuristic Time: ${heuristicTime} ms`);
+
+    // Handle logic to choose the move based on the algorithm
+    if (algorithm === 'both') {
+      if (minimaxMove && heuristicMove && minimaxMove.row === heuristicMove.row && minimaxMove.col === heuristicMove.col) {
+        chosenMove = minimaxMove;
+      } else {
+        chosenMove = Math.random() < 0.5 ? minimaxMove : heuristicMove;
+      }
+    } else if (algorithm === 'minimax') {
+      chosenMove = minimaxMove;
+    } else if (algorithm === 'heuristic') {
+      chosenMove = heuristicMove;
+    }
+
+    // Ensure a move is chosen
+    if (!chosenMove) {
+      throw new Error("No valid move chosen by the algorithm.");
+    }
+
+    // Apply the chosen move to the board and validate move position
+    return applyMoveToBoard(board, chosenMove);
+
+  } catch (error) {
+    // Log detailed error information and show user-friendly message
+    console.error("Error in computer move:", error);
+    toast.error(`An error occurred while calculating the computer's move: ${error.message}. Please try again.`);
+    return board;  // Return the original board if there's an error
+  }
 }

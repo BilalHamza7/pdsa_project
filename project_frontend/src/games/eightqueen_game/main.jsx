@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
-import Confetti from 'react-confetti';
+//import Confetti from 'react-confetti';
 import { PulseLoader } from 'react-spinners';
-import Confetti from 'react-confetti';
-import { PulseLoader, HashLoader } from 'react-spinners';
+//import Confetti from 'react-confetti';
+//import { PulseLoader, HashLoader } from 'react-spinners';
 
 import axios from 'axios';
 
