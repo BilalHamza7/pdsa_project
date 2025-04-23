@@ -37,6 +37,11 @@ const TowerOfHanoi = () => {
   
   const [pegs4, setPegs4] = useState({ A: [], B: [], C: [], D: [] });
   const [selectedDisk4, setSelectedDisk4] = useState(null);
+
+  const isValidDisk = (val) => !isNaN(val) && Number(val) > 0;
+  const isValidPeg = (val) => ["A", "B", "C"].includes(val?.toUpperCase?.());
+  const isValidPeg4 = (val) => ["A", "B", "C", "D"].includes(val?.toUpperCase?.());
+
   
 
   useEffect(() => {
@@ -126,6 +131,10 @@ const TowerOfHanoi = () => {
 
   const handleMoveCountChange = (e) => {
     const count = parseInt(e.target.value);
+    if (isNaN(count) || count <= 0) {
+      alert("Please enter a valid move count.");
+      return;
+    }
     setUserMoveCount(count);
     setUserMoves(Array(count).fill({ disk: "", from: "", to: "" }));
   };
@@ -138,10 +147,17 @@ const TowerOfHanoi = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!playerName || userMoves.some(move => !move.disk || !move.from || !move.to)) {
+    if (
+      !playerName ||
+      userMoves.some(
+        (move) =>
+          !isValidDisk(move.disk) || !isValidPeg(move.from) || !isValidPeg(move.to)
+      )
+    ) {
       return alert("Please fill all fields correctly.");
     }
-
+    
+    try{
     setIsRunning(false);
     // Measure Recursive Time
     const t0Recursive = performance.now();
@@ -175,7 +191,11 @@ const TowerOfHanoi = () => {
       recursiveSolution,
       iterativeSolution,
     });
-  };
+  }catch (error) {
+    console.error("Error during solution comparison:", error);
+    alert("An unexpected error occurred while processing your submission.");
+  }
+};
 
   const resetGame = () => {
     setDiskCount(getRandomDisks());
@@ -228,6 +248,10 @@ const TowerOfHanoi = () => {
 // Handle user input for move count in 4-peg game
 const handle4PegMoveCountChange = (e) => {
   const count = parseInt(e.target.value); // Parse input to integer
+  if (isNaN(count) || count <= 0) {
+    alert("Please enter a valid move count.");
+    return;
+  }
   setUserMoveCount4Peg(count); // Set the user move count for 4-peg game
   setUserMoves4Peg(Array(count).fill({ disk: "", from: "", to: "" })); // Initialize empty move sequence
 };
@@ -242,10 +266,17 @@ const handle4PegMoveChange = (index, field, value) => {
 const handle4PegSubmit = (e) => {
   e.preventDefault(); // Prevent default form submission
   // Validate user input
-  if (!playerName4Peg || userMoves4Peg.some((move) => !move.disk || !move.from || !move.to)) {
+  if (
+    !playerName4Peg ||
+    userMoves4Peg.some(
+      (move) =>
+        !isValidDisk(move.disk) || !isValidPeg4(move.from) || !isValidPeg4(move.to)
+    )
+  ) {
     return alert("Please fill all fields correctly.");
   }
-
+  
+ try{
    // Stop the 4-Peg timer
    setIsRunning4(false);  // This stops the timer
 
@@ -270,6 +301,10 @@ setResult4Peg({
   solution: fourPegMoves,
   solutionTime: fourPegMoves.length,
 });
+}catch (error) {
+  console.error("Error during 4-peg validation:", error);
+  alert("An unexpected error occurred in the 4-peg game.");
+}
 };
 
 if (isLoading) {
