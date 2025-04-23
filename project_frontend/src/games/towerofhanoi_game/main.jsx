@@ -14,7 +14,7 @@ const TowerOfHanoi = () => {
 
   const [diskCount, setDiskCount] = useState(getRandomDisks());
   const [playerName, setPlayerName] = useState("");
-  const [userMoveCount, setUserMoveCount] = useState("");
+  const [userMoveCount, setUserMoveCount] = useState(0);
   const [userMoves, setUserMoves] = useState([]);
   const [result, setResult] = useState(null);
   const [timer, setTimer] = useState(0);
@@ -32,6 +32,11 @@ const TowerOfHanoi = () => {
   const [timer4Peg, setTimer4Peg] = useState(0);
   const [result4Peg, setResult4Peg] = useState(null);
 
+  const [pegs, setPegs] = useState({ A: [], B: [], C: [] });
+  const [selectedDisk, setSelectedDisk] = useState(null);
+  
+  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -39,7 +44,38 @@ const TowerOfHanoi = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  
+  useEffect(() => {
+    const initialDisks = Array.from({ length: diskCount }, (_, i) => diskCount - i);
+    setPegs({ A: initialDisks, B: [], C: [] });
+    setUserMoves([]);
+    setUserMoveCount(0);
+    setSelectedDisk(null);
+  }, [diskCount]);
+
+  const handlePegClick = (pegName) => {
+    const currentPeg = pegs[pegName];
+    if (selectedDisk !== null) {
+      const topDisk = currentPeg[currentPeg.length - 1];
+      if (!topDisk || selectedDisk < topDisk) {
+        const newPegs = { ...pegs };
+        const sourcePeg = Object.keys(pegs).find((peg) => pegs[peg].includes(selectedDisk));
+        newPegs[sourcePeg] = newPegs[sourcePeg].filter((d) => d !== selectedDisk);
+        newPegs[pegName] = [...newPegs[pegName], selectedDisk];
+        setPegs(newPegs);
+        setUserMoves((prev) => [...prev, { disk: selectedDisk, from: sourcePeg, to: pegName }]);
+        setUserMoveCount((prev) => prev + 1);
+        setSelectedDisk(null);
+      } else {
+        alert("Invalid move! Cannot place larger disk on smaller disk.");
+      }
+    } else {
+      if (currentPeg.length > 0) {
+        const disk = currentPeg[currentPeg.length - 1];
+        setSelectedDisk(disk);
+      }
+    }
+  };
+
 
   useEffect(() => {
     let interval = null;
@@ -222,27 +258,19 @@ if (isLoading) {
       <h3>Disks for this round: <strong>{diskCount}</strong></h3>
 
       <div className="visual-board">
-        {["A", "B", "C"].map((peg, pegIndex) => (
-          <div className="peg" key={pegIndex}>
+      {Object.entries(pegs).map(([pegName, pegDisks]) => (
+          <div className="peg" key={pegName} onClick={() => handlePegClick(pegName)}>
             <div className="peg-bar" />
-            <div className="peg-label">{peg}</div>
-            {peg === "A" &&
-              isStarted &&
-              Array.from({ length: diskCount }, (_, i) => {
-                const size = diskCount - i;
-                return (
-                  <div
-                    key={size}
-                    className="disk"
-                    style={{
-                      width: `${size * 20 + 40}px`,
-                      backgroundColor: getDiskColor(size),
-                    }}
-                  >
-                    {size}
-                  </div>
-                );
-              })}
+            <div className="peg-label">{pegName}</div>
+            {pegDisks.map((disk) => (
+              <div
+                key={disk}
+                className={`disk ${selectedDisk === disk ? "selected" : ""}`}
+                style={{ width: `${disk * 20 + 40}px`, backgroundColor: `hsl(${disk * 30}, 70%, 60%)` }}
+              >
+                {disk}
+              </div>
+            ))}
           </div>
         ))}
       </div>
