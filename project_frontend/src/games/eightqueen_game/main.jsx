@@ -1,7 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-//import Confetti from 'react-confetti';
-//import { PulseLoader } from 'react-spinners';
+
+import Confetti from 'react-confetti';
+import { PulseLoader } from 'react-spinners';
+import Confetti from 'react-confetti';
+import { PulseLoader, HashLoader } from 'react-spinners';
 
 import axios from 'axios';
 
@@ -17,24 +20,29 @@ export default function Main() {
 
     const [board, setBoard] = useState([]);
     const [playerName, setPlayerName] = useState('');
+    const [positions, setPositions] = useState(Array(8).fill(-1));
     const [sequentialResult, setSequentialResult] = useState({});
     const [threadedResult, setThreadedResult] = useState({});
-    const [playerSolutionCount, setPlayerSolutionCount] = useState("0");
+    const [playerSolutionCount, setPlayerSolutionCount] = useState(-1);
     const [gameResult, setGameResult] = useState("Waiting");
     const [showConfetti, setShowConfetti] = useState(false);
 
     const [resetModal, setResetModal] = useState(false);
     const [resetSolModal, setResetSolModal] = useState(false);
 
-    const handleBoardChange = (updatedBoard) => {
+    const handleBoardChange = (updatedBoard, pos) => {
         setBoard(updatedBoard);
+        setPositions(pos);
+        // console.log(board);
+        console.log(pos);
     };
 
     const resetGame = async () => {
         try {
             const response = await axios.delete('http://localhost:5000/api/eightQueensPuzzle/clearAllData')
             if (response) {
-
+                setResetModal((prev) => !prev);
+                location.reload();
             }
         } catch (error) {
             console.log(error)
@@ -117,6 +125,7 @@ export default function Main() {
     };
 
     const savePlayerData = async (playerPositions) => {
+        setPlayerSolutionCount(-1);
         setGameResult("Win");
         throwConfetti();
         try {
@@ -126,7 +135,7 @@ export default function Main() {
             });
 
             const plSolCount = await axios.get('http://localhost:5000/api/eightQueensPuzzle/getPlayerSolutionCount');
-            setPlayerSolutionCount(plSolCount.count);
+            setPlayerSolutionCount(plSolCount.data);
 
             if (plSolCount === sequentialResult.numberOfSolutions) {
                 setResetSolModal(true);
@@ -146,7 +155,9 @@ export default function Main() {
         }
 
         setGameResult("Loading");
-        const positions = board.map(row => row.indexOf(true)).reverse(); // array with column indexes of queens placed
+        const finalPos = positions.slice().reverse();
+        console.log("final" + finalPos);
+        console.log("pos" + positions);
 
         try {
             const sequentialSolutions = await axios.get('http://localhost:5000/api/eightQueensPuzzle/getSequentialSolutions');
@@ -160,15 +171,15 @@ export default function Main() {
             const playerArr = playerData != null && playerData.map(item => item.solution);  // map the solutions to an array
 
             const algoExists = seqArr.some(
-                solution => JSON.stringify(solution) === JSON.stringify(positions)  // check if current solution exists in the stored algorithm solutions
+                solution => JSON.stringify(solution) === JSON.stringify(finalPos)  // check if current solution exists in the stored algorithm solutions
             );
 
             const playerExists = playerArr == null ? false : playerArr.some(
-                solution => JSON.stringify(solution) === JSON.stringify(positions)  // check if current solution does not exists in the stored player solutions
+                solution => JSON.stringify(solution) === JSON.stringify(finalPos)  // check if current solution does not exists in the stored player solutions
             );
 
             if (algoExists === false) setGameResult("Lose");
-            else if (algoExists === true && playerExists === false) savePlayerData(positions);
+            else if (algoExists === true && playerExists === false) savePlayerData(finalPos);
             else if (algoExists === true && playerExists === true) setGameResult("Draw");
         } catch (error) {
             console.log(error);
@@ -178,7 +189,7 @@ export default function Main() {
 
     useEffect(() => {
         const runSolutionsAndStore = async () => {
-
+            setPlayerSolutionCount(-1);
             const threadedResult = await findThreadedSolutions();
             const sequentialResult = await findSequentialSolutions();
             setThreadedResult(threadedResult);
@@ -221,33 +232,29 @@ export default function Main() {
                 </div>
                 <p className='' style={{ width: 'fit-content', textAlign: 'center', marginTop: '20px' }} >Welcome to the Eight Queens Puzzle! Your challenge is to place eight queens on an 8x8 chessboard such that no two queens can attack each other. <br /> <span style={{ fontWeight: '600' }}>This means: No two queens can share the same row, column, or diagonal</span></p>
                 <div className="puzzle_play_area">
-                    <Chessboard onBoardChange={handleBoardChange} />
+                    <Chessboard onBoardChange={handleBoardChange} positions={positions} />
                     <div className='puzzle_game_details'>
                         <label htmlFor="playerName" style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', fontWeight: '500' }}>Enter Player Name:
                             <input type="text" id='playerName' value={playerName} placeholder='Player Name' onChange={(e) => setPlayerName(e.target.value)} style={{ outline: 'none', fontSize: 'medium', fontFamily: 'Montserrat', padding: '6px', borderRadius: '4px' }} />
                         </label>
                         <div className="" style={{ display: 'flex', gap: '48px', width: '100%', margin: '36px 0 0 0' }}>
-                            <p style={{ margin: '0', fontWeight: '300' }}>Possible Number Of Solutions:<span style={{ fontWeight: '600' }}> {sequentialResult.numberOfSolutions}</span></p>
-                            <p style={{ margin: '0', fontWeight: '300' }}>Solutions Currently Found:<span style={{ fontWeight: '600' }}> {playerSolutionCount}</span></p>
+                            <p style={{ margin: '0', fontWeight: '300' }}>Possible Number Of Solutions:<span style={{ fontWeight: '600' }}> {sequentialResult.numberOfSolutions != null ? sequentialResult.numberOfSolutions : (<span>&nbsp;&nbsp;<HashLoader size={20} /></span>)}</span></p>
+                            <p style={{ margin: '0', fontWeight: '300' }}>Solutions Currently Found:<span style={{ fontWeight: '600' }}> {playerSolutionCount != -1 ? playerSolutionCount : (<span>&nbsp;&nbsp;<HashLoader size={20} /></span>)}</span></p>
                         </div>
                         <p style={{ margin: '36px 0 0 0', fontWeight: 'bold', textAlign: 'left', width: '100%' }}>Selected Positions [Row, Column]:</p>
                         <div className='positions'>
-                            {board
-                                .flatMap((row, rowIndex) =>
-                                    row.map((hasQueen, colIndex) =>
-                                        hasQueen ? { row: 8 - rowIndex, col: colIndex + 1 } : null
+                            {positions
+                                .slice()  // copy array
+                                .reverse() 
+                                .map((col, index) => (
+                                    col >= 0 && (
+                                        <p key={index}>
+                                            <strong>{index + 1}.</strong> [ {index + 1}, {col + 1} ]
+                                        </p>
                                     )
-                                )
-                                .filter(Boolean)
-                                .map((pos, index, arr) => (
-                                    <span key={index}>
-                                        <span style={{ fontWeight: 'bold' }}>{index + 1}.</span> [{pos.row}, {pos.col}]
-                                        {index !== arr.length - 1 && ', '}
-                                    </span>
-                                ))
-                            }
+                                ))}
                         </div>
-                        <button onClick={() => handleSubmit()} className='button_style' style={{ backgroundColor: 'rgb(48, 115, 81, .5)', margin: '12px 0 0 0' }}>
+                        <button onClick={() => handleSubmit()} className='button_style' style={{ backgroundColor: 'rgb(48, 115, 81, .5)', margin: '4px 0 0 0' }}>
                             Submit
                         </button>
                         <div className="puzzle_result_area" style={gameResult === "Win" ? { backgroundColor: 'rgb(147, 255, 150, .8)' } : gameResult === "Lose" ? { backgroundColor: 'rgb(236, 78, 32, .5)' } : gameResult === "Draw" ? { backgroundColor: 'rgb(242, 221, 110, .5)' } : { backgroundColor: 'white' }}>
@@ -276,6 +283,6 @@ export default function Main() {
             </div>
 
             <GameDetails sequential={sequentialResult} threaded={threadedResult} playerSolutionCount={playerSolutionCount} />
-        </div>
+        </div >
     )
 };
