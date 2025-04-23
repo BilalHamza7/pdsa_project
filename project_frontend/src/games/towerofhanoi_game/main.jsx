@@ -196,7 +196,7 @@ setResult4Peg({
 
   return (
     <div className="hanoi-container">
-      <h2>Tower of Hanoi (3-Peg) </h2>
+      <h2>3-Peg Tower of Hanoi Challenge </h2>
       <h3>Disks for this round: <strong>{diskCount}</strong></h3>
 
       <div className="visual-board">
@@ -299,9 +299,9 @@ setResult4Peg({
 
       {result && (
         <div className="result">
-          <h3>Game Result</h3>
+          <h3>GAME RESULT</h3>
           <p><strong>Player:</strong> {result.playerName}</p>
-          <p><strong>Disks:</strong> {result.diskCount}</p>
+          <p><strong>Disks Count:</strong> {result.diskCount}</p>
           <p><strong>Result:</strong> {result.isCorrect ? "🏆 WIN" : "❌ Lose"}</p>
           <p><strong>Your Move Count:</strong> {result.userMoveCount}</p>
           <p><strong>Time Taken:</strong> {result.timeTaken}s</p>
@@ -347,7 +347,7 @@ setResult4Peg({
 
       {/* 4-Peg Tower of Hanoi Section */}
 <div className="hanoi-section">
-  <h2>4-Peg Tower of Hanoi (Frame-Stewart Algorithm)</h2>
+  <h2>4-Peg Tower of Hanoi Challenge</h2>
   <h3>Disks for this round: <strong>{diskCount}</strong></h3>
 
   <div className="visual-board">
@@ -377,7 +377,7 @@ setResult4Peg({
 </div>
 
   
-  <button className="start-btn" onClick={handleStart4peg} disabled={isStarted4}>Start 4-Peg Game</button>
+  <button className="start-btn" onClick={handleStart4peg} disabled={isStarted4}>Start Game</button>
 
   {isStarted4 && (
         <form onSubmit={handle4PegSubmit} className="hanoi-form">
@@ -458,29 +458,29 @@ setResult4Peg({
           ))}
         </div>
         
-        <button type="submit" disabled={!isStarted4} > Submit Answer</button> 
-        <button onClick={reset4PegGame}>Reset 4-Peg Game</button>
+        <button className="submit" type="submit" disabled={!isStarted4} > Submit Answer</button> 
+        <button className="reset" onClick={reset4PegGame}>Reset 4-Peg Game</button>
         </form>
         
  )}
  <h3>⏱️ Time Elapsed: {timer4Peg}s</h3>
         {result4Peg && (
         <div className="result">
-          <h3>4-Peg Result</h3>
+          <h3>GAME RESULT</h3>
           <p><strong>Player:</strong> {result4Peg.playerName}</p>
           <p><strong>Disk Count:</strong> {result4Peg.diskCount}</p>
-          <p><strong>User Move Count:</strong> {result4Peg.userMoveCount}</p>
-          <p><strong>User Sequence:</strong> {result4Peg.userSequence.join(", ")}</p>
-          <p><strong>Correct:</strong> {result4Peg.isCorrect ? "Yes" : "No"}</p>
+          <p><strong>Your Move Count:</strong> {result4Peg.userMoveCount}</p>
+          <p><strong>Your Sequence:</strong> {result4Peg.userSequence.join(", ")}</p>
+          <p><strong>Correct:</strong> {result4Peg.isCorrect ? "👏🏻 Yes" : "❌ No"}</p>
           <p><strong>Time Taken:</strong> {result4Peg.timeTaken}s</p>
-          <p><strong>Solution:</strong></p>
+          <p><strong>Optimal Solution:</strong></p>
           <div className="move-list">
         {fourPegMoves.map((move, index) => (
           <div key={index}>{move}</div>
         ))}
       </div>
-          <p><strong>Solution Move Count:</strong> {result4Peg.solutionTime}</p>
-          <p><strong>Result:</strong> {result4Peg.isCorrect ? "You Win!" : "Try Again!"}</p>
+          <p><strong>Optimal Solution Move Count:</strong> {result4Peg.solutionTime}</p>
+          <p><strong>Result:</strong> {result4Peg.isCorrect ? "🏆 You Win!" : "😞 Try Again!"}</p>
         </div>
       )}
  
