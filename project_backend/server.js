@@ -5,7 +5,7 @@ import env from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 
 import eightQueenRoutes from './routes/eightqueenspuzzle.js';
-
+import knightstourRoutes from './routes/knightstour.js';
 const app = express();
 env.config();
 
@@ -22,7 +22,7 @@ if(!supabase) {
 
 // Import the game routes
 app.use('/api/eightQueensPuzzle', eightQueenRoutes);   // Eight Queens Puzzle Games routes
-
+app.use('/api/knightsTour', knightstourRoutes);
 
 
 
