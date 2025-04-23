@@ -37,5 +37,5 @@ export function getBestMoveMinimaxLite(board, player) {
   }
 
   // If the board is full and no move is found, return null (game over)
-  return null; // This shouldn't happen unless the game is over
+  return null; 
 }
