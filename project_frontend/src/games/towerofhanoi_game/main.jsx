@@ -10,6 +10,8 @@ import "./TowerOfHanoi.css";
 const getRandomDisks = () => Math.floor(Math.random() * 6) + 5;
 
 const TowerOfHanoi = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
   const [diskCount, setDiskCount] = useState(getRandomDisks());
   const [playerName, setPlayerName] = useState("");
   const [userMoveCount, setUserMoveCount] = useState("");
@@ -29,6 +31,15 @@ const TowerOfHanoi = () => {
   const [isStarted4, setIsStarted4] = useState(false);
   const [timer4Peg, setTimer4Peg] = useState(0);
   const [result4Peg, setResult4Peg] = useState(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // 2 seconds preloader
+    return () => clearTimeout(timer);
+  }, []);
+
+  
 
   useEffect(() => {
     let interval = null;
@@ -193,6 +204,17 @@ setResult4Peg({
   solutionTime: fourPegMoves.length,
 });
 };
+
+if (isLoading) {
+  return (
+    <div className="preloader">
+      <img src="/hanoi-logo.png" alt="Loading..." className="loader-image" />
+      <h2>Loading Tower of Hanoi Game...</h2>
+      <div className="spinner"></div>
+    </div>
+  );
+}
+
 
   return (
     <div className="hanoi-container">

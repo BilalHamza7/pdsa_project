@@ -236,3 +236,53 @@ color: white;
   margin: 5px 0;
   font-family: monospace;
 }
+
+.preloader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #121212;
+  color: white;
+  font-size: 1.5rem;
+}
+.preloader h2{
+  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+.spinner {
+  margin-top: 20px;
+  width: 30px;
+  height: 30px;
+  border: 8px solid rgba(90, 87, 87, 0.2);
+  border-top: 8px solid #4dff5c; /* First color */
+  border-right: 8px solid #ff4d4d; /* Second color */
+  border-bottom: 8px solid #4d4dff; /* Third color */
+  border-left: 8px solid #ffdb4d; /* Fourth color */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loader-image {
+  width: 735px;
+  height: auto;
+  margin-bottom: 20px;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
