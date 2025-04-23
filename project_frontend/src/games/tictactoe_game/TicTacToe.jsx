@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './TicTacToe.css';
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 import { computerMove, resetAlgorithmicCounter } from './computerMoveStrategy';
 import { checkWinner } from './checkWinner';
 
@@ -21,83 +18,59 @@ const TicTacToe = () => {
   const [nameSubmitted, setNameSubmitted] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [showMessage, setShowMessage] = useState(true);
+  const [error, setError] = useState('');
+  const [welcome, setWelcome] = useState('');
 
   const makeMove = (row, col) => {
-    try {
-      if (board[row][col] || gameOver) return; // Block invalid moves
-      const updated = board.map(r => [...r]); // Create a copy of the board
-      updated[row][col] = 'X'; // Player's move
-      setBoard(updated);
-      setPlayerTurn(false);
-    } catch (error) {
-      toast.error("Error making move! ❌");
-      console.error("Move Error:", error);
-    }
+    if (board[row][col] || gameOver) return;
+    const updated = board.map(r => [...r]);
+    updated[row][col] = 'X';
+    setBoard(updated);
+    setPlayerTurn(false);
   };
 
   useEffect(() => {
-    try {
-      const winner = checkWinner(board);
-      if (winner) {
-        setGameOver(true);
-        if (winner === 'X') {
-          setMessage(`${playerName} Wins!`);
-        } else if (winner === 'O') {
-          setMessage('Computer Wins!');
-        } else if (winner === 'Draw') {
-          setMessage('Draw Game');
-        }
-        return;
-      }
+    const winner = checkWinner(board);
+    if (winner) {
+      setGameOver(true);
+      if (winner === 'X') setMessage(`${playerName} Wins!`);
+      else if (winner === 'O') setMessage('Computer Wins!');
+      else if (winner === 'Draw') setMessage('Draw Game');
+      return;
+    }
 
-      if (!playerTurn && !gameOver) {
-        setTimeout(() => {
-          try {
-            const newBoard = computerMove(board, 'minimax', 'O');
-            setBoard(newBoard);
-            setPlayerTurn(true);
-          } catch (error) {
-            toast.error("Computer move failed! 🤖");
-            console.error("Computer Move Error:", error);
-          }
-        }, 500);
-      }
-    } catch (error) {
-      toast.error("An error occurred during the game logic.");
-      console.error("Game Logic Error:", error);
+    if (!playerTurn && !gameOver) {
+      setTimeout(() => {
+        const newBoard = computerMove(board, 'minimax', 'O');
+        setBoard(newBoard);
+        setPlayerTurn(true);
+      }, 500);
     }
   }, [board, playerTurn, playerName, gameOver]);
 
   const resetGame = () => {
-    try {
-      setBoard(emptyBoard);
-      setPlayerTurn(true);
-      setGameOver(false);
-      setMessage('');
-      setShowMessage(true);
-      resetAlgorithmicCounter();
-    } catch (error) {
-      toast.error("Failed to reset game! 🔄");
-    }
+    setBoard(emptyBoard);
+    setPlayerTurn(true);
+    setGameOver(false);
+    setMessage('');
+    setShowMessage(true);
+    resetAlgorithmicCounter();
   };
 
   const handleNameSubmit = (e) => {
     e.preventDefault();
-    try {
-      if (!playerName.trim()) {
-        toast.warning("Name cannot be blank. Please enter a valid name.");
-      } else if (!/^[A-Za-z]+$/.test(playerName)) { // Regex for alphabetic characters only
-        toast.warning("Name can only contain letters. Please enter a valid name.");
-      } else {
-        setNameSubmitted(true);
-        resetAlgorithmicCounter();
-        toast.success(`Welcome, ${playerName}! 🎉`);
-      }
-    } catch (error) {
-      toast.error("Failed to submit name! ⚠️");
+    setError('');
+    setWelcome('');
+    if (!playerName.trim()) {
+      setError('Name cannot be blank. Please enter a valid name.');
+    } else if (!/^[A-Za-z]+$/.test(playerName)) {
+      setError('Name can only contain letters. Please enter a valid name.');
+    } else {
+      setNameSubmitted(true);
+      resetAlgorithmicCounter();
+      setWelcome(`Welcome, ${playerName}!`);
     }
   };
-  
 
   const toggleInfoDisplay = () => setShowInfo(!showInfo);
 
@@ -110,7 +83,6 @@ const TicTacToe = () => {
 
   return (
     <div className="tictactoe-container">
-      <ToastContainer />
       <h1>Tic Tac Toe</h1>
 
       {!nameSubmitted ? (
@@ -123,6 +95,8 @@ const TicTacToe = () => {
             onChange={(e) => setPlayerName(e.target.value)}
           />
           <button type="submit" className="name-submit-btn">Let's start the game!</button>
+          {error && <p className="error-message">{error}</p>}
+          {welcome && <p className="welcome-message">{welcome}</p>}
         </form>
       ) : (
         <>

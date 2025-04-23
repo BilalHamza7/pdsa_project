@@ -1,41 +1,36 @@
-import { checkWinner } from './checkWinner';
+// minimaxLite.js
+import { checkWinner } from './checkWinner.js';
 
 export function getBestMoveMinimaxLite(board, player) {
   const opponent = player === 'X' ? 'O' : 'X';
 
-  const isWinningMove = (board, row, col, player) => {
+  const isWinningMove = (board, row, col, currentPlayer) => {
     const tempBoard = board.map(r => [...r]);
-    tempBoard[row][col] = player;
-    return checkWinner(tempBoard) === player;
+    tempBoard[row][col] = currentPlayer;
+    return checkWinner(tempBoard) === currentPlayer;
   };
 
-  // Try to win
   for (let r = 0; r < board.length; r++) {
     for (let c = 0; c < board[r].length; c++) {
       if (!board[r][c] && isWinningMove(board, r, c, player)) {
-        return { row: r, col: c }; // Return winning move
+        return { move: [r, c], score: 1000 }; // Winning move for player
       }
     }
   }
 
-  // Try to block
   for (let r = 0; r < board.length; r++) {
     for (let c = 0; c < board[r].length; c++) {
       if (!board[r][c] && isWinningMove(board, r, c, opponent)) {
-        return { row: r, col: c }; // Return blocking move
+        return { move: [r, c], score: -1000 }; // Block opponent's winning move
       }
     }
   }
 
-  // Ensure there's always a fallback move (pick the first available empty spot)
   for (let r = 0; r < board.length; r++) {
     for (let c = 0; c < board[r].length; c++) {
-      if (!board[r][c]) {
-        return { row: r, col: c }; // Return first available move
-      }
+      if (!board[r][c]) return { move: [r, c], score: 0 }; // No winner, choose an empty spot
     }
   }
 
-  // If the board is full and no move is found, return null (game over)
-  return null; 
+  return null; // No valid move found
 }
