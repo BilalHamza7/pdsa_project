@@ -22,7 +22,6 @@ const TowerOfHanoi = () => {
   const [showIterative, setShowIterative] = useState(false);
 
   const [fourPegMoves, setFourPegMoves] = useState([]);
-  const [diskCount4Peg, setDiskCount4Peg] = useState(0);
   const [playerName4Peg, setPlayerName4Peg] = useState("");
   const [userMoveCount4Peg, setUserMoveCount4Peg] = useState("");
   const [userMoves4Peg, setUserMoves4Peg] = useState([]);
@@ -30,9 +29,6 @@ const TowerOfHanoi = () => {
   const [isStarted4, setIsStarted4] = useState(false);
   const [timer4Peg, setTimer4Peg] = useState(0);
   const [result4Peg, setResult4Peg] = useState(null);
-  
-
-  
 
   useEffect(() => {
     let interval = null;
@@ -44,7 +40,7 @@ const TowerOfHanoi = () => {
 
   const handleStart = () => {
     setIsStarted(true);
-    setIsRunning(true);
+    setIsRunning(true);  
   };
 
   const handleMoveCountChange = (e) => {
@@ -119,10 +115,8 @@ const TowerOfHanoi = () => {
 //4-Peg Tower of Hanoi (Frame-Stewart Algorithm)
 
   const start4PegGame = () => {
-    const randomDisks = Math.floor(Math.random() * 6) + 5; // 5–10
-    setDiskCount4Peg(randomDisks);
-
-    const moves = solveHanoi4Pegs(randomDisks, "A", "B", "C", "D");
+    setResult4Peg(null);
+    const moves = solveHanoi4Pegs(diskCount, "A", "B", "C", "D");
     setFourPegMoves(moves);
   };
 
@@ -142,7 +136,7 @@ const TowerOfHanoi = () => {
 
   
   const reset4PegGame = () => {
-  setDiskCount4Peg(0);
+  
   setPlayerName4Peg("");
   setFourPegMoves([]);
   setUserMoveCount4Peg("");
@@ -173,6 +167,9 @@ const handle4PegSubmit = (e) => {
   if (!playerName4Peg || userMoves4Peg.some((move) => !move.disk || !move.from || !move.to)) {
     return alert("Please fill all fields correctly.");
   }
+
+   // Stop the 4-Peg timer
+   setIsRunning4(false);  // This stops the timer
 
  // Format the user moves for 4-peg game
  const formattedUserMoves4Peg = userMoves4Peg.map(
@@ -353,6 +350,32 @@ setResult4Peg({
   <h2>4-Peg Tower of Hanoi (Frame-Stewart Algorithm)</h2>
   <h3>Disks for this round: <strong>{diskCount}</strong></h3>
 
+  <div className="visual-board">
+  {["A", "B", "C", "D"].map((peg, pegIndex) => (
+    <div className="peg" key={`4peg-${pegIndex}`}>
+      <div className="peg-bar" />
+      <div className="peg-label">{peg}</div>
+      {peg === "A" &&
+        isStarted4 &&
+        Array.from({ length: diskCount }, (_, i) => {
+          const size = diskCount - i;
+          return (
+            <div
+              key={size}
+              className="disk"
+              style={{
+                width: `${size * 20 + 40}px`,
+                backgroundColor: getDiskColor(size),
+              }}
+            >
+              {size}
+            </div>
+          );
+        })}
+    </div>
+  ))}
+</div>
+
   
   <button className="start-btn" onClick={handleStart4peg} disabled={isStarted4}>Start 4-Peg Game</button>
 
@@ -374,8 +397,7 @@ setResult4Peg({
           type="number"
           placeholder="Enter Your Move Count (e.g. 7)"
           value={userMoveCount4Peg}
-          onChange={handle4PegMoveCountChange} // Handle move count for 4-peg
-          //max={Math.pow(2, diskCount4Peg) - 1}  Max number of moves is 2^n-1
+          onChange={handle4PegMoveCountChange} // Handle move count for 4-peg  
           required
           min="1"
           disabled={!isStarted4}
@@ -449,8 +471,9 @@ setResult4Peg({
           <p><strong>Disk Count:</strong> {result4Peg.diskCount}</p>
           <p><strong>User Move Count:</strong> {result4Peg.userMoveCount}</p>
           <p><strong>User Sequence:</strong> {result4Peg.userSequence.join(", ")}</p>
-          <p><strong>Correct?</strong> {result4Peg.isCorrect ? "Yes" : "No"}</p>
+          <p><strong>Correct:</strong> {result4Peg.isCorrect ? "Yes" : "No"}</p>
           <p><strong>Time Taken:</strong> {result4Peg.timeTaken}s</p>
+          <p><strong>Solution:</strong></p>
           <div className="move-list">
         {fourPegMoves.map((move, index) => (
           <div key={index}>{move}</div>
