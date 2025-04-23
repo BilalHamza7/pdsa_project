@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-//import { supabase } from './supabaseClient';
+import { supabase } from './supabaseClient';
+import MapVisualizer from './MapVisualizer';
 
 const cities = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
@@ -98,12 +99,6 @@ const tspDynamicProgramming = (start, selectedCities, matrix) => {
   return { distance: minDistance, route: selectedCities }; // Approx route only
 };
 
-const saveGameData = (data) => {
-  const games = JSON.parse(localStorage.getItem('tspGames') || '[]');
-  games.push(data);
-  localStorage.setItem('tspGames', JSON.stringify(games));
-};
-
 export default function Main() {
   const [distanceMatrix, setDistanceMatrix] = useState([]);
   const [homeCity, setHomeCity] = useState(null);
@@ -141,7 +136,44 @@ export default function Main() {
     }
   };
 
-  const handleCheckPath = () => {
+  const saveToSupabase = async (playerName, gameData, algorithmStats) => {
+    try {
+      // Step 1: Insert game session with player_name
+      const { data: session, error: sessionError } = await supabase
+        .from('travel_salesman_gamesessions')
+        .insert([{
+          player_name: playerName,
+          home_city: gameData.homeCity,
+          selected_cities: gameData.selectedCities,
+          player_route: gameData.shortestRoute,
+          distance: gameData.distance,
+          status: gameData.status,
+        }])
+        .select('session_id')
+        .single();
+      if (sessionError) throw sessionError;
+
+      const sessionId = session.session_id;
+
+      // Step 2: Insert algorithm stats
+      const algoStats = [
+        { session_id: sessionId, algorythm_name: 'Brute Force', time_taken_ms: parseFloat(algorithmStats.times.brute), distance: algorithmStats.brute.distance },
+        { session_id: sessionId, algorythm_name: 'Nearest Neighbor', time_taken_ms: parseFloat(algorithmStats.times.nearest), distance: algorithmStats.nearest.distance },
+        { session_id: sessionId, algorythm_name: 'Dynamic Programming', time_taken_ms: parseFloat(algorithmStats.times.dp), distance: algorithmStats.dp.distance },
+      ];
+
+      const { error: statsError } = await supabase
+        .from('travel_salesman_AlgorithmStats')
+        .insert(algoStats);
+      if (statsError) throw statsError;
+
+    } catch (err) {
+      console.error('Error saving to Supabase:', err);
+      setError('Failed to save game data: ' + err.message);
+    }
+  };
+
+  const handleCheckPath = async () => {
     try {
       setError('');
       setPathFeedback('');
@@ -195,22 +227,26 @@ export default function Main() {
 
       const optimalDistance = brute.distance;
       const optimalRoute = brute.route.map((i) => cities[i]);
+      let status = 'incorrect';
       if (playerDistance === optimalDistance) {
+        status = 'correct';
         setPathFeedback(`Correct! Your path distance (${playerDistance} km) matches the optimal distance.`);
-        saveGameData({
-          playerName,
-          homeCity: cities[homeCity],
-          selectedCities: selectedCities.map((i) => cities[i]),
-          shortestRoute: inputCities,
-          distance: playerDistance,
-          times: resultData.times,
-          timestamp: new Date().toISOString(),
-        });
       } else {
         setPathFeedback(
           `Incorrect. Your path distance is ${playerDistance} km, but the optimal distance is ${optimalDistance} km. Correct path: ${optimalRoute.join(' → ')}`
         );
       }
+
+      const gameData = {
+        homeCity: cities[homeCity],
+        selectedCities: selectedCities.map((i) => cities[i]),
+        shortestRoute: inputCities,
+        distance: playerDistance,
+        status: status,
+      };
+
+      await saveToSupabase(playerName, gameData, resultData);
+
     } catch (err) {
       setError(err.message);
       // Still compute and show results even if path is invalid
@@ -255,95 +291,191 @@ export default function Main() {
   };
 
   const styles = {
-    container: { padding: 20, fontFamily: 'Arial, sans-serif', maxWidth: 800, margin: '0 auto' },
-    heading: { fontSize: 26, marginBottom: 10 },
-    section: { marginBottom: 20 },
-    input: { padding: 8, width: '100%', marginTop: 5, marginBottom: 10, fontSize: 16 },
-    checkboxContainer: { display: 'flex', flexWrap: 'wrap', gap: '10px' },
-    checkboxItem: { width: 'fit-content' },
-    button: {
-      padding: '10px 20px',
-      backgroundColor: '#007BFF',
-      color: 'white',
-      border: 'none',
-      borderRadius: 5,
-      fontSize: 16,
-      cursor: 'pointer',
+    container: {
+      maxWidth: "800px",
+      margin: "auto",
+      padding: "20px",
+      fontFamily: "'Segoe UI', sans-serif",
+      color: "#1F2937",
     },
-    error: { color: 'red' },
-    resultBox: { backgroundColor: '#f4f4f4', padding: 15, borderRadius: 10, marginTop: 20 },
-    feedback: { marginTop: 10, fontWeight: 'bold' },
+    heading: {
+      textAlign: "center",
+      marginBottom: "20px",
+      color: "#111827",
+      fontSize: "26px",
+    },
+    card: {
+      backgroundColor: "#F9FAFB",
+      padding: "20px",
+      borderRadius: "12px",
+      boxShadow: "0 4px 8px rgba(0,0,0,0.06)",
+      marginBottom: "20px",
+    },
+    section: {
+      marginBottom: "15px",
+    },
+    cityName: {
+      fontWeight: "bold",
+      color: "#3B82F6",
+    },
+    input: {
+      display: "block",
+      marginTop: "8px",
+      padding: "8px",
+      width: "100%",
+      borderRadius: "8px",
+      border: "1px solid #D1D5DB",
+      fontSize: "16px",
+    },
+    checkboxContainer: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "10px",
+      marginTop: "10px",
+    },
+    checkboxItem: {
+      backgroundColor: "#E5E7EB",
+      padding: "6px 12px",
+      borderRadius: "6px",
+    },
+    button: {
+      marginTop: "10px",
+      padding: "10px 20px",
+      backgroundColor: "#3B82F6",
+      color: "#FFFFFF",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      fontSize: "16px",
+      transition: "0.3s",
+    },
+    error: {
+      color: "#DC2626",
+      marginTop: "10px",
+    },
+    resultBox: {
+      backgroundColor: "#FEF3C7",
+      padding: "20px",
+      borderRadius: "12px",
+      marginTop: "20px",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+    },
+    resultHeading: {
+      fontSize: "20px",
+      marginBottom: "12px",
+      color: "#92400E",
+    },
+    feedback: {
+      fontStyle: "italic",
+      color: "#6B7280",
+      marginBottom: "12px",
+    },
   };
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.heading}>Traveling Salesman Problem Visualizer</h2>
-      <div style={styles.section}>
-        <strong>Home City:</strong> {homeCity !== null && cities[homeCity]}
-      </div>
-
-      <div style={styles.section}>
-        <label>
-          <strong>Enter your name:</strong>
-          <input
-            type="text"
-            placeholder="Player Name"
-            style={styles.input}
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-          />
-        </label>
-      </div>
-
-      <div style={styles.section}>
-        <strong>Select cities to visit:</strong>
-        <div style={styles.checkboxContainer}>
-          {cities.map((c, i) => (
-            i !== homeCity && (
-              <label key={i} style={styles.checkboxItem}>
-                <input
-                  type="checkbox"
-                  checked={selectedCities.includes(i)}
-                  onChange={() => handleSelectCity(i)}
-                /> {c}
-              </label>
-            )
-          ))}
+      <h2 style={styles.heading}>🗺️ Traveling Salesman Problem Visualizer</h2>
+      <MapVisualizer
+        cities={cities}
+        distanceMatrix={distanceMatrix}
+        homeCity={homeCity}
+        selectedCities={selectedCities}
+      />
+      <div style={styles.card}>
+        <div style={styles.section}>
+          <strong>🏡 Home City:</strong>{" "}
+          <span style={styles.cityName}>
+            {homeCity !== null && cities[homeCity]}
+          </span>
         </div>
-      </div>
 
-      <button onClick={handleSubmit} style={styles.button}>Submit</button>
-      {error && <p style={styles.error}>{error}</p>}
-
-      {isSubmitted && !results && (
         <div style={styles.section}>
           <label>
-            <strong>Enter your proposed path (e.g., A,B,C):</strong>
+            <strong>🧑 Enter your name:</strong>
             <input
               type="text"
-              placeholder="Enter path (e.g., A,B,C)"
+              placeholder="Player Name"
+              style={styles.input}
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+            />
+          </label>
+        </div>
+
+        <div style={styles.section}>
+          <strong>🏙️ Select cities to visit:</strong>
+          <div style={styles.checkboxContainer}>
+            {cities.map((c, i) =>
+              i !== homeCity ? (
+                <label key={i} style={styles.checkboxItem}>
+                  <input
+                    type="checkbox"
+                    checked={selectedCities.includes(i)}
+                    onChange={() => handleSelectCity(i)}
+                  />{" "}
+                  {c}
+                </label>
+              ) : null
+            )}
+          </div>
+        </div>
+
+        <button onClick={handleSubmit} style={styles.button}>
+          🚀 Submit
+        </button>
+        {error && <p style={styles.error}>{error}</p>}
+      </div>
+
+      {isSubmitted && !results && (
+        <div style={styles.card}>
+          <label>
+            <strong>📝 Enter your proposed path (e.g., A,B,C):</strong>
+            <input
+              type="text"
+              placeholder="Enter path"
               style={styles.input}
               value={playerPath}
               onChange={(e) => setPlayerPath(e.target.value)}
             />
           </label>
-          <button onClick={handleCheckPath} style={styles.button}>Check Path</button>
+          <button onClick={handleCheckPath} style={styles.button}>
+            ✅ Check Path
+          </button>
         </div>
       )}
 
       {results && (
         <div style={styles.resultBox}>
-          <h4>Results for {results.playerName}</h4>
+          <h4 style={styles.resultHeading}>🎯 Results for {results.playerName}</h4>
           <p style={styles.feedback}>{pathFeedback}</p>
-          <p><strong>Brute Force:</strong> {results.brute.distance} km — Route: {results.brute.route.map(i => cities[i]).join(" → ")}</p>
-          <p><strong>Nearest Neighbor:</strong> {results.nearest.distance} km — Route: {results.nearest.route.map(i => cities[i]).join(" → ")}</p>
-          <p><strong>Dynamic Programming:</strong> {results.dp.distance} km</p>
-          <p><strong>Execution Times (ms):</strong> Brute: {results.times.brute}, Nearest: {results.times.nearest}, DP: {results.times.dp}</p>
+          <p>
+            <strong>🔍 Brute Force:</strong> {results.brute.distance} km — Route:{" "}
+            {results.brute.route.map((i) => cities[i]).join(" → ")}
+          </p>
+          <p>
+            <strong>📍 Nearest Neighbor:</strong> {results.nearest.distance} km — Route:{" "}
+            {results.nearest.route.map((i) => cities[i]).join(" → ")}
+          </p>
+          <p>
+            <strong>🧠 Dynamic Programming:</strong> {results.dp.distance} km
+          </p>
+          <p>
+            <strong>⏱️ Execution Times (ms):</strong> Brute: {results.times.brute}, Nearest:{" "}
+            {results.times.nearest}, DP: {results.times.dp}
+          </p>
         </div>
       )}
 
-      <button onClick={resetGame} style={{ ...styles.button, backgroundColor: '#6B7280', marginTop: 20 }}>
-        New Game
+      <button
+        onClick={resetGame}
+        style={{
+          ...styles.button,
+          backgroundColor: "#6B7280",
+          marginTop: 20,
+          color: "#fff",
+        }}
+      >
+        🔄 New Game
       </button>
     </div>
   );
