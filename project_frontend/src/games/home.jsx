@@ -46,7 +46,7 @@ export default function Home() {
                         <p style={{ fontWeight: '400', color: 'red' }}>Click to Play &rarr;</p>
                     </div>
                 </div>
-                <div className='game' onClick={() => navigate('knightsTourGame')}>
+                <div className='game' onClick={() => navigate('/knightsTourGame')}>
                     <img className="game_image" src={knightstourImg} alt="Knight's Tour Game" />
                     <div className='game_detail'>
                         <p className='game_name'>Knight's Tour Problem</p>

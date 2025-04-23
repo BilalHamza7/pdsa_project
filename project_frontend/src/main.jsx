@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import './main.css';
 import Home from './games/home';
 import EightQueensGame from './games/eightqueen_game/main';
-import Knightstour_main from './games/knighttour_game/knightstour_main';
+import KnightTourMain from './games/knighttour_game/KnightTourMain';
 import TicTacToeGame from './games/tictactoe_game/main';
 import TowerOfHanoiGame from './games/towerofhanoi_game/main';
 import TravelingSalesmanGame from './games/travelingsalesman_game/main';
@@ -18,7 +18,7 @@ function App() {
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/eightQueensGame' element={<EightQueensGame />} />
-        <Route path='/knightsTourGame' element={<Knightstour_main />} />
+        <Route path='/knightsTourGame' element={<KnightTourMain />} />
         <Route path='/ticTacToeGame' element={<TicTacToeGame />} />
         <Route path='/towerOfHanoiGame' element={<TowerOfHanoiGame />} />
         <Route path='/travelingSalesmanGame' element={<TravelingSalesmanGame />} />
