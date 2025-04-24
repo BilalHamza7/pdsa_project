@@ -3,7 +3,7 @@ import savePlayerData from './savePlayerData';
 
 const handleSubmit = async (playerName, positions, setGameResult, sequentialResult, setShowConfetti, setResetSolModal, setPlayerSolutionCount) => {
     const namePattern = /^[A-Za-z\s]+$/;  //checks if player name matches the regex
-    if (playerName.trim() === '' && !namePattern.test(playerName)) {
+    if (playerName.trim() === '' || !namePattern.test(playerName)) {
         alert('Please Enter A Valid Player Name!');
         return;
     }
