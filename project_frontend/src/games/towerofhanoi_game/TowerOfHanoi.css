@@ -316,6 +316,7 @@ color: white;
 }
 
 .modal {
+  margin-bottom: 10px ;
   position: fixed;
   top: 0;
   left: 0;
@@ -329,6 +330,7 @@ color: white;
 }
 /* Modal background */
 .modal {
+  margin-bottom: 10px ;
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -356,6 +358,7 @@ color: white;
 
 /* Close button (X) */
 .close {
+  margin-top: 10px ;
   color: #333;
   position: absolute;
   top: 1rem;
