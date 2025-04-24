@@ -12,7 +12,7 @@ const getRandomDisks = () => Math.floor(Math.random() * 6) + 5;
 
 const TowerOfHanoi = () => {
   const [isLoading, setIsLoading] = useState(true);
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [diskCount, setDiskCount] = useState(getRandomDisks());
   const [playerName, setPlayerName] = useState("");
   const [userMoveCount, setUserMoveCount] = useState(0);
@@ -303,7 +303,7 @@ setResult4Peg({
   isCorrect: is4PegCorrect,
   timeTaken: timer4Peg,
   solution: fourPegMoves,
-  solutionTime: fourPegMoves.length,
+  solutionMovecount: fourPegMoves.length,
 });
 }catch (error) {
   console.error("Error during 4-peg validation:", error);
@@ -670,7 +670,7 @@ if (isLoading) {
           <div key={index}>{move}</div>
         ))}
       </div>
-          <p><strong>Optimal Solution Move Count:</strong> {result4Peg.solutionTime}</p>
+          <p><strong>Optimal Solution Move Count:</strong> {result4Peg.solutionMovecount}</p> 
           <p><strong>Result:</strong> {result4Peg.isCorrect ? "🏆 You Win!" : "😞 Try Again!"}</p>
         </div>
       )}
