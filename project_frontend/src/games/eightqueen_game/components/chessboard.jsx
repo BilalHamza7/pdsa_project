@@ -49,7 +49,7 @@ export default function Chessboard({ onBoardChange, positions }) {
 
     useEffect(() => {
         if (onBoardChange) {
-            onBoardChange(board, updatedPos);
+            onBoardChange(updatedPos);
         }
     }, [board]);
 

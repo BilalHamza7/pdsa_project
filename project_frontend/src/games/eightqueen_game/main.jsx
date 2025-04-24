@@ -1,11 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-
-//import Confetti from 'react-confetti';
-import { PulseLoader } from 'react-spinners';
-//import Confetti from 'react-confetti';
-//import { PulseLoader, HashLoader } from 'react-spinners';
-
+import Confetti from 'react-confetti';
+import { PulseLoader, HashLoader } from 'react-spinners';
 import axios from 'axios';
 
 import Chessboard from './components/chessboard';
@@ -13,12 +9,12 @@ import './styles/main.css';
 import findSequentialSolutions from './components/sequential';
 import findThreadedSolutions from './components/threadedMain';
 import GameDetails from './components/gameDetails';
+import handleSubmit from './components/handleSubmit';
 
 export default function Main() {
 
     const navigate = useNavigate();
 
-    const [board, setBoard] = useState([]);
     const [playerName, setPlayerName] = useState('');
     const [positions, setPositions] = useState(Array(8).fill(-1));
     const [sequentialResult, setSequentialResult] = useState({});
@@ -30,26 +26,26 @@ export default function Main() {
     const [resetModal, setResetModal] = useState(false);
     const [resetSolModal, setResetSolModal] = useState(false);
 
-    const handleBoardChange = (updatedBoard, pos) => {
-        setBoard(updatedBoard);
+    const handleBoardChange = (pos) => {
         setPositions(pos);
-        // console.log(board);
         console.log(pos);
     };
 
-    const resetGame = async () => {
+    const resetGame = async () => {  // clears all data and restarts the game
         try {
             const response = await axios.delete('http://localhost:5000/api/eightQueensPuzzle/clearAllData')
-            if (response) {
-                setResetModal((prev) => !prev);
-                location.reload();
+            if (!response.data && response.status !== 200) {
+                alert("Unable to reset game, please try again.");
+                return;
             }
+            setResetModal((prev) => !prev);
+            window.location.reload();
         } catch (error) {
-            console.log(error)
+            alert("An unexpected error occurred. Please check your connection or try again later.");
         }
     };
 
-    const ResetGameModal = ({ resetModal, handleResetModal }) => {
+    const ResetGameModal = ({ resetModal, handleResetModal }) => {  // when player clicks reset button
         if (!resetModal) return null;
 
         return (
@@ -84,7 +80,7 @@ export default function Main() {
         );
     };
 
-    const ResetSolModal = ({ resetSolModal, handleResetSolModal }) => {
+    const ResetSolModal = ({ resetSolModal, handleResetSolModal }) => {  // when all 92 solutions are found
         if (!resetSolModal) return null;
 
         return (
@@ -95,7 +91,7 @@ export default function Main() {
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    backgroundColor: 'rgba(0,0,0,0.85)',
                     zIndex: 50,
                     display: 'flex',
                     alignItems: 'center',
@@ -119,92 +115,41 @@ export default function Main() {
         );
     };
 
-    const throwConfetti = () => {
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 4000); // remove after 5 sec
-    };
-
-    const savePlayerData = async (playerPositions) => {
-        setPlayerSolutionCount(-1);
-        setGameResult("Win");
-        throwConfetti();
-        try {
-            const response = await axios.post('http://localhost:5000/api/eightQueensPuzzle/savePlayerData', {
-                playerName,
-                playerPositions,
-            });
-
-            const plSolCount = await axios.get('http://localhost:5000/api/eightQueensPuzzle/getPlayerSolutionCount');
-            setPlayerSolutionCount(plSolCount.data);
-
-            if (plSolCount === sequentialResult.numberOfSolutions) {
-                setResetSolModal(true);
-            }
-
-            console.log('Result from API:', response.data);
-        } catch (error) {
-            console.error('Error in making fetch request:', error);
-        }
-    };
-
-    const handleSubmit = async () => {
-        const namePattern = /^[A-Za-z\s]+$/; //checks if player name matches the regex
-        if (playerName.trim() === '' && !namePattern.test(playerName)) {
-            alert('Please Enter A Valid Player Name!');
-            return;
-        }
-
-        setGameResult("Loading");
-        const finalPos = positions.slice().reverse();
-        console.log("final" + finalPos);
-        console.log("pos" + positions);
-
-        try {
-            const sequentialSolutions = await axios.get('http://localhost:5000/api/eightQueensPuzzle/getSequentialSolutions');
-            const playerSolutions = await axios.get('http://localhost:5000/api/eightQueensPuzzle/getPlayerSolutions');
-            // console.log(sequentialSolutions, playerSolutions.data);
-
-            // check if solution is matching a value in the solutions record in the database
-            const seqArr = sequentialSolutions.data[0].sequential_solution;
-            const playerData = playerSolutions.data;
-
-            const playerArr = playerData != null && playerData.map(item => item.solution);  // map the solutions to an array
-
-            const algoExists = seqArr.some(
-                solution => JSON.stringify(solution) === JSON.stringify(finalPos)  // check if current solution exists in the stored algorithm solutions
-            );
-
-            const playerExists = playerArr == null ? false : playerArr.some(
-                solution => JSON.stringify(solution) === JSON.stringify(finalPos)  // check if current solution does not exists in the stored player solutions
-            );
-
-            if (algoExists === false) setGameResult("Lose");
-            else if (algoExists === true && playerExists === false) savePlayerData(finalPos);
-            else if (algoExists === true && playerExists === true) setGameResult("Draw");
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-
     useEffect(() => {
         const runSolutionsAndStore = async () => {
-            setPlayerSolutionCount(-1);
-            const threadedResult = await findThreadedSolutions();
-            const sequentialResult = await findSequentialSolutions();
-            setThreadedResult(threadedResult);
-            setSequentialResult(sequentialResult);
-
             try {
+                setPlayerSolutionCount(-1);
+
+                const threadedResult = await findThreadedSolutions();
+                const sequentialResult = await findSequentialSolutions();
+
+                if (!sequentialResult || !threadedResult) {
+                    alert("Failed to generate valid solutions. Please try again.");
+                    return;
+                }
+
+                setThreadedResult(threadedResult);
+                setSequentialResult(sequentialResult);
+
                 const response = await axios.post('http://localhost:5000/api/eightQueensPuzzle/solutions', {
                     sequentialResult,
                     threadedResult,
                 });
+                if (response.data?.error) {
+                    console.error("Server returned an error:", response.data.error);
+                    alert(response.data.error);
+                    return;
+                }
 
-                const plSolCount = await axios.get('http://localhost:5000/api/eightQueensPuzzle/getPlayerSolutionCount');
-                setPlayerSolutionCount(plSolCount.data);
+                const plSolCountResponse = await axios.get('http://localhost:5000/api/eightQueensPuzzle/getPlayerSolutionCount');
+                if (!plSolCountResponse.data && plSolCountResponse.status !== 200) {
+                    alert("Unable to retrieve player solution count.");
+                    return;
+                }
+                setPlayerSolutionCount(plSolCountResponse.data);
             } catch (error) {
-                console.error('Error in making fetch request:', error);
+                console.error("Unhandled error during solution processing:", error);
+                alert("An unexpected error occurred. Please check your connection or try again later.");
             }
         }
 
@@ -227,7 +172,7 @@ export default function Main() {
                     <ResetGameModal resetModal={resetModal} handleResetModal={() => setResetModal((prev) => !prev)} />
                     <ResetSolModal resetSolModal={resetSolModal} handleResetSolModal={() => setResetSolModal((prev) => !prev)} />
                     <button className='button_style' style={{ background: 'rgb(241, 156, 121, .5)' }} onClick={() => setResetModal((prev) => !prev)}>Reset</button>
-                    <button className='button_style' style={{ background: 'rgb(164, 114, 63, .5)' }} onClick={() => location.reload()}>Restart</button>
+                    <button className='button_style' style={{ background: 'rgb(164, 114, 63, .5)' }} onClick={() => window.location.reload()}>Restart</button>
                     <button className='button_style' style={{ background: 'rgb(164, 74, 63, .5)' }} onClick={() => navigate('/')}>Quit</button>
                 </div>
                 <p className='' style={{ width: 'fit-content', textAlign: 'center', marginTop: '20px' }} >Welcome to the Eight Queens Puzzle! Your challenge is to place eight queens on an 8x8 chessboard such that no two queens can attack each other. <br /> <span style={{ fontWeight: '600' }}>This means: No two queens can share the same row, column, or diagonal</span></p>
@@ -245,7 +190,7 @@ export default function Main() {
                         <div className='positions'>
                             {positions
                                 .slice()  // copy array
-                                .reverse() 
+                                .reverse()
                                 .map((col, index) => (
                                     col >= 0 && (
                                         <p key={index}>
@@ -254,7 +199,7 @@ export default function Main() {
                                     )
                                 ))}
                         </div>
-                        <button onClick={() => handleSubmit()} className='button_style' style={{ backgroundColor: 'rgb(48, 115, 81, .5)', margin: '4px 0 0 0' }}>
+                        <button onClick={() => handleSubmit(playerName, positions, setGameResult, sequentialResult, setShowConfetti, setResetSolModal, setPlayerSolutionCount)} className='button_style' style={{ backgroundColor: 'rgb(48, 115, 81, .5)', margin: '4px 0 0 0' }}>
                             Submit
                         </button>
                         <div className="puzzle_result_area" style={gameResult === "Win" ? { backgroundColor: 'rgb(147, 255, 150, .8)' } : gameResult === "Lose" ? { backgroundColor: 'rgb(236, 78, 32, .5)' } : gameResult === "Draw" ? { backgroundColor: 'rgb(242, 221, 110, .5)' } : { backgroundColor: 'white' }}>
@@ -263,7 +208,7 @@ export default function Main() {
                             <p style={{ textAlign: 'center', fontWeight: '500', fontFamily: 'serif', fontSize: 'larger', margin: '24px 32px 0 32px' }}>
                                 {gameResult === "Waiting" && "Start placing the queens on the board and submit to find out your results!"}
                                 {gameResult === "Win" && "Congratulations! You have correctly identified a solution of solving the puzzle! But wait, that is just one of many, try to find another solution if you can"}
-                                {gameResult === "Draw" && "Oops! Your solution has already been recognized by another player. Try finding another solution!"}
+                                {gameResult === "Draw" && "Oops! Your solution has already been recognized. Try finding another solution!"}
                                 {gameResult === "Lose" && "Uh-oh! That setup doesn't place all eight queens safely. Remember — no two queens can share the same row, column, or diagonal. Keep experimenting — the perfect arrangement is out there!"}
                                 {gameResult === "Loading" && (
                                     <PulseLoader />
