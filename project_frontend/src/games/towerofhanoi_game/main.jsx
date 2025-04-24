@@ -5,13 +5,14 @@ import {
   solveHanoi4Pegs,
 } from "./hanoiAlgorithms"; 
 import "./TowerOfHanoi.css"; 
+import { useNavigate } from 'react-router-dom';
 
 
 const getRandomDisks = () => Math.floor(Math.random() * 6) + 5;
 
 const TowerOfHanoi = () => {
   const [isLoading, setIsLoading] = useState(true);
-
+   const navigate = useNavigate();
   const [diskCount, setDiskCount] = useState(getRandomDisks());
   const [playerName, setPlayerName] = useState("");
   const [userMoveCount, setUserMoveCount] = useState(0);
@@ -41,6 +42,9 @@ const TowerOfHanoi = () => {
   const isValidDisk = (val) => !isNaN(val) && Number(val) > 0;
   const isValidPeg = (val) => ["A", "B", "C"].includes(val?.toUpperCase?.());
   const isValidPeg4 = (val) => ["A", "B", "C", "D"].includes(val?.toUpperCase?.());
+
+  const [showInstructions3, setShowInstructions3] = useState(false);
+  const [showInstructions4, setShowInstructions4] = useState(false);
 
   
 
@@ -319,6 +323,39 @@ if (isLoading) {
 
 
   return (
+
+    <div class="button-container">
+      <button onClick={() => setShowInstructions3(true) } className="left-info-btn">How to play 3-peg</button>
+      <button onClick={() => setShowInstructions4(true)} className="info-btn">How to play 4-peg</button>
+      <button onClick={() => navigate('/')} className="quit-btn">Quit</button>
+
+      {showInstructions3 && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={() => setShowInstructions3(false)}>&times;</span>
+            <h2>How to Play 3-Peg Tower of Hanoi</h2>
+            <p>
+              The goal is to move all disks from Peg A to Peg C using Peg B as an auxiliary.
+              You can move only one disk at a time. A bigger disk can't be placed on a smaller disk.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {showInstructions4 && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={() => setShowInstructions4(false)}>&times;</span>
+            <h2>How to Play 4-Peg Tower of Hanoi</h2>
+            <p>
+              The rules are similar to 3-peg, but with an extra peg. Use Pegs A, B, C, and D to move all disks to Peg D.
+              The Frame-Stewart algorithm helps reduce the number of moves.
+            </p>
+          </div>
+        </div>
+      )}
+
+
     <div className="hanoi-container">
       <h2>3-Peg Tower of Hanoi Challenge </h2>
       <h3>Disks for this round: <strong>{diskCount}</strong></h3>
@@ -594,6 +631,8 @@ if (isLoading) {
  
 </div>
  
+    </div> 
+
     </div> 
   );
   
