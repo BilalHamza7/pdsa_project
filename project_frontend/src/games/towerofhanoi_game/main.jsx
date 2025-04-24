@@ -352,13 +352,11 @@ if (isLoading) {
               (e.g., 1 Disk A → C) <br />
               <strong>OR</strong> <br />
               ㆍFirst Click a disk you want to move. <br />
-              ㆍThen click on the pin you want to move to the disk. <br />
+              ㆍThen click on the peg you want to move to the disk. <br />
               ㆍFinally, you can see the disk on the peg you selected. <br />
               ㆍMoves are recorded and validated. <br />
               <strong>🏆  Winning:</strong> <br />
               Match your move sequence with the correct solution (either recursive or iterative).
-
-
             </p>
           </div>
         </div>
@@ -368,10 +366,30 @@ if (isLoading) {
         <div className="modal">
           <div className="modal-content">
             <span className="close" onClick={() => setShowInstructions4(false)}>&times;</span>
-            <h2>How to Play 4-Peg Tower of Hanoi</h2>
+            <h2>🧠 How to Play 4-Peg Tower of Hanoi</h2>
             <p>
-              The rules are similar to 3-peg, but with an extra peg. Use Pegs A, B, C, and D to move all disks to Peg D.
-              The Frame-Stewart algorithm helps reduce the number of moves.
+             <strong>🎯 Objective:</strong> <br />
+             Move all disks from the Source peg (A) to the Destination peg (D) using two Auxiliary pegs (B and C). <br /> 
+            <strong>📜 Rules:</strong> <br />
+            1. Only one disk can be moved at a time. <br />
+            2. A larger disk cannot be placed on a smaller disk. <br />
+            3. You may use the Auxiliary pegs (B and C) to temporarily hold disks. <br />
+            <strong>⚙️ Setup:</strong> <br />
+            ㆍAt the start of each game, a random number of disks (between 5 and 10) is generated. <br />
+            ㆍDisks are placed in decreasing size from top to bottom on peg A <br />
+            <strong>👉 What You Do:</strong> <br />
+            ㆍEnter your name. <br />
+            ㆍEnter the number of moves you think it will take. <br />
+            ㆍEnter each move in the format: <br />
+              Disk Number from Source Peg/Auxiliary pegs/Destination peg → Target Peg. <br />
+              (e.g., 1 Disk A → C) <br />
+              <strong>OR</strong> <br />
+              ㆍFirst Click a disk you want to move. <br />
+              ㆍThen click on the peg you want to move to the disk. <br />
+              ㆍFinally, you can see the disk on the peg you selected. <br />
+              ㆍMoves are recorded and validated. <br />
+              <strong>🏆  Winning:</strong> <br />
+              Your moves are compared to the Frame-Stewart optimal solution.
             </p>
           </div>
         </div>
