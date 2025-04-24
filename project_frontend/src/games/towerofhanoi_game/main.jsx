@@ -238,7 +238,7 @@ const TowerOfHanoi = () => {
 
   
   const reset4PegGame = () => {
-  setDiskCount(getRandomDisks());
+  setDiskCount(getRandomDisks(0));
   setPlayerName4Peg("");
   setFourPegMoves([]);
   setUserMoveCount4Peg("");
@@ -540,9 +540,13 @@ if (isLoading) {
 
 
       {/* 4-Peg Tower of Hanoi Section */}
-<div className="hanoi-section">
-  <h2>4-Peg Tower of Hanoi Challenge</h2>
-  <h3>Disks for this round: <strong>{diskCount}</strong></h3>
+ <div className="hanoi-section">
+  <h5>You’ve mastered the <b>3-Peg</b> puzzle 🏆... </h5> <br />
+  <p>But the real <b>challenge</b> begins now.This isn’t just a harder version — it’s a new way to think. <br />
+     Plan smarter. Move sharper. <br />
+      <b> Can you conquer the Frame-Stewart algorithm and become a true Tower Legend?</b></p>
+     <h4>Tower Legends: Frame-Stewart Awakening</h4>
+      <h3>Disks for this round: <strong>{diskCount}</strong></h3>
 
   <div className="visual-board">
   {Object.entries(pegs4).map(([pegName, pegDisks]) => (
@@ -562,6 +566,7 @@ if (isLoading) {
         ))}
 </div>
 
+<h6><i>• You can Enter the number of moves and sequence of moves OR First click a disk you want to move and then click on a peg you want to move to the disk.Finally, you can see the disk on the peg you selected. For mor details click How to play 3-peg button </i></h6>
   
   <button className="start-btn" onClick={handleStart4peg} disabled={isStarted4}>Start Game</button>
 
