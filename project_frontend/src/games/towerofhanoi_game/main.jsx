@@ -351,7 +351,7 @@ if (isLoading) {
               Disk Number from Source Peg/Auxiliary peg/Destination peg → Target Peg. <br />
               (e.g., 1 Disk A → C) <br />
               <strong>OR</strong> <br />
-              ㆍFirst Click a disk you want to move. <br />
+              ㆍFirst click a disk you want to move. <br />
               ㆍThen click on the peg you want to move to the disk. <br />
               ㆍFinally, you can see the disk on the peg you selected. <br />
               ㆍMoves are recorded and validated. <br />
@@ -384,7 +384,7 @@ if (isLoading) {
               Disk Number from Source Peg/Auxiliary pegs/Destination peg → Target Peg. <br />
               (e.g., 1 Disk A → C) <br />
               <strong>OR</strong> <br />
-              ㆍFirst Click a disk you want to move. <br />
+              ㆍFirst click a disk you want to move. <br />
               ㆍThen click on the peg you want to move to the disk. <br />
               ㆍFinally, you can see the disk on the peg you selected. <br />
               ㆍMoves are recorded and validated. <br />
@@ -397,7 +397,8 @@ if (isLoading) {
 
 
     <div className="hanoi-container">
-      <h2>3-Peg Tower of Hanoi Challenge </h2>
+      <h2>Tower of Hanoi Game</h2> 
+      <h4>The Art of Tower Solving: 3-Peg Challenge</h4>
       <h3>Disks for this round: <strong>{diskCount}</strong></h3>
 
       <div className="visual-board">
@@ -417,7 +418,7 @@ if (isLoading) {
           </div>
         ))}
       </div>
-
+       <h6><i>• You can Enter the number of moves and sequence of moves OR First click a disk you want to move and then click on a peg you want to move to the disk.Finally, you can see the disk on the peg you selected. For mor details click How to play 3-peg button </i></h6>
       {!isStarted && <button className="start-btn" onClick={handleStart}>Start Game</button>}
 
       <form onSubmit={handleSubmit} className="hanoi-form">
