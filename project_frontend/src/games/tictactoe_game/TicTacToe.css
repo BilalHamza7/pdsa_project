@@ -225,7 +225,7 @@ h1 {
 /* Buttons */
 .restart-btn, .quit-btn {
   font-size: 1rem;
-  padding: 0.6rem 1.2rem;
+  padding: 0.5rem 3rem; 
   font-weight: 600;
   border: none;
   border-radius: 8px;
@@ -274,7 +274,7 @@ h1 {
 /* Content inside the modal */
 .info-content {
   text-align: center;
-  color: #2c3e50;
+  color: #2c72b8;
 }
 
 .info-content h2 {
