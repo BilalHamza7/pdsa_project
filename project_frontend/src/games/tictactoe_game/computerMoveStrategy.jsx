@@ -1,7 +1,7 @@
 import { getBestMoveMinimaxLite } from './minimaxLite';
 import { getBestMoveHeuristicLite } from './heuristicLite';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
+
 
 let algorithmicMoveCounter = 0;
 
