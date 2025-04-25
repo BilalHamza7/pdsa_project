@@ -315,8 +315,8 @@ color: white;
 
 
 
-.quit-btn,
-.info-btn,
+.game-quit-btn,
+.right-info-btn,
 .left-info-btn{
   margin-top: 13px ;
   margin-left: 10px;
@@ -333,7 +333,7 @@ color: white;
 }
 
 .left-info-btn,
-.info-btn {
+.right-info-btn {
   background-color: #a688c9;
   
 }
