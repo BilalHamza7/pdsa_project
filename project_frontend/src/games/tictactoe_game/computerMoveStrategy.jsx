@@ -85,7 +85,7 @@ export function computerMove(board, algorithm, player) {
     const allowHumanToWin = Math.random() < 0.8;  //  chance to let the human win
 
     if (allowHumanToWin) {
-      console.log("Human is allowed to win! Giving the human a chance...");
+      
       // Human move logic should be here (assuming human player makes a move)
       chosenMove = getHumanMove(board);
     } else {
@@ -94,7 +94,7 @@ export function computerMove(board, algorithm, player) {
         if (minimaxMove && heuristicMove && minimaxMove.row === heuristicMove.row && minimaxMove.col === heuristicMove.col) {
           chosenMove = minimaxMove;
         } else {
-          chosenMove = Math.random() < 0.5 ? minimaxMove : heuristicMove;
+          chosenMove = Math.random() < 0.4 ? minimaxMove : heuristicMove;
         }
       } else if (algorithm === 'minimax') {
         chosenMove = minimaxMove;
