@@ -16,12 +16,12 @@ const generateDistanceMatrix = () => {
 
 const tspDijkstra = (start, selectedCities, matrix) => {
   const n = selectedCities.length;
-  let route = [start]; // Start with home city
+  let route = [start];
   let visited = new Set([start]);
   let current = start;
   let totalDistance = 0;
 
-  while (visited.size - 1 < n) { // -1 to account for start city
+  while (visited.size - 1 < n) {
     let minDist = Infinity;
     let nextCity = null;
 
@@ -42,15 +42,14 @@ const tspDijkstra = (start, selectedCities, matrix) => {
     }
   }
 
-  // Return to home city
   totalDistance += matrix[current][start];
-  route.push(start); // End with home city
+  route.push(start);
 
   return { route, distance: totalDistance };
 };
 
 const tspNearestNeighbor = (start, selectedCities, matrix) => {
-  let route = [start]; // Start with home city
+  let route = [start];
   let visited = new Set([start]);
   let current = start, total = 0;
 
@@ -70,7 +69,7 @@ const tspNearestNeighbor = (start, selectedCities, matrix) => {
     }
   }
   total += matrix[current][start];
-  route.push(start); // End with home city
+  route.push(start);
   return { route, distance: total };
 };
 
@@ -101,7 +100,7 @@ const tspDynamicProgramming = (start, selectedCities, matrix) => {
     if (distance < minDistance) minDistance = distance;
   }
 
-  return { distance: minDistance, route: [start, ...selectedCities, start] }; // Approx route with home city
+  return { distance: minDistance, route: [start, ...selectedCities, start] };
 };
 
 export default function Main() {
@@ -114,13 +113,29 @@ export default function Main() {
   const [error, setError] = useState('');
   const [pathFeedback, setPathFeedback] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [recentGames, setRecentGames] = useState([]);
 
   useEffect(() => {
     const matrix = generateDistanceMatrix();
     setDistanceMatrix(matrix);
     const randomHome = Math.floor(Math.random() * cities.length);
     setHomeCity(randomHome);
+    fetchRecentGames();
   }, []);
+
+  const fetchRecentGames = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('travel_salesman_gamesessions')
+        .select('player_name, home_city, selected_cities, player_route, distance, status')
+      if (error) throw error;
+      setRecentGames(data);
+      console.log('Recent games fetched:', data);
+    } catch (err) {
+      console.error('Error fetching recent games:', err);
+      setError('Failed to fetch recent games: ' + err.message);
+    }
+  };
 
   const handleSelectCity = (index) => {
     if (selectedCities.includes(index)) {
@@ -170,6 +185,8 @@ export default function Main() {
         .insert(algoStats);
       if (statsError) throw statsError;
 
+      // Refresh recent games after saving
+      await fetchRecentGames();
     } catch (err) {
       console.error('Error saving to Supabase:', err);
       setError('Failed to save game data: ' + err.message);
@@ -228,7 +245,7 @@ export default function Main() {
 
       setResults(resultData);
 
-      const optimalDistance = dijkstra.distance; // Using Dijkstra as reference
+      const optimalDistance = dijkstra.distance;
       const optimalRoute = dijkstra.route.map((i) => cities[i]);
       let status = 'incorrect';
       if (playerDistance === optimalDistance) {
@@ -318,7 +335,7 @@ export default function Main() {
     },
     section: {
       marginBottom: "15px",
-      marginTop: "15px"
+      marginTop: "15px",
     },
     cityName: {
       fontWeight: "bold",
@@ -375,6 +392,27 @@ export default function Main() {
       fontStyle: "italic",
       color: "#6B7280",
       marginBottom: "12px",
+    },
+    recentGamesBox: {
+      backgroundColor: "#E5E7EB",
+      padding: "20px",
+      borderRadius: "12px",
+      marginTop: "20px",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+    },
+    recentGamesHeading: {
+      fontSize: "20px",
+      marginBottom: "12px",
+      color: "#1F2937",
+    },
+    gameItem: {
+      padding: "10px",
+      borderBottom: "1px solid #D1D5DB",
+      marginBottom: "10px",
+    },
+    gameDetail: {
+      fontSize: "14px",
+      color: "#4B5563",
     },
   };
 
@@ -472,6 +510,39 @@ export default function Main() {
           </p>
         </div>
       )}
+
+      <div style={styles.recentGamesBox}>
+        <h4 style={styles.recentGamesHeading}>📜 Recent Games</h4>
+        {recentGames.length === 0 ? (
+          <p style={styles.gameDetail}>No games played yet.</p>
+        ) : (
+          recentGames.map((game, index) => (
+            <div key={index} style={styles.gameItem}>
+              <p style={styles.gameDetail}>
+                <strong>Player:</strong> {game.player_name}
+              </p>
+              <p style={styles.gameDetail}>
+                <strong>Home City:</strong> {game.home_city}
+              </p>
+              <p style={styles.gameDetail}>
+                <strong>Selected Cities:</strong> {game.selected_cities.join(', ')}
+              </p>
+              <p style={styles.gameDetail}>
+                <strong>Route:</strong> {game.player_route.join(' → ')}
+              </p>
+              <p style={styles.gameDetail}>
+                <strong>Distance:</strong> {game.distance} km
+              </p>
+              <p style={styles.gameDetail}>
+                <strong>Status:</strong> {game.status}
+              </p>
+              <p style={styles.gameDetail}>
+                <strong>Played:</strong> {new Date(game.created_at).toLocaleString()}
+              </p>
+            </div>
+          ))
+        )}
+      </div>
 
       <button
         onClick={resetGame}
