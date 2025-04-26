@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './TicTacToe.css';
-
+import { supabase } from './supabaseClient';
 import { computerMove, resetAlgorithmicCounter } from './computerMoveStrategy';
 import { checkWinner } from './checkWinner';
 
@@ -20,6 +20,7 @@ const TicTacToe = () => {
   const [showMessage, setShowMessage] = useState(true);
   const [error, setError] = useState('');
   const [welcome, setWelcome] = useState('');
+  const [playerId, setPlayerId] = useState(null);
 
   const makeMove = (row, col) => {
     if (board[row][col] || gameOver) return;
@@ -31,30 +32,90 @@ const TicTacToe = () => {
 
   useEffect(() => {
     const winner = checkWinner(board);
+  
     if (winner) {
       setGameOver(true);
+  
+      let result = '';
+  
       if (winner === 'X') {
         setMessage(`${playerName} Wins!`);
-        console.log(`${playerName} Wins!`);  // Log player name and result
+        result = 'Win';
       } else if (winner === 'O') {
         setMessage('Computer Wins!');
-        console.log('Computer Wins!');  // Log the result
+        result = 'Lose';
       } else if (winner === 'Draw') {
         setMessage('Draw Game');
-        console.log('Draw Game');  // Log the result
+        result = 'Draw';
       }
+  
+      // Update player result in database
+      if (playerId) {
+        (async () => {
+          const { error } = await supabase
+            .from('tictactoeplayers')
+            .update({ game: result })
+            .eq('id', playerId);
+  
+          if (error) {
+            console.error('Failed to update game result:', error.message);
+          } else {
+            console.log('Player result updated:', result);
+          }
+        })();
+      }
+  
       return;
     }
-
+  
     if (!playerTurn && !gameOver) {
       setTimeout(() => {
-        const newBoard = computerMove(board, 'minimax', 'O');
-        setBoard(newBoard);
+        const startTime = performance.now(); // Start tracking time before the move
+  
+        // Track time for Minimax algorithm
+        const minimaxBoard = computerMove(board, 'minimax', 'O');
+        const minimaxEndTime = performance.now();
+        const minimaxTime = minimaxEndTime - startTime;
+  
+        // Track time for Heuristic algorithm
+        const heuristicStartTime = performance.now();
+        const heuristicBoard = computerMove(board, 'heuristic', 'O');
+        const heuristicEndTime = performance.now();
+        const heuristicTime = heuristicEndTime - heuristicStartTime;
+  
+        setBoard(minimaxBoard); // Set the board after Minimax move
+        
+        const roundedMinimaxTime = minimaxTime.toFixed(3); // Round to 3 decimal places
+        const roundedHeuristicTime = heuristicTime.toFixed(3); // Round to 3 decimal places
+        // Save the move times in the database
+        if (playerId) {
+          (async () => {
+            const moveNumber = board.flat().filter(cell => cell !== null).length + 1; // Calculate move number
+            const { error } = await supabase
+              .from('tictactoemovetimings')
+              .insert([
+                {
+                  player_id: playerId,
+                  move_number: moveNumber,
+                  minimax_time: minimaxTime, // Save the time for minimax move
+                  heuristic_time: heuristicTime, // Save the time for heuristic move
+                }
+              ]);
+  
+            if (error) {
+              console.error('Failed to save move time:', error.message);
+            } else {
+              console.log('Move times saved:', minimaxTime, 'Heuristic:', heuristicTime);
+            }
+          })();
+        }
+  
         setPlayerTurn(true);
       }, 500);
     }
-  }, [board, playerTurn, playerName, gameOver]);
-
+  }, [board, playerTurn, playerId, playerName, gameOver]);
+  
+  
   const resetGame = () => {
     setBoard(emptyBoard);
     setPlayerTurn(true);
@@ -64,19 +125,34 @@ const TicTacToe = () => {
     resetAlgorithmicCounter();
   };
 
-  const handleNameSubmit = (e) => {
+  const handleNameSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setWelcome('');
+  
     if (!playerName.trim()) {
       setError('Name cannot be blank. Please enter a valid name.');
     } else if (!/^[A-Za-z]+$/.test(playerName)) {
-      setError('Name can only contain letters. Please enter a valid name.');
+      setError('Name can only contain letters.');
     } else {
-      setNameSubmitted(true);
-      resetAlgorithmicCounter();
-      setWelcome(`Welcome, ${playerName}!`);
-      console.log(`Player Name: ${playerName}`);  // Log player name
+      try {
+        const { data, error } = await supabase
+          .from('tictactoeplayers')
+          .insert([{ name: playerName, game: 'Draw' }])  // game is required!
+          .select('id')
+          .single(); // Get only one inserted row
+  
+        if (error) throw error;
+  
+        setPlayerId(data.id); // Save player id for later
+        setNameSubmitted(true);
+        resetAlgorithmicCounter();
+        setWelcome(`Welcome, ${playerName}!`);
+        console.log(`Player ID: ${data.id}, Name: ${playerName}`);
+      } catch (err) {
+        console.error('Error inserting player:', err.message);
+        setError('Failed to save player.');
+      }
     }
   };
 
