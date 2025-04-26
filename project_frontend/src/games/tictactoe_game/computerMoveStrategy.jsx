@@ -1,6 +1,8 @@
 import { getBestMoveMinimaxLite } from './minimaxLite';
 import { getBestMoveHeuristicLite } from './heuristicLite';
 
+
+
 let algorithmicMoveCounter = 0;
 
 export function resetAlgorithmicCounter() {
@@ -80,27 +82,17 @@ export function computerMove(board, algorithm, player) {
     console.log(`⏱️ Minimax Time: ${minimaxTime} ms`);
     console.log(`⏱️ Heuristic Time: ${heuristicTime} ms`);
 
-    // Logic to randomly allow the human player to win 30% of the time
-    // If the human has a potential winning move, we allow 30% chance to let the human win.
-    const allowHumanToWin = Math.random() < 0.8;  //  chance to let the human win
-
-    if (allowHumanToWin) {
-      
-      // Human move logic should be here (assuming human player makes a move)
-      chosenMove = getHumanMove(board);
-    } else {
-      // Handle logic to choose the move based on the algorithm
-      if (algorithm === 'both') {
-        if (minimaxMove && heuristicMove && minimaxMove.row === heuristicMove.row && minimaxMove.col === heuristicMove.col) {
-          chosenMove = minimaxMove;
-        } else {
-          chosenMove = Math.random() < 0.4 ? minimaxMove : heuristicMove;
-        }
-      } else if (algorithm === 'minimax') {
+    // Handle logic to choose the move based on the algorithm
+    if (algorithm === 'both') {
+      if (minimaxMove && heuristicMove && minimaxMove.row === heuristicMove.row && minimaxMove.col === heuristicMove.col) {
         chosenMove = minimaxMove;
-      } else if (algorithm === 'heuristic') {
-        chosenMove = heuristicMove;
+      } else {
+        chosenMove = Math.random() < 0.5 ? minimaxMove : heuristicMove;
       }
+    } else if (algorithm === 'minimax') {
+      chosenMove = minimaxMove;
+    } else if (algorithm === 'heuristic') {
+      chosenMove = heuristicMove;
     }
 
     // Ensure a move is chosen
@@ -111,7 +103,7 @@ export function computerMove(board, algorithm, player) {
     // Apply the chosen move to the board and validate move position
     return applyMoveToBoard(board, chosenMove);
 
-  } catch (error) {
+  }   catch (error) {
     console.error("Error in computer move:", error);
     toast.error(`An error occurred while calculating the computer's move: ${error.message}. Please try again.`);
 
@@ -121,19 +113,5 @@ export function computerMove(board, algorithm, player) {
 
     return board; // Return original board in normal usage
   }
-}
 
-function getHumanMove(board) {
-  // This function should return a valid move chosen by the human player.
-  // For simplicity, let's assume the human player selects a move here.
-  // This can be modified to take input from the user via UI.
-  const possibleMoves = [];
-  for (let row = 0; row < board.length; row++) {
-    for (let col = 0; col < board[row].length; col++) {
-      if (board[row][col] === null) {
-        possibleMoves.push({ row, col });
-      }
-    }
-  }
-  return possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
 }
