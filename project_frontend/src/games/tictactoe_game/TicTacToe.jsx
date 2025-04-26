@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './TicTacToe.css';
+
 import { computerMove, resetAlgorithmicCounter } from './computerMoveStrategy';
 import { checkWinner } from './checkWinner';
-import { supabase } from './supabaseClient'; // Assuming this is your Supabase client
 
 const emptyBoard = Array(5).fill(null).map(() => Array(5).fill(null));
 
@@ -15,14 +15,11 @@ const TicTacToe = () => {
   const [message, setMessage] = useState('');
   const [gameOver, setGameOver] = useState(false);
   const [playerName, setPlayerName] = useState('');
-  const [playerId, setPlayerId] = useState(null); // To store the player's ID
   const [nameSubmitted, setNameSubmitted] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [showMessage, setShowMessage] = useState(true);
   const [error, setError] = useState('');
   const [welcome, setWelcome] = useState('');
-  const [moveTimings, setMoveTimings] = useState([]); // To store move timings
-  const [gameSaved, setGameSaved] = useState(false); // To track if the game has been saved
 
   const makeMove = (row, col) => {
     if (board[row][col] || gameOver) return;
@@ -33,99 +30,23 @@ const TicTacToe = () => {
   };
 
   useEffect(() => {
-    if (gameSaved) return;
-
     const winner = checkWinner(board);
-    if (winner && !gameOver) {
+    if (winner) {
       setGameOver(true);
       if (winner === 'X') setMessage(`${playerName} Wins!`);
       else if (winner === 'O') setMessage('Computer Wins!');
       else if (winner === 'Draw') setMessage('Draw Game');
-
-      // Save game data to Supabase when the game ends
-      saveGameData(winner);
-      setGameSaved(true);
       return;
     }
 
     if (!playerTurn && !gameOver) {
       setTimeout(() => {
-        const startTime = performance.now();
         const newBoard = computerMove(board, 'minimax', 'O');
-        const endTime = performance.now();
-        const minimaxTime = Math.round(endTime - startTime);
-
-        // Store the move timing
-        setMoveTimings((prev) => [
-          ...prev,
-          { move_number: prev.length + 1, minimax_time: minimaxTime, heuristic_time: 0 },
-        ]);
-
         setBoard(newBoard);
         setPlayerTurn(true);
       }, 500);
     }
-  }, [board, playerTurn, gameOver, playerName, gameSaved]);
-
-  const saveGameData = async (winner) => {
-    try {
-      if (!playerId) {
-        console.error('No player ID available.');
-        return;
-      }
-
-      let result = '';
-      if (winner === 'X') result = 'Win';
-      else if (winner === 'O') result = 'Lose';
-      else result = 'Draw';
-
-      const { data: player, error: playerError } = await supabase
-        .from('tictactoeplayers')
-        .select('id, game')
-        .eq('id', playerId)
-        .single();
-
-      if (playerError) {
-        console.error('Player fetch error:', playerError);
-        throw playerError;
-      }
-
-      // Update player game result
-      const { error: updateError } = await supabase
-        .from('tictactoeplayers')
-        .update({ game: result })
-        .eq('id', playerId);
-
-      if (updateError) {
-        console.error('Game result update error:', updateError);
-        throw updateError;
-      }
-
-      // Insert move timings into TicTacToeMoveTimings table
-      if (moveTimings.length > 0) {
-        const moveTimingsToInsert = moveTimings.map((move) => ({
-          player_id: playerId,
-          move_number: move.move_number,
-          minimax_time: move.minimax_time,
-          heuristic_time: move.heuristic_time,
-        }));
-
-        const { error: moveError } = await supabase
-          .from('tictactoemovetimings')
-          .insert(moveTimingsToInsert);
-
-        if (moveError) {
-          console.error('Move insert error:', moveError);
-          throw moveError;
-        }
-      }
-
-      console.log('Game data saved successfully');
-    } catch (error) {
-      console.error('Error saving game data:', error);
-      setError('Failed to save game data. Please try again.');
-    }
-  };
+  }, [board, playerTurn, playerName, gameOver]);
 
   const resetGame = () => {
     setBoard(emptyBoard);
@@ -133,55 +54,21 @@ const TicTacToe = () => {
     setGameOver(false);
     setMessage('');
     setShowMessage(true);
-    setMoveTimings([]);
-    setGameSaved(false);
     resetAlgorithmicCounter();
   };
 
-  const handleNameSubmit = async (e) => {
+  const handleNameSubmit = (e) => {
     e.preventDefault();
     setError('');
     setWelcome('');
-
     if (!playerName.trim()) {
       setError('Name cannot be blank. Please enter a valid name.');
-      return;
-    }
-    if (!/^[A-Za-z]+$/.test(playerName)) {
+    } else if (!/^[A-Za-z]+$/.test(playerName)) {
       setError('Name can only contain letters. Please enter a valid name.');
-      return;
-    }
-
-    try {
-      let { data: existingPlayer, error: fetchError } = await supabase
-        .from('tictactoeplayers')
-        .select('id')
-        .eq('name', playerName)
-        .single();
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError;
-      }
-
-      if (existingPlayer) {
-        setPlayerId(existingPlayer.id);
-      } else {
-        const { data: newPlayer, error: insertError } = await supabase
-          .from('tictactoeplayers')
-          .insert([{ name: playerName, game: 'Draw' }]) // Default game result as 'Draw'
-          .select('id')
-          .single();
-
-        if (insertError) throw insertError;
-        setPlayerId(newPlayer.id);
-      }
-
+    } else {
       setNameSubmitted(true);
       resetAlgorithmicCounter();
       setWelcome(`Welcome, ${playerName}!`);
-    } catch (error) {
-      console.error('Error saving player:', error);
-      setError('Failed to save player. Please try again.');
     }
   };
 
@@ -190,10 +77,7 @@ const TicTacToe = () => {
   const closeMessage = () => {
     setShowMessage(false);
     setPlayerName('');
-    setPlayerId(null);
     setNameSubmitted(false);
-    setMoveTimings([]);
-    setGameSaved(false);
     resetGame();
   };
 
