@@ -297,6 +297,8 @@ export default function Main() {
       padding: "20px",
       fontFamily: "'Segoe UI', sans-serif",
       color: "#1F2937",
+      backgroundColor: "aquamarine",
+      marginTop: "20px",
     },
     heading: {
       textAlign: "center",
@@ -310,9 +312,11 @@ export default function Main() {
       borderRadius: "12px",
       boxShadow: "0 4px 8px rgba(0,0,0,0.06)",
       marginBottom: "20px",
+      marginTop: "20px",
     },
     section: {
       marginBottom: "15px",
+      marginTop:"15px"
     },
     cityName: {
       fontWeight: "bold",
@@ -387,7 +391,7 @@ export default function Main() {
           <span style={styles.cityName}>
             {homeCity !== null && cities[homeCity]}
           </span>
-        </div>
+      </div>
 
         <div style={styles.section}>
           <label>

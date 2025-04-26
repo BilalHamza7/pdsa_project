@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 const MapVisualizer = ({ cities, distanceMatrix, homeCity, selectedCities }) => {
-  const width = 800;
+  const width = 770;
   const height = 500;
 
   // Stable city positions
