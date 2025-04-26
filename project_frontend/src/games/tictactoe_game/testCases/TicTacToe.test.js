@@ -1,6 +1,7 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import TicTacToe from '../TicTacToe';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, it, beforeEach, expect } from 'vitest';
+import TicTacToe from '../TicTacToe'; // Make sure this path is correct
 import '@testing-library/jest-dom';
 
 describe('TicTacToe Component', () => {
@@ -8,39 +9,40 @@ describe('TicTacToe Component', () => {
     render(<TicTacToe />);
   });
 
+  it('renders the TicTacToe component without crashing', () => {
+    const button = screen.getByText('Click me'); // Replace with actual text or button in your component
+    expect(button).toBeInTheDocument();
+  });
+
   it('renders the Tic Tac Toe board correctly', () => {
-    // Ensure the board has 25 cells (5x5 grid)
     const cells = screen.getAllByRole('button');
-    expect(cells).toHaveLength(25); 
+    expect(cells).toHaveLength(25); // 5x5 grid
   });
 
   it('allows the player to make a move', () => {
-    const firstMove = screen.getByText('');
-    fireEvent.click(firstMove);
-
-    // After the move, the cell should contain 'X'
+    const firstMove = screen.getAllByText('')[0]; // first empty cell
+    userEvent.click(firstMove); // Use userEvent for a more realistic interaction
     expect(firstMove).toHaveTextContent('X');
   });
 
   it('prevents a move in an occupied cell', () => {
-    const firstMove = screen.getByText('');
-    fireEvent.click(firstMove);
-    expect(firstMove).toHaveTextContent('X'); // First move
+    const firstMove = screen.getAllByText('')[0];
+    userEvent.click(firstMove);
+    expect(firstMove).toHaveTextContent('X');
 
-    // Try clicking the same cell again (should not work)
-    fireEvent.click(firstMove);
-    expect(firstMove).toHaveTextContent('X'); // No change
+    // Try clicking again
+    userEvent.click(firstMove);
+    expect(firstMove).toHaveTextContent('X');
   });
 
   it('ends the game when a player wins', async () => {
-    // Simulate a series of moves that results in a win
-    fireEvent.click(screen.getByText(''));
-    fireEvent.click(screen.getByText(''));
-    fireEvent.click(screen.getByText(''));
-    fireEvent.click(screen.getByText(''));
-    fireEvent.click(screen.getByText(''));
+    const cells = screen.getAllByRole('button');
 
-    // Check if winning message is displayed
+    // Simulate 5 moves in a row for player X (example: first row)
+    for (let i = 0; i < 5; i++) {
+      userEvent.click(cells[i]); // Use userEvent for realistic clicks
+    }
+
     const message = await screen.findByText(/Wins!/);
     expect(message).toBeInTheDocument();
   });
@@ -48,21 +50,19 @@ describe('TicTacToe Component', () => {
   it('ends the game with a draw when the board is full', async () => {
     const cells = screen.getAllByRole('button');
 
-    // Fill the board with alternating moves
-    cells.forEach((cell, index) => {
-      fireEvent.click(cell);
+    // Click all cells one by one
+    cells.forEach(cell => {
+      userEvent.click(cell); // Use userEvent for realistic clicks
     });
 
-    // Check for draw message after the board is full
     const drawMessage = await screen.findByText('Draw Game');
     expect(drawMessage).toBeInTheDocument();
   });
 
   it('can restart the game', () => {
     const restartButton = screen.getByText('Restart');
-    fireEvent.click(restartButton);
+    userEvent.click(restartButton); // Use userEvent for the restart action
 
-    // Check if the board has been reset (no text in any cell)
     const cells = screen.getAllByRole('button');
     cells.forEach(cell => {
       expect(cell).toHaveTextContent('');
