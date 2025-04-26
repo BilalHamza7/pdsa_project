@@ -16,14 +16,20 @@
     "react-router-dom": "^7.5.1",
     "react-scripts": "^5.0.1",
     "react-spinners": "^0.17.0",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "jest": {
+      "moduleNameMapper": {
+        "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+      }
+    }
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "start": "react-scripts start",
-    "test": "vitest"
+    "test": "jest",
+    "type": "module"
   },
   "eslintConfig": {
     "extends": [
@@ -44,11 +50,26 @@
     ]
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
+    "babel-jest": "^29.7.0",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "supabase": "^2.20.12",
     "vite": "^6.3.1",
     "vitest": "^3.1.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    }
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ]
   }
 }
