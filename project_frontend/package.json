@@ -50,12 +50,20 @@
     ]
   },
   "devDependencies": {
+<<<<<<< HEAD
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "babel-jest": "^29.7.0",
     "identity-obj-proxy": "^3.0.0",
+=======
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "babel-jest": "^29.7.0",
+>>>>>>> dec3423b7944d021850256e36e97948042ca1bff
     "jest": "^29.7.0",
     "supabase": "^2.20.12",
     "vite": "^6.3.1",
