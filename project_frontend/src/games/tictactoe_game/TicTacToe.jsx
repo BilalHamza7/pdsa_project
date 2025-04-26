@@ -4,7 +4,13 @@ import './TicTacToe.css';
 
 import { computerMove, resetAlgorithmicCounter } from './computerMoveStrategy';
 import { checkWinner } from './checkWinner';
+<<<<<<< HEAD
+=======
+import { supabase } from './supabaseClient'; // Import Supabase client
+>>>>>>> 97405f39a6ecf40446617b101f96a5f2ed6ec24f
 
+const minimaxTime = (minimaxEnd - minimaxStart) ;
+const heuristicTime = (heuristicEnd - heuristicStart) ;
 const emptyBoard = Array(5).fill(null).map(() => Array(5).fill(null));
 
 const TicTacToe = () => {
@@ -15,11 +21,20 @@ const TicTacToe = () => {
   const [message, setMessage] = useState('');
   const [gameOver, setGameOver] = useState(false);
   const [playerName, setPlayerName] = useState('');
+<<<<<<< HEAD
+=======
+  const [playerId, setPlayerId] = useState(null);
+>>>>>>> 97405f39a6ecf40446617b101f96a5f2ed6ec24f
   const [nameSubmitted, setNameSubmitted] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [showMessage, setShowMessage] = useState(true);
   const [error, setError] = useState('');
   const [welcome, setWelcome] = useState('');
+<<<<<<< HEAD
+=======
+  const [moveTimings, setMoveTimings] = useState([]);
+  const [gameSaved, setGameSaved] = useState(false);
+>>>>>>> 97405f39a6ecf40446617b101f96a5f2ed6ec24f
 
   const makeMove = (row, col) => {
     if (board[row][col] || gameOver) return;
@@ -36,16 +51,34 @@ const TicTacToe = () => {
       if (winner === 'X') setMessage(`${playerName} Wins!`);
       else if (winner === 'O') setMessage('Computer Wins!');
       else if (winner === 'Draw') setMessage('Draw Game');
+<<<<<<< HEAD
+=======
+
+      saveGameData(winner);
+      setGameSaved(true);
+>>>>>>> 97405f39a6ecf40446617b101f96a5f2ed6ec24f
       return;
     }
 
     if (!playerTurn && !gameOver) {
       setTimeout(() => {
+<<<<<<< HEAD
         const newBoard = computerMove(board, 'minimax', 'O');
+=======
+        const { newBoard, minimaxTime, heuristicTime } = computerMove(board, 'both', 'O');
+
+        setMoveTimings(prev => [
+          ...prev,
+          { move_number: prev.length + 1, minimax_time: minimaxTime, heuristic_time: heuristicTime }
+        ]);
+
+>>>>>>> 97405f39a6ecf40446617b101f96a5f2ed6ec24f
         setBoard(newBoard);
         setPlayerTurn(true);
       }, 500);
+      
     }
+<<<<<<< HEAD
   }, [board, playerTurn, playerName, gameOver]);
 
   const resetGame = () => {
@@ -69,6 +102,89 @@ const TicTacToe = () => {
       setNameSubmitted(true);
       resetAlgorithmicCounter();
       setWelcome(`Welcome, ${playerName}!`);
+=======
+  }, [board, playerTurn, gameOver, playerName, gameSaved]);
+
+  const saveGameData = async (winner) => {
+    try {
+      if (!playerId) {
+        console.error('No player ID available.');
+        return;
+      }
+  
+      let result = '';
+      if (winner === 'X') result = 'Win';
+      else if (winner === 'O') result = 'Lose';
+      else result = 'Draw';
+  
+      // Insert the game result into the database
+      const { data: player, error: playerError } = await supabase
+        .from('TicTacToePlayers')
+        .select('id, game')
+        .eq('id', playerId)
+        .single();
+  
+      if (playerError) {
+        console.error('Player fetch error:', playerError);
+        throw playerError;
+      }
+  
+      const { error: updateError } = await supabase
+        .from('TicTacToePlayers')
+        .update({ game: result })
+        .eq('id', playerId);
+  
+      if (updateError) {
+        console.error('Game result update error:', updateError);
+        throw updateError;
+      }
+  
+      if (moveTimings.length > 0) {
+        // Insert move timings
+        const moveTimingsToInsert = moveTimings.map((move) => ({
+          player_id: playerId,
+          move_number: move.move_number,
+          minimax_time: parseFloat((move.minimax_time ).toFixed(2)),
+          heuristic_time: parseFloat((move.heuristic_time ).toFixed(2)),
+        }));
+  
+        const { error: moveError } = await supabase
+          .from('TicTacToeMoveTimings')
+          .insert(moveTimingsToInsert);
+  
+        if (moveError) {
+          console.error('Move insert error:', moveError);
+          throw moveError;
+        }
+      }
+  
+      console.log('Game data saved successfully');
+    } catch (error) {
+      console.error('Error saving game data:', error);
+      setError('Failed to save game data. Please try again.');
+    }
+  };
+
+  const handleNameSubmit = async (e) => {
+    e.preventDefault();
+    if (playerName.trim()) {
+      const { data: player, error } = await supabase
+        .from('TicTacToePlayers')
+        .insert([{ name: playerName, game: 'Draw' }])
+        .select('id')
+        .single();
+
+      if (error) {
+        console.error('Error creating player:', error);
+        setError('Failed to create player. Please try again.');
+      } else {
+        setPlayerId(player.id);
+        setNameSubmitted(true);
+        setWelcome(`Welcome, ${playerName}!`);
+      }
+    } else {
+      setError('Please enter a valid name.');
+>>>>>>> 97405f39a6ecf40446617b101f96a5f2ed6ec24f
     }
   };
 
@@ -79,6 +195,14 @@ const TicTacToe = () => {
     setPlayerName('');
     setNameSubmitted(false);
     resetGame();
+  };
+
+  const resetGame = () => {
+    setBoard(emptyBoard);
+    setGameOver(false);
+    setPlayerTurn(true);
+    setMessage('');
+    setMoveTimings([]);
   };
 
   return (
