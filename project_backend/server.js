@@ -6,6 +6,8 @@ import { createClient } from '@supabase/supabase-js';
 
 import eightQueenRoutes from './routes/eightqueenspuzzle.js';
 import knighttourRoute from './routes/knightstour.js';
+import towerOfHanoiRoutes from './routes/towerofhanoi.js';
+
 
 
 
@@ -26,6 +28,8 @@ if(!supabase) {
 // Import the game routes
 app.use('/api/eightQueensPuzzle', eightQueenRoutes);   // Eight Queens Puzzle Games routes
 app.use('/api/knighttour',knighttourRoute);
+app.use('/api/towerofhanoi', towerOfHanoiRoutes);
+
 
 
 

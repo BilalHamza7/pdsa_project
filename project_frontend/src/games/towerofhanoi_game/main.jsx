@@ -7,12 +7,11 @@ import {
 import "./TowerOfHanoi.css"; 
 import { useNavigate } from 'react-router-dom';
 
-
 const getRandomDisks = () => Math.floor(Math.random() * 6) + 5;
 
 const TowerOfHanoi = () => {
   const [isLoading, setIsLoading] = useState(true);
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [diskCount, setDiskCount] = useState(getRandomDisks());
   const [playerName, setPlayerName] = useState("");
   const [userMoveCount, setUserMoveCount] = useState(0);
@@ -149,7 +148,65 @@ const TowerOfHanoi = () => {
     setUserMoves(updatedMoves);
   };
 
-  const handleSubmit = (e) => {
+  const savePlayer = async (name) => {
+    const response = await fetch('http://localhost:5000/api/towerofhanoi/savePlayer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ h_name: name }),
+    });
+    const data = await response.json();
+    return data; // returns player object with UUID
+  };
+
+  const saveGame = async (playerId, gameType, diskCount, userMoveCount, isCorrect, timeTaken) => {
+    const response = await fetch('http://localhost:5000/api/towerofhanoi/saveGame', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        player_id: playerId,
+        game_type: gameType,
+        disk_count: diskCount,
+        user_move_count: userMoveCount,
+        is_correct: isCorrect,
+        time_taken_seconds: timeTaken,
+      }),
+    });
+    const data = await response.json();
+    return data; // returns game row with game_id
+  };
+    
+
+const saveAlgorithmResult = async (gameId, algorithmType, moveCount, timeMs) => {
+  await fetch('http://localhost:5000/api/towerofhanoi/saveAlgorithmResult', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      game_id: gameId,
+      algorithm_type: algorithmType,
+      move_count: moveCount,
+      al_time_taken: timeMs,
+    }),
+  });
+};
+
+const saveUserMoves = async (gameId, moves) => {
+  const formattedMoves = moves.map((move, index) => ({
+    move_order: index + 1,
+    disk_number: parseInt(move.disk),
+    from_peg: move.from,
+    to_peg: move.to,
+  }));
+
+  await fetch('http://localhost:5000/api/towerofhanoi/saveUserMoves', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ game_id: gameId, moves: formattedMoves }),
+  });
+};
+
+
+const handleSubmit = async (e) => {
+
     e.preventDefault();
     if (
       !playerName ||
@@ -182,20 +239,29 @@ const TowerOfHanoi = () => {
     JSON.stringify(formattedUserMoves) === JSON.stringify(recursiveSolution);
 
     setResult({
-      playerName,
-      diskCount,
-      userMoveCount: formattedUserMoves.length,
-      userSequence: formattedUserMoves,
-      isCorrect,
-      timeTaken: timer,
-      recursiveTime: recursiveSolution.length,
-      iterativeTime: iterativeSolution.length,
-      recursiveTimeMs,
-      iterativeTimeMs,
+      playerName, //player name
+      diskCount, //disk count
+      userMoveCount: formattedUserMoves.length, //move count
+      userSequence: formattedUserMoves, //user move
+      isCorrect, //correct
+      timeTaken: timer, //user time
+      recursiveTime: recursiveSolution.length, //al count
+      iterativeTime: iterativeSolution.length, //al count
+      recursiveTimeMs, //al time
+      iterativeTimeMs, //al time
       recursiveSolution,
       iterativeSolution,
-    });
-  }catch (error) {
+    }); 
+
+    const player = await savePlayer(playerName);
+    const game = await saveGame(player.id, '3-peg', diskCount, formattedUserMoves.length, isCorrect, timer);
+
+    await saveAlgorithmResult(game.id, 'recursive', recursiveSolution.length, parseFloat(recursiveTimeMs));
+     await saveAlgorithmResult(game.id, 'iterative', iterativeSolution.length, parseFloat(iterativeTimeMs));
+    await saveUserMoves(game.id, userMoves);
+
+  } 
+  catch (error) {
     console.error("Error during solution comparison:", error);
     alert("An unexpected error occurred while processing your submission.");
   }
@@ -212,7 +278,6 @@ const TowerOfHanoi = () => {
     setIsRunning(false);
   };
 
-  
 
 //4-Peg Tower of Hanoi (Frame-Stewart Algorithm)
 
@@ -267,7 +332,7 @@ const handle4PegMoveChange = (index, field, value) => {
   setUserMoves4Peg(updatedMoves); // Update the state
 };
 
-const handle4PegSubmit = (e) => {
+const handle4PegSubmit = async (e) => {
   e.preventDefault(); // Prevent default form submission
   // Validate user input
   if (
@@ -284,6 +349,12 @@ const handle4PegSubmit = (e) => {
    // Stop the 4-Peg timer
    setIsRunning4(false);  // This stops the timer
 
+const t0FourPeg = performance.now();
+const fourPegMoves = solveHanoi4Pegs(diskCount, "A", "B", "C", "D");
+const t1FourPeg = performance.now();
+const fourPegTimeMs = (t1FourPeg - t0FourPeg).toFixed(2);
+
+
  // Format the user moves for 4-peg game
  const formattedUserMoves4Peg = userMoves4Peg.map(
   (move) => `${move.disk} Disk ${move.from.toUpperCase()}→${move.to.toUpperCase()}`
@@ -296,15 +367,25 @@ const is4PegCorrect =
 
 // Set the result for 4-peg game
 setResult4Peg({
-  playerName: playerName4Peg,
-  diskCount,
-  userMoveCount: formattedUserMoves4Peg.length,
+  playerName: playerName4Peg, //player name
+  diskCount, //disk count
+  userMoveCount: formattedUserMoves4Peg.length, //move count
   userSequence: formattedUserMoves4Peg,
-  isCorrect: is4PegCorrect,
-  timeTaken: timer4Peg,
+  isCorrect: is4PegCorrect, //correct
+  timeTaken: timer4Peg, //user time
   solution: fourPegMoves,
-  solutionTime: fourPegMoves.length,
+  solutionMovecount: fourPegMoves.length,//solution move count
+  fourPegTimeMs, //solution time
 });
+
+const player = await savePlayer(playerName4Peg);
+const game = await saveGame(player.id, '4-peg', diskCount, formattedUserMoves4Peg.length, is4PegCorrect, timer4Peg);
+
+await saveAlgorithmResult(game.id, 'frame-stewart', fourPegMoves.length, parseFloat(fourPegTimeMs));
+await saveUserMoves(game.id, userMoves4Peg);
+
+
+
 }catch (error) {
   console.error("Error during 4-peg validation:", error);
   alert("An unexpected error occurred in the 4-peg game.");
@@ -326,8 +407,8 @@ if (isLoading) {
 
     <div class="button-container">
       <button onClick={() => setShowInstructions3(true) } className="left-info-btn">How to play 3-peg</button>
-      <button onClick={() => setShowInstructions4(true)} className="info-btn">How to play 4-peg</button>
-      <button onClick={() => navigate('/')} className="quit-btn">Quit</button>
+      <button onClick={() => setShowInstructions4(true)} className="right-info-btn">How to play 4-peg</button>
+      <button onClick={() => navigate('/')} className="game-quit-btn">Quit</button>
 
       {showInstructions3 && (
         <div className="modal">
@@ -496,7 +577,7 @@ if (isLoading) {
           <h3>GAME RESULT</h3>
           <p><strong>Player:</strong> {result.playerName}</p>
           <p><strong>Disks Count:</strong> {result.diskCount}</p>
-          <p><strong>Result:</strong> {result.isCorrect ? "🏆 WIN" : "❌ Lose"}</p>
+          <p><strong>Result:</strong> {result.isCorrect ? "🏆 You Win" : "❌ Lose"}</p>
           <p><strong>Your Move Count:</strong> {result.userMoveCount}</p>
           <p><strong>Time Taken:</strong> {result.timeTaken}s</p>
 
@@ -662,7 +743,7 @@ if (isLoading) {
           <p><strong>Disk Count:</strong> {result4Peg.diskCount}</p>
           <p><strong>Your Move Count:</strong> {result4Peg.userMoveCount}</p>
           <p><strong>Your Sequence:</strong> {result4Peg.userSequence.join(", ")}</p>
-          <p><strong>Correct:</strong> {result4Peg.isCorrect ? "👏🏻 Yes" : "❌ No"}</p>
+          <p><strong>Result:</strong> {result4Peg.isCorrect ? "🏆 You Win!" : "❌ Lose"}</p>
           <p><strong>Time Taken:</strong> {result4Peg.timeTaken}s</p>
           <p><strong>Optimal Solution:</strong></p>
           <div className="move-list">
@@ -670,8 +751,9 @@ if (isLoading) {
           <div key={index}>{move}</div>
         ))}
       </div>
-          <p><strong>Optimal Solution Move Count:</strong> {result4Peg.solutionTime}</p>
-          <p><strong>Result:</strong> {result4Peg.isCorrect ? "🏆 You Win!" : "😞 Try Again!"}</p>
+          <p><strong>Optimal Solution Move Count:</strong> {result4Peg.solutionMovecount}</p> 
+          <p><strong>Execution Time:</strong> {result4Peg.fourPegTimeMs}</p>
+          
         </div>
       )}
  
