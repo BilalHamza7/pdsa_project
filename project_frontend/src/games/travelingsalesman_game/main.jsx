@@ -14,43 +14,47 @@ const generateDistanceMatrix = () => {
   return matrix;
 };
 
-const tspBruteForce = (start, selectedCities, matrix) => {
-  const permutations = (arr) => {
-    if (arr.length === 0) return [[]];
-    const result = [];
-    arr.forEach((v, i) => {
-      const rest = arr.slice(0, i).concat(arr.slice(i + 1));
-      const sub = permutations(rest);
-      sub.forEach((s) => result.push([v].concat(s)));
-    });
-    return result;
-  };
+const tspDijkstra = (start, selectedCities, matrix) => {
+  const n = selectedCities.length;
+  let route = [start]; // Start with home city
+  let visited = new Set([start]);
+  let current = start;
+  let totalDistance = 0;
 
-  const routes = permutations(selectedCities);
-  let minRoute = null, minDistance = Infinity;
+  while (visited.size - 1 < n) { // -1 to account for start city
+    let minDist = Infinity;
+    let nextCity = null;
 
-  routes.forEach((route) => {
-    let dist = 0;
-    let current = start;
-    route.forEach((city) => {
-      dist += matrix[current][city];
-      current = city;
-    });
-    dist += matrix[current][start];
-    if (dist < minDistance) {
-      minDistance = dist;
-      minRoute = route;
+    for (let city of selectedCities) {
+      if (!visited.has(city) && matrix[current][city] < minDist) {
+        minDist = matrix[current][city];
+        nextCity = city;
+      }
     }
-  });
 
-  return { route: minRoute, distance: minDistance };
+    if (nextCity !== null) {
+      route.push(nextCity);
+      visited.add(nextCity);
+      totalDistance += minDist;
+      current = nextCity;
+    } else {
+      break;
+    }
+  }
+
+  // Return to home city
+  totalDistance += matrix[current][start];
+  route.push(start); // End with home city
+
+  return { route, distance: totalDistance };
 };
 
 const tspNearestNeighbor = (start, selectedCities, matrix) => {
-  let route = [], visited = new Set();
+  let route = [start]; // Start with home city
+  let visited = new Set([start]);
   let current = start, total = 0;
 
-  while (visited.size < selectedCities.length) {
+  while (visited.size - 1 < selectedCities.length) {
     let minDist = Infinity, nextCity = null;
     for (let city of selectedCities) {
       if (!visited.has(city) && matrix[current][city] < minDist) {
@@ -66,6 +70,7 @@ const tspNearestNeighbor = (start, selectedCities, matrix) => {
     }
   }
   total += matrix[current][start];
+  route.push(start); // End with home city
   return { route, distance: total };
 };
 
@@ -96,7 +101,7 @@ const tspDynamicProgramming = (start, selectedCities, matrix) => {
     if (distance < minDistance) minDistance = distance;
   }
 
-  return { distance: minDistance, route: selectedCities }; // Approx route only
+  return { distance: minDistance, route: [start, ...selectedCities, start] }; // Approx route with home city
 };
 
 export default function Main() {
@@ -138,7 +143,6 @@ export default function Main() {
 
   const saveToSupabase = async (playerName, gameData, algorithmStats) => {
     try {
-      // Step 1: Insert game session with player_name
       const { data: session, error: sessionError } = await supabase
         .from('travel_salesman_gamesessions')
         .insert([{
@@ -155,9 +159,8 @@ export default function Main() {
 
       const sessionId = session.session_id;
 
-      // Step 2: Insert algorithm stats
       const algoStats = [
-        { session_id: sessionId, algorythm_name: 'Brute Force', time_taken_ms: parseFloat(algorithmStats.times.brute), distance: algorithmStats.brute.distance },
+        { session_id: sessionId, algorythm_name: 'Dijkstra', time_taken_ms: parseFloat(algorithmStats.times.dijkstra), distance: algorithmStats.dijkstra.distance },
         { session_id: sessionId, algorythm_name: 'Nearest Neighbor', time_taken_ms: parseFloat(algorithmStats.times.nearest), distance: algorithmStats.nearest.distance },
         { session_id: sessionId, algorythm_name: 'Dynamic Programming', time_taken_ms: parseFloat(algorithmStats.times.dp), distance: algorithmStats.dp.distance },
       ];
@@ -198,7 +201,7 @@ export default function Main() {
       const start = homeCity;
 
       const t0 = performance.now();
-      const brute = tspBruteForce(start, selectedCities, distanceMatrix);
+      const dijkstra = tspDijkstra(start, selectedCities, distanceMatrix);
       const t1 = performance.now();
 
       const t2 = performance.now();
@@ -213,11 +216,11 @@ export default function Main() {
         playerName,
         homeCity: cities[homeCity],
         selected: selectedCities.map((i) => cities[i]),
-        brute,
+        dijkstra,
         nearest,
         dp,
         times: {
-          brute: (t1 - t0).toFixed(2),
+          dijkstra: (t1 - t0).toFixed(2),
           nearest: (t3 - t2).toFixed(2),
           dp: (t5 - t4).toFixed(2),
         },
@@ -225,8 +228,8 @@ export default function Main() {
 
       setResults(resultData);
 
-      const optimalDistance = brute.distance;
-      const optimalRoute = brute.route.map((i) => cities[i]);
+      const optimalDistance = dijkstra.distance; // Using Dijkstra as reference
+      const optimalRoute = dijkstra.route.map((i) => cities[i]);
       let status = 'incorrect';
       if (playerDistance === optimalDistance) {
         status = 'correct';
@@ -249,10 +252,9 @@ export default function Main() {
 
     } catch (err) {
       setError(err.message);
-      // Still compute and show results even if path is invalid
       const start = homeCity;
       const t0 = performance.now();
-      const brute = tspBruteForce(start, selectedCities, distanceMatrix);
+      const dijkstra = tspDijkstra(start, selectedCities, distanceMatrix);
       const t1 = performance.now();
       const t2 = performance.now();
       const nearest = tspNearestNeighbor(start, selectedCities, distanceMatrix);
@@ -265,11 +267,11 @@ export default function Main() {
         playerName,
         homeCity: cities[homeCity],
         selected: selectedCities.map((i) => cities[i]),
-        brute,
+        dijkstra,
         nearest,
         dp,
         times: {
-          brute: (t1 - t0).toFixed(2),
+          dijkstra: (t1 - t0).toFixed(2),
           nearest: (t3 - t2).toFixed(2),
           dp: (t5 - t4).toFixed(2),
         },
@@ -316,7 +318,7 @@ export default function Main() {
     },
     section: {
       marginBottom: "15px",
-      marginTop:"15px"
+      marginTop: "15px"
     },
     cityName: {
       fontWeight: "bold",
@@ -391,7 +393,7 @@ export default function Main() {
           <span style={styles.cityName}>
             {homeCity !== null && cities[homeCity]}
           </span>
-      </div>
+        </div>
 
         <div style={styles.section}>
           <label>
@@ -453,18 +455,19 @@ export default function Main() {
           <h4 style={styles.resultHeading}>🎯 Results for {results.playerName}</h4>
           <p style={styles.feedback}>{pathFeedback}</p>
           <p>
-            <strong>🔍 Brute Force:</strong> {results.brute.distance} km — Route:{" "}
-            {results.brute.route.map((i) => cities[i]).join(" → ")}
+            <strong>🔍 Dijkstra:</strong> {results.dijkstra.distance} km — Route:{" "}
+            {results.dijkstra.route.map((i) => cities[i]).join(" → ")}
           </p>
           <p>
             <strong>📍 Nearest Neighbor:</strong> {results.nearest.distance} km — Route:{" "}
             {results.nearest.route.map((i) => cities[i]).join(" → ")}
           </p>
           <p>
-            <strong>🧠 Dynamic Programming:</strong> {results.dp.distance} km
+            <strong>🧠 Dynamic Programming:</strong> {results.dp.distance} km — Route:{" "}
+            {results.dp.route.map((i) => cities[i]).join(" → ")}
           </p>
           <p>
-            <strong>⏱️ Execution Times (ms):</strong> Brute: {results.times.brute}, Nearest:{" "}
+            <strong>⏱️ Execution Times (ms):</strong> Dijkstra: {results.times.dijkstra}, Nearest:{" "}
             {results.times.nearest}, DP: {results.times.dp}
           </p>
         </div>
