@@ -33,16 +33,9 @@ const TicTacToe = () => {
     const winner = checkWinner(board);
     if (winner) {
       setGameOver(true);
-      if (winner === 'X') {
-        setMessage(`${playerName} Wins!`);
-        console.log(`${playerName} Wins!`);  // Log player name and result
-      } else if (winner === 'O') {
-        setMessage('Computer Wins!');
-        console.log('Computer Wins!');  // Log the result
-      } else if (winner === 'Draw') {
-        setMessage('Draw Game');
-        console.log('Draw Game');  // Log the result
-      }
+      if (winner === 'X') setMessage(`${playerName} Wins!`);
+      else if (winner === 'O') setMessage('Computer Wins!');
+      else if (winner === 'Draw') setMessage('Draw Game');
       return;
     }
 
@@ -76,7 +69,6 @@ const TicTacToe = () => {
       setNameSubmitted(true);
       resetAlgorithmicCounter();
       setWelcome(`Welcome, ${playerName}!`);
-      console.log(`Player Name: ${playerName}`);  // Log player name
     }
   };
 
