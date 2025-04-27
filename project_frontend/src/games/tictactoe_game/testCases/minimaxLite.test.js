@@ -1,4 +1,4 @@
-// minimaxLite.test.js
+import { describe, test, expect } from 'vitest';
 import { getBestMoveMinimaxLite } from '../minimaxLite.jsx';
 
 describe('getBestMoveMinimaxLite', () => {
