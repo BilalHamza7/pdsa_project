@@ -42,7 +42,7 @@ const TicTacToe = () => {
         setMessage(`${playerName} Wins!`);
         result = 'Win';
       } else if (winner === 'O') {
-        setMessage('Computer Wins!');
+        setMessage('Lose!');
         result = 'Lose';
       } else if (winner === 'Draw') {
         setMessage('Draw Game');

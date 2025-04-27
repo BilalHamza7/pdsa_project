@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest';
 import { getBestMoveMinimaxLite } from '../minimaxLite';  
 import { checkWinner } from '../checkWinner'; 
 

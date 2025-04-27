@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest';
 import { getBestMoveHeuristicLite } from '../heuristicLite.jsx';
 import { checkWinner } from '../checkWinner'; 
 

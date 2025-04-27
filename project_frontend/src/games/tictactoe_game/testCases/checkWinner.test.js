@@ -1,4 +1,5 @@
-import { checkWinner } from '../checkWinner'; // Corrected relative path
+import { describe, test, expect } from 'vitest'; 
+import { checkWinner } from '../checkWinner'; 
 
 
 describe('checkWinner', () => {

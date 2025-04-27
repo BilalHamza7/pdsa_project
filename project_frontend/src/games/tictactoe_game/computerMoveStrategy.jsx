@@ -10,7 +10,7 @@ export function resetAlgorithmicCounter() {
 }
 
 function applyMoveToBoard(board, move) {
-  // Validate the board structure before attempting to apply a move
+  // Validate the board structure before attempting to apply a moves
   if (!Array.isArray(board) || board.length === 0 || !board.every(row => Array.isArray(row) && row.length === board[0].length)) {
     throw new Error("Invalid board structure.");
   }
