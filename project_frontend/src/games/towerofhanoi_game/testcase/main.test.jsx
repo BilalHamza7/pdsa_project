@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom"; // Import MemoryRouter
-
+import '@testing-library/jest-dom';
 import React from "react";
 import TowerOfHanoi from '../main';
 
@@ -227,4 +227,93 @@ describe('TowerOfHanoi handleMoveCountChange functionality', () => {
   
   });
 
+  describe('TowerOfHanoi handleMoveChange functionality', () => {
+
+    it('updates the correct move when user edits move fields', () => {
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Start the game
+      const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+      fireEvent.click(startButtons[0]);
+  
+      // Fill Player Name
+      fireEvent.change(screen.getByPlaceholderText('Enter Your Name'), {
+        target: { value: 'TestPlayer' },
+      });
+  
+      // Fill Move Count (e.g., 2 moves)
+      fireEvent.change(screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)'), {
+        target: { value: '2' },
+      });
+  
+      // Now, there should be 2 move inputs for Disk No
+      const diskInputs = screen.getAllByPlaceholderText('Disk No:');
+  
+      // Change the first move's Disk Number
+      fireEvent.change(diskInputs[0], { target: { value: '1' } });
+  
+      // Change the From peg of first move
+      const fromSelects = screen.getAllByRole('combobox');
+      fireEvent.change(fromSelects[0], { target: { value: 'A' } });
+  
+      // Change the To peg of first move
+      fireEvent.change(fromSelects[1], { target: { value: 'C' } });
+  
+      // Now check if the inputs are updated correctly
+      expect(diskInputs[0]).toHaveValue(1);
+      expect(fromSelects[0]).toHaveValue('A');
+      expect(fromSelects[1]).toHaveValue('C');
+    });
+  
+  });
+
+  it('updates multiple moves separately without overwriting others', () => {
+    render(
+      <MemoryRouter>
+        <TowerOfHanoi />
+      </MemoryRouter>
+    );
+  
+    // Start the game
+    const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+    fireEvent.click(startButtons[0]);
+  
+    // Fill Player Name
+    fireEvent.change(screen.getByPlaceholderText('Enter Your Name'), {
+      target: { value: 'TestPlayer' },
+    });
+  
+    // Fill Move Count (example: 2 moves)
+    fireEvent.change(screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)'), {
+      target: { value: '2' },
+    });
+  
+    // Now, there should be 2 move input sections
+    const diskInputs = screen.getAllByPlaceholderText('Disk No:');
+    const fromSelects = screen.getAllByRole('combobox');
+  
+    // Update Move 0
+    fireEvent.change(diskInputs[0], { target: { value: '1' } });
+    fireEvent.change(fromSelects[0], { target: { value: 'A' } });
+    fireEvent.change(fromSelects[1], { target: { value: 'C' } });
+  
+    // Update Move 1
+    fireEvent.change(diskInputs[1], { target: { value: '2' } });
+    fireEvent.change(fromSelects[2], { target: { value: 'A' } });
+    fireEvent.change(fromSelects[3], { target: { value: 'B' } });
+  
+    // Check first move updated correctly
+    expect(diskInputs[0]).toHaveValue(1);
+    expect(fromSelects[0]).toHaveValue('A');
+    expect(fromSelects[1]).toHaveValue('C');
+  
+    // Check second move updated correctly
+    expect(diskInputs[1]).toHaveValue(2);
+    expect(fromSelects[2]).toHaveValue('A');
+    expect(fromSelects[3]).toHaveValue('B');
+  });
   
