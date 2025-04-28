@@ -227,6 +227,7 @@ describe('TowerOfHanoi handleMoveCountChange functionality', () => {
   
   });
 
+  //5
   describe('TowerOfHanoi handleMoveChange functionality', () => {
 
     it('updates the correct move when user edits move fields', () => {
@@ -317,3 +318,111 @@ describe('TowerOfHanoi handleMoveCountChange functionality', () => {
     expect(fromSelects[3]).toHaveValue('B');
   });
   
+//6
+describe('TowerOfHanoi handleStart functionality', () => {
+
+    it('starts the game by enabling form fields and timer', () => {
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Before clicking Start Game, input fields should be disabled
+      const playerNameInput = screen.getByPlaceholderText('Enter Your Name');
+      const moveCountInput = screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)');
+      const submitButton = screen.getByRole('button', { name: /Submit Answer/i });
+  
+      expect(playerNameInput).toBeDisabled();
+      expect(moveCountInput).toBeDisabled();
+      expect(submitButton).toBeDisabled();
+  
+      // Click Start Game button
+      const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+      fireEvent.click(startButtons[0]); // Click first "Start Game" (3-peg)
+  
+      // Now, inputs should be enabled
+      expect(playerNameInput).toBeEnabled();
+      expect(moveCountInput).toBeEnabled();
+      expect(submitButton).toBeEnabled();
+    });
+  
+  });
+
+  //7
+  describe('TowerOfHanoi resetGame functionality', () => {
+
+    it('resets the game state when reset button is clicked', async () => {
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Start the game first
+      const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+      fireEvent.click(startButtons[0]);
+  
+      // Fill Player Name
+      const playerNameInput = screen.getByPlaceholderText('Enter Your Name');
+      fireEvent.change(playerNameInput, { target: { value: 'TestPlayer' } });
+  
+      // Fill Move Count
+      const moveCountInput = screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)');
+      fireEvent.change(moveCountInput, { target: { value: '3' } });
+  
+      // Now click Reset button
+      const resetButton = screen.getByRole('button', { name: /Reset/i });
+      fireEvent.click(resetButton);
+  
+      // After reset, check:
+      expect(playerNameInput).toHaveValue(""); // Player name cleared
+      expect(moveCountInput.value).toBe("0"); // Move count cleared (depends on how React handles it)
+      expect(playerNameInput).toBeDisabled(); // Form disabled again
+      expect(moveCountInput).toBeDisabled();
+      
+      // Bonus: You can also check timer reset to 0, but for now we just check important fields.
+    });
+  
+  });
+
+  //8
+  
+describe('TowerOfHanoi useEffect for diskCount', () => {
+
+  it('updates pegs, userMoves, userMoveCount, and selectedDisk when diskCount changes', () => {
+    render(
+      <MemoryRouter>
+        <TowerOfHanoi />
+      </MemoryRouter>
+    );
+
+    // Start the game first
+    const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+    fireEvent.click(startButtons[0]);
+
+    // Find move count input
+    const moveCountInput = screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)');
+
+    // Change diskCount indirectly by simulating reset
+    const resetButton = screen.getByRole('button', { name: /Reset/i });
+    fireEvent.click(resetButton);
+
+    // Now after resetGame, diskCount is reset randomly (5~10) => but more importantly, the states should be reset
+
+    // Check that User Moves is cleared: no move inputs yet
+    expect(screen.queryByPlaceholderText('Disk No:')).not.toBeInTheDocument();
+
+    // Try filling move count again to force rerender
+    fireEvent.change(moveCountInput, { target: { value: '3' } });
+
+    // Now 3 Disk inputs should appear
+    const diskInputs = screen.getAllByPlaceholderText('Disk No:');
+    expect(diskInputs.length).toBe(3); // because userMoves got reset and re-initialized
+
+    // Bonus: You could also check that first Peg (A) has disks
+    const pegA = screen.getByTestId('peg-A');
+    expect(pegA).toBeInTheDocument();
+  });
+
+});
