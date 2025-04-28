@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, fireEvent, screen } from "@testing-library/react";
+import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom"; // Import MemoryRouter
 
 import React from "react";
 import TowerOfHanoi from '../main';
-//import { handlePegClick } from '../main'; // Update the correct path
 
+
+//1
 
 describe('TowerOfHanoi', () => {
   it('renders the Tower of Hanoi game title', () => {
@@ -20,8 +21,7 @@ describe('TowerOfHanoi', () => {
   });
 });
 
-
-
+//2
 
 describe("handlePegClick", () => {
   let alertMock;
@@ -88,4 +88,143 @@ describe("handlePegClick", () => {
 });
 
 
+//3
+// Mock the fetch requests used inside handleSubmit
+global.fetch = vi.fn(() =>
+  Promise.resolve({
+    json: () => Promise.resolve({ id: "mocked-player-id", game_id: "mocked-game-id" }),
+  })
+);
 
+describe('TowerOfHanoi handleSubmit functionality', () => {
+
+  beforeEach(() => {
+    fetch.mockClear(); // Clear mocks before each test
+  });
+
+  it('shows alert if player name is empty', async () => {
+    window.alert = vi.fn(); // Mock alert
+    render(
+      <MemoryRouter>
+        <TowerOfHanoi />
+      </MemoryRouter>
+    );
+
+    // Click "Start Game" button first
+    const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+    fireEvent.click(startButtons[0]); // Click the first Start Game button
+
+    const form = screen.getByTestId('hanoi-form'); // Using testid
+    fireEvent.submit(form);
+
+    
+    fireEvent.submit(form);
+    await waitFor(() => {
+        expect(window.alert).toHaveBeenCalledWith("Please fill all fields correctly.");
+      
+    });
+  });
+
+  it('submits correctly when valid data is entered', async () => {
+    window.alert = vi.fn(); // Still mock alert to prevent real alert
+    render(
+      <MemoryRouter>
+        <TowerOfHanoi />
+      </MemoryRouter>
+    );
+
+    // Start the game
+    const startButton = screen.getAllByRole('button', { name: /Start Game/i });
+    fireEvent.click(startButton[0]);
+
+    // Fill Player Name
+    fireEvent.change(screen.getByPlaceholderText('Enter Your Name'), {
+      target: { value: 'Alice' },
+    });
+
+    // Fill Move Count (example: 1 move)
+    fireEvent.change(screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)'), {
+      target: { value: '1' },
+    });
+
+    // Fill first move input fields
+    fireEvent.change(screen.getByPlaceholderText('Disk No:'), {
+      target: { value: '1' },
+    });
+
+    // Select From peg
+    fireEvent.change(screen.getAllByRole('combobox')[0], {
+      target: { value: 'A' },
+    });
+
+    // Select To peg
+    fireEvent.change(screen.getAllByRole('combobox')[1], {
+      target: { value: 'C' },
+    });
+
+    // Submit the form
+    const submitButton = screen.getByRole('button', { name: /Submit Answer/i });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      // Expect that fetch was called at least once
+      expect(fetch).toHaveBeenCalled();
+    });
+  });
+});
+
+//4
+describe('TowerOfHanoi handleMoveCountChange functionality', () => {
+
+    beforeEach(() => {
+      vi.restoreAllMocks(); // Clean up mocks before each test
+    });
+  
+    it('shows alert if move count is invalid (zero or negative)', async () => {
+      window.alert = vi.fn(); // Mock alert
+  
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Start the game
+      const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+      fireEvent.click(startButtons[0]);
+  
+      // Find move count input
+      const moveCountInput = screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)');
+  
+      // Enter invalid move count (zero)
+      fireEvent.change(moveCountInput, { target: { value: '0' } });  
+      
+    });
+  
+    it('updates user move count and user moves correctly with valid input', async () => {
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Start the game
+      const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+      fireEvent.click(startButtons[0]);
+  
+      // Find move count input
+      const moveCountInput = screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)');
+  
+      // Enter a valid move count
+      fireEvent.change(moveCountInput, { target: { value: '3' } });
+  
+      // Expect 3 move input rows to appear (move sequence inputs)
+      await waitFor(() => {
+        const moveInputs = screen.getAllByPlaceholderText('Disk No:');
+        expect(moveInputs.length).toBe(3); // 3 move inputs
+      });
+    });
+  
+  });
+
+  

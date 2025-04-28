@@ -483,7 +483,7 @@ await saveUserMoves(game.id, userMoves4Peg);
        <h6><i>• You can Enter the number of moves and sequence of moves OR First click a disk you want to move and then click on a peg you want to move to the disk.Finally, you can see the disk on the peg you selected. For mor details click How to play 3-peg button </i></h6>
       {!isStarted && <button className="start-btn" onClick={handleStart}>Start Game</button>}
 
-      <form onSubmit={handleSubmit} className="hanoi-form">
+      <form onSubmit={handleSubmit} className="hanoi-form" data-testid="hanoi-form">
         <p>Player's Name:</p>
         <input
           type="text"
