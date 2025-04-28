@@ -4,7 +4,7 @@ onmessage = function (e) {
     const board = new Array(8);
     board[0] = startCol;
     solveFromRow(1, board, solutions);
-    postMessage({ solutions });
+    postMessage({ solutions });  // passing thread result
 };
 
 function solveFromRow(row, board, solutions) {
@@ -23,9 +23,9 @@ function solveFromRow(row, board, solutions) {
 function isSafe(board, row, col) {
     for (let i = 0; i < row; i++) {
         if (
-            board[i] === col ||
-            board[i] - i === col - row ||
-            board[i] + i === col + row
+            board[i] === col ||  // No other queen in the same column.
+            board[i] - i === col - row ||  // No other queen in the same ↘️ diagonal.
+            board[i] + i === col + row  // No other queen in the same ↙️ diagonal.
         ) {
             return false;
         }
