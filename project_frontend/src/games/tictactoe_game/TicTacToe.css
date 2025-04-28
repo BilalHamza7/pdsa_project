@@ -6,7 +6,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 300px;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(240, 166, 29, 0.7);
   backdrop-filter: blur(8px);
   padding: 2rem;
   border-radius: 12px;
@@ -72,7 +72,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(237, 237, 4, 0.3);
   backdrop-filter: blur(4px);
   z-index: -1;
 }
@@ -116,7 +116,7 @@ h1 {
 
 .cell:hover {
   transform: scale(1.07);
-  background-color: #ffffff;
+  background-color: #ebe371;
   box-shadow: 0 4px 15px rgba(0,0,0,0.08);
 }
 

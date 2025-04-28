@@ -87,7 +87,7 @@ export function computerMove(board, algorithm, player) {
     algorithmicMoveCounter++;
 
     // Random move 
-    if (moveCounter >= 4 && moveCounter <= 12) {
+    if (moveCounter >= 8 && moveCounter <= 12) {
       chosenMove = getRandomMove(board);
       console.log("🎲 Random Move Turn"); 
     } else {
