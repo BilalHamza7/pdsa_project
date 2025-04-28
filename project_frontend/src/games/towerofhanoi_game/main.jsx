@@ -9,8 +9,7 @@ import { useNavigate } from 'react-router-dom';
 
 const getRandomDisks = () => Math.floor(Math.random() * 6) + 5;
 
-const TowerOfHanoi = () => {
-  const [isLoading, setIsLoading] = useState(true);
+const TowerOfHanoi = () => { 
   const navigate = useNavigate();
   const [diskCount, setDiskCount] = useState(getRandomDisks());
   const [playerName, setPlayerName] = useState("");
@@ -45,14 +44,6 @@ const TowerOfHanoi = () => {
   const [showInstructions3, setShowInstructions3] = useState(false);
   const [showInstructions4, setShowInstructions4] = useState(false);
 
-  
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000); // 2 seconds preloader
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     const initialDisks = Array.from({ length: diskCount }, (_, i) => diskCount - i);
@@ -392,20 +383,10 @@ await saveUserMoves(game.id, userMoves4Peg);
 }
 };
 
-if (isLoading) {
-  return (
-    <div className="preloader">
-      <img src="/hanoi-logo.png" alt="Loading..." className="loader-image" />
-      <h2>Loading Tower of Hanoi Game...</h2>
-      <div className="spinner"></div>
-    </div>
-  );
-}
-
 
   return (
 
-    <div class="button-container">
+    <div className="button-container">
       <button onClick={() => setShowInstructions3(true) } className="left-info-btn">How to play 3-peg</button>
       <button onClick={() => setShowInstructions4(true)} className="right-info-btn">How to play 4-peg</button>
       <button onClick={() => navigate('/')} className="game-quit-btn">Quit</button>
@@ -484,7 +465,7 @@ if (isLoading) {
 
       <div className="visual-board">
       {Object.entries(pegs).map(([pegName, pegDisks]) => (
-          <div className="peg" key={pegName} onClick={() => handlePegClick(pegName)}>
+          <div className="peg" key={pegName} data-testid={`peg-${pegName}`} onClick={() => handlePegClick(pegName)}>
             <div className="peg-bar" />
             <div className="peg-label">{pegName}</div>
             {pegDisks.map((disk) => (
