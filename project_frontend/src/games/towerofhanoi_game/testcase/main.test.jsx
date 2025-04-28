@@ -5,7 +5,6 @@ import '@testing-library/jest-dom';
 import React from "react";
 import TowerOfHanoi from '../main';
 
-
 //1
 
 describe('TowerOfHanoi', () => {
@@ -426,3 +425,256 @@ describe('TowerOfHanoi useEffect for diskCount', () => {
   });
 
 });
+
+//9
+
+describe('TowerOfHanoi4Peg useEffect for diskCount', () => {
+    it('updates pegs4, userMoves4Peg, userMoveCount4Peg, and selectedDisk4 when diskCount changes', () => {
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Start the game first
+      const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+      fireEvent.click(startButtons[0]);
+  
+      // Find move count input
+      const moveCountInput = screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)');
+  
+      // Change diskCount indirectly by simulating reset
+      const resetButton = screen.getByRole('button', { name: /Reset/i });
+      fireEvent.click(resetButton);
+  
+      // After reset, userMoves4Peg should be cleared
+      expect(screen.queryByPlaceholderText('Disk No:')).not.toBeInTheDocument();
+  
+      // Fill move count input again to force rerender
+      fireEvent.change(moveCountInput, { target: { value: '4' } });
+  
+      // Now 4 Disk input fields should appear
+      const diskInputs = screen.getAllByPlaceholderText('Disk No:');
+      expect(diskInputs.length).toBe(4); // because userMoves4Peg got reset and re-initialized
+  
+      // Check that Peg A has disks
+      const pegA = screen.getByTestId('peg-A');
+      expect(pegA).toBeInTheDocument();
+    });
+  });
+
+  //10
+  describe("handlePegClick4", () => {
+    let alertMock;
+  
+    beforeEach(() => {
+      alertMock = vi.spyOn(global, "alert").mockImplementation(() => {});
+    });
+  
+    afterEach(() => {
+      alertMock.mockRestore();
+    });
+  
+    it("should select the top disk when clicking a peg with disks", () => {
+      const { getByTestId } = render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Simulate clicking peg A
+      const pegA = getByTestId("peg-A");
+      fireEvent.click(pegA);
+  
+      // Should not alert when selecting a disk
+      expect(alertMock).not.toHaveBeenCalled();
+    });
+  
+    it("should move a selected disk to another peg if valid", () => {
+      const { getByTestId } = render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Select a disk from peg A
+      const pegA = getByTestId("peg-A");
+      fireEvent.click(pegA);
+  
+      // Move selected disk to peg B
+      const pegB = getByTestId("peg-B");
+      fireEvent.click(pegB);
+  
+      expect(alertMock).not.toHaveBeenCalled();
+    });
+  
+    it("should prevent invalid moves and show an alert", () => {
+      const { getByTestId } = render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      const pegA = getByTestId("peg-A");
+      fireEvent.click(pegA); // Select top disk from peg A
+  
+      const pegB = getByTestId("peg-B");
+      fireEvent.click(pegB); // Move it to peg B (legal move)
+  
+      // Try to select a bigger disk now
+      fireEvent.click(pegA); // Select next bigger disk from peg A
+  
+      // Try to move bigger disk onto smaller disk in peg B (invalid move)
+      fireEvent.click(pegB);
+  
+      expect(alertMock).toHaveBeenCalledWith("Invalid move! Cannot place larger disk on smaller disk.");
+    });
+  });
+
+  //10
+  describe('TowerOfHanoi4Peg handle4PegMoveCountChange functionality', () => {
+
+    beforeEach(() => {
+      vi.restoreAllMocks(); // Reset mocks before each test
+    });
+  
+    it('shows alert if move count is invalid (zero or negative)', async () => {
+      window.alert = vi.fn(); // Mock alert
+  
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi/>
+        </MemoryRouter>
+      );
+  
+      // Start the game
+      const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+      fireEvent.click(startButtons[0]);
+  
+      // Find move count input
+      const moveCountInput = screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)');
+  
+      // Enter invalid move count (zero)
+      fireEvent.change(moveCountInput, { target: { value: '0' } });
+  
+      
+    });
+  
+    it('updates user move count and user moves correctly with valid input', async () => {
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Start the game
+      const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+      fireEvent.click(startButtons[0]);
+  
+      // Find move count input
+      const moveCountInput = screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)');
+  
+      // Enter a valid move count
+      fireEvent.change(moveCountInput, { target: { value: '4' } });
+  
+      // Expect 4 move input rows to appear
+      await waitFor(() => {
+        const moveInputs = screen.getAllByPlaceholderText('Disk No:');
+        expect(moveInputs.length).toBe(4); // 4 move inputs
+      });
+    });
+  
+  });
+
+  //11
+  describe('TowerOfHanoi4Peg handle4PegMoveChange functionality', () => {
+
+    it('updates the correct move when user edits move fields', () => {
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Start the game
+      const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+      fireEvent.click(startButtons[0]);
+  
+      // Fill Player Name
+      fireEvent.change(screen.getByPlaceholderText('Enter Your Name'), {
+        target: { value: 'TestPlayer' },
+      });
+  
+      // Fill Move Count (e.g., 2 moves)
+      fireEvent.change(screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)'), {
+        target: { value: '2' },
+      });
+  
+      // Now, there should be 2 move inputs for Disk No
+      const diskInputs = screen.getAllByPlaceholderText('Disk No:');
+  
+      // Change the first move's Disk Number
+      fireEvent.change(diskInputs[0], { target: { value: '1' } });
+  
+      // Change the From peg of first move
+      const fromSelects = screen.getAllByRole('combobox');
+      fireEvent.change(fromSelects[0], { target: { value: 'A' } });
+  
+      // Change the To peg of first move
+      
+      fireEvent.change(fromSelects[1], { target: { value: 'D' } });
+  
+      // Now check if the inputs are updated correctly
+      expect(diskInputs[0]).toHaveValue(1);
+      expect(fromSelects[0]).toHaveValue('A');
+      expect(fromSelects[1]).toHaveValue('D');
+    });
+  
+    it('updates multiple moves separately without overwriting others', () => {
+        render(
+          <MemoryRouter>
+            <TowerOfHanoi />
+          </MemoryRouter>
+        );
+      
+        // Start the game
+        const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
+        fireEvent.click(startButtons[0]);
+      
+        // Fill Player Name
+        fireEvent.change(screen.getByPlaceholderText('Enter Your Name'), {
+          target: { value: 'TestPlayer' },
+        });
+      
+        // Fill Move Count (example: 2 moves)
+        fireEvent.change(screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)'), {
+          target: { value: '2' },
+        });
+      
+        // Check for the disk and select inputs
+        const diskInputs = screen.getAllByPlaceholderText('Disk No:');
+        const fromSelects = screen.getAllByRole('combobox');
+      
+        // Update Move 0
+        fireEvent.change(diskInputs[0], { target: { value: '1' } });
+        fireEvent.change(fromSelects[0], { target: { value: 'A' } });
+        fireEvent.change(fromSelects[1], { target: { value: 'C' } });
+      
+        // Update Move 1
+        fireEvent.change(diskInputs[1], { target: { value: '2' } });
+        fireEvent.change(fromSelects[2], { target: { value: 'B' } });
+        fireEvent.change(fromSelects[3], { target: { value: 'D' } });
+      
+        // Check if the first move updated correctly
+        expect(diskInputs[0]).toHaveValue(1);
+        expect(fromSelects[0]).toHaveValue('A');
+        expect(fromSelects[1]).toHaveValue('C');
+      
+        // Check if the second move updated correctly
+        expect(diskInputs[1]).toHaveValue(2);
+        expect(fromSelects[2]).toHaveValue('B');
+        expect(fromSelects[3]).toHaveValue('D');
+      });
+      
+  
+  });
