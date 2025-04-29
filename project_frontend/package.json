@@ -24,6 +24,7 @@
     "preview": "vite preview",
     "start": "react-scripts start",
     "test": "jest",
+    "vite-test": "vitest",
     "type": "module"
   },
   "eslintConfig": {

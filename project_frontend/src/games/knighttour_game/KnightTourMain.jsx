@@ -153,7 +153,7 @@ const KnightTourMain = () => {
         <div className='knight-tour-container-main'>
             <h1>Knight's Tour Game</h1>
             <p className='knight-tour-game-description'>
-                Welcome to the Knight's Tour Challenge! Your goal is to move the knight across all 64 squares of the chessboard, visiting each square exactly once using valid L-shaped knight moves (two squares in one direction, one in the other).<br /><br />
+                Welcome to <strong>the Knight's Tour Challenge!</strong> Your goal is to move the knight across all 64 squares of the chessboard, visiting each square exactly once using valid L-shaped knight moves (two squares in one direction, one in the other).<br /><br />
                 The knight starts from a random square. Use the interface below to input your moves. Complete the tour without repeating any square.<br /><br />
                 Can you solve it faster than our algorithms? Good luck!
             </p>
@@ -172,13 +172,13 @@ const KnightTourMain = () => {
                         <option value="warnsdorff">Warnsdorff's Rule</option>
                     </select>
                 </div>
-                <div className="knight-tour-user-input">
-                    <button onClick={handleStartClick} disabled={loading}>
+                <div className="knight-tour-user-input ">
+                    <button onClick={handleStartClick} disabled={loading} className='start-button'>
                         {loading ? 'Solving...' : 'Start Game'}
                     </button>
                 </div>
-                <div className="knight-tour-user-input">
-                    <button onClick={() => { navigate('/') }}>Quit Game</button>
+                <div className="knight-tour-user-input ">
+                    <button onClick={() => { navigate('/') }} className='quit-button'>Quit Game</button>
                 </div>
             </div>
 
@@ -255,10 +255,10 @@ const KnightTourMain = () => {
                 </div>
                 <div className="knight-tour-game-result-container">
                     <h2>Game Summary</h2>
-                    <p>Player Name: {playerName}</p>
-                    <p>Algorithm: {algorithm}</p>
-                    <p>Moves Made: {knightPath.length}</p>
-                    <p>Time Taken: {timeTaken ? `${timeTaken} seconds` : "-"}</p>
+                    <p>Player Name: <strong>{playerName}</strong> </p>
+                    <p>Algorithm: <strong>{algorithm}</strong></p>
+                    <p>Moves Made: <strong>{knightPath.length}</strong></p>
+                    <p>Time Taken: <strong>{timeTaken ? `${timeTaken} seconds` : "-"}</strong></p>
                 </div>
             </div>
         </div>
