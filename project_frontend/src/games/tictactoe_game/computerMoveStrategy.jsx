@@ -1,16 +1,15 @@
 import { getBestMoveMinimaxLite } from './minimaxLite';
 import { getBestMoveHeuristicLite } from './heuristicLite';
 
-
-
 let algorithmicMoveCounter = 0;
+let moveCounter = 0; // Move counter to track computer moves
 
 export function resetAlgorithmicCounter() {
   algorithmicMoveCounter = 0;
+  moveCounter = 0;
 }
 
 function applyMoveToBoard(board, move) {
-  // Validate the board structure before attempting to apply a moves
   if (!Array.isArray(board) || board.length === 0 || !board.every(row => Array.isArray(row) && row.length === board[0].length)) {
     throw new Error("Invalid board structure.");
   }
@@ -21,7 +20,7 @@ function applyMoveToBoard(board, move) {
 
   const newBoard = board.map(row => [...row]);
   if (newBoard[move.row][move.col] === null) {
-    newBoard[move.row][move.col] = 'O';   // Assuming 'O' is the computer's move
+    newBoard[move.row][move.col] = 'O'; // Assuming 'O' is the computer's symbol
   } else {
     throw new Error("Move position is already occupied.");
   }
@@ -36,7 +35,7 @@ function measureAlgorithmTime(getBestMove, board, player) {
 
   const start = performance.now();
   let move = null;
-  let timeTaken = null;
+  let timeTaken = 0;
 
   try {
     if (!board || !Array.isArray(board)) {
@@ -50,11 +49,24 @@ function measureAlgorithmTime(getBestMove, board, player) {
     timeTaken = performance.now() - start;
   } catch (error) {
     console.error("Error in measuring algorithm time:", error);
-    move = null;
-    timeTaken = 0;
   }
 
-  return { move, timeTaken: timeTaken ? timeTaken.toFixed(3) : '1' };
+  return { move, timeTaken: timeTaken.toFixed(3) };
+}
+
+function getRandomMove(board) {
+  const emptyCells = [];
+  for (let row = 0; row < board.length; row++) {
+    for (let col = 0; col < board[row].length; col++) {
+      if (board[row][col] === null) {
+        emptyCells.push({ row, col });
+      }
+    }
+  }
+  if (emptyCells.length === 0) return null;
+
+  const randomIndex = Math.floor(Math.random() * emptyCells.length);
+  return emptyCells[randomIndex];
 }
 
 export function computerMove(board, algorithm, player) {
@@ -71,46 +83,41 @@ export function computerMove(board, algorithm, player) {
       throw new Error("Invalid player. Must be 'X' or 'O'.");
     }
 
+    moveCounter++;
     algorithmicMoveCounter++;
 
-    const { move: minimaxMove, timeTaken: minimaxTime } = measureAlgorithmTime(getBestMoveMinimaxLite, board, player);
-    const { move: heuristicMove, timeTaken: heuristicTime } = measureAlgorithmTime(getBestMoveHeuristicLite, board, player);
+    // Random move 
+    if (moveCounter >= 8 && moveCounter <= 12) {
+      chosenMove = getRandomMove(board);
+      console.log("🎲 Random Move Turn"); 
+    } else {
+      const { move: minimaxMove } = measureAlgorithmTime(getBestMoveMinimaxLite, board, player);
+      const { move: heuristicMove } = measureAlgorithmTime(getBestMoveHeuristicLite, board, player);
+      console.log("🤖 Algorithm Move Turn"); 
 
-    // Only print timings
-    console.log(`⏱️ Minimax Time: ${minimaxTime} ms`);
-    console.log(`⏱️ Heuristic Time: ${heuristicTime} ms`);
-
-    if (algorithm === 'both') {
-      if (minimaxMove && heuristicMove && minimaxMove.row === heuristicMove.row && minimaxMove.col === heuristicMove.col) {
+      if (algorithm === 'both') {
+        chosenMove = minimaxMove || heuristicMove;
+      } else if (algorithm === 'minimax') {
         chosenMove = minimaxMove;
-      } else {
-        // Favor easier win for human (60%) or strong move (40%)
-        if (Math.random() < 0.4) {
-          chosenMove = minimaxMove;
-        } else {
-          chosenMove = findWeakerMove(board);
-        }
+      } else if (algorithm === 'heuristic') {
+        chosenMove = heuristicMove;
       }
-    } else if (algorithm === 'minimax') {
-      chosenMove = minimaxMove;
-    } else if (algorithm === 'heuristic') {
-      chosenMove = heuristicMove;
     }
 
     if (!chosenMove) {
-      throw new Error("No valid move chosen by the algorithm.");
+      throw new Error("No valid move chosen.");
     }
 
     return applyMoveToBoard(board, chosenMove);
 
   } catch (error) {
     console.error("Error in computer move:", error);
-    toast.error(`An error occurred while calculating the computer's move: ${error.message}. Please try again.`);
-
+    if (typeof toast !== 'undefined') {
+      toast.error(`An error occurred while calculating the computer's move: ${error.message}. Please try again.`);
+    }
     if (process.env.NODE_ENV === 'test') {
       throw error;
     }
-
     return board;
   }
 }

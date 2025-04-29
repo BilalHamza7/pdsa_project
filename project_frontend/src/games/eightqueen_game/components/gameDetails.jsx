@@ -1,7 +1,7 @@
 import '../styles/gameDetails.css';
 
 const GameDetails = ({ sequential, threaded, playerSolutionCount }) => {
-    const timeDiff = Math.round(threaded.timeTaken / sequential.timeTaken) / 10 ;
+    const timeDiff = Math.round(threaded.timeTaken / sequential.timeTaken);
     return (
         <div className="game-details-container">
             <h2 style={{ width: '100%', textAlign: 'center' }}>🧠 Puzzle Insights & Algorithm Comparison</h2>
