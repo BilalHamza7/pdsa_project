@@ -4,7 +4,7 @@ import MapVisualizer from './MapVisualizer';
 
 const cities = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
-const generateDistanceMatrix = () => {
+export const generateDistanceMatrix = () => {
   const matrix = Array(10).fill(null).map(() => Array(10).fill(0));
   for (let i = 0; i < 10; i++) {
     for (let j = 0; j < 10; j++) {

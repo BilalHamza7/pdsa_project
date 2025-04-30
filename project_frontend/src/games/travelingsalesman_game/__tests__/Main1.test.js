@@ -1,4 +1,4 @@
-import { generateDistanceMatrix } from './Main';
+import { generateDistanceMatrix } from "../main";
 
 describe('generateDistanceMatrix', () => {
   it('should generate a 10x10 matrix', () => {
