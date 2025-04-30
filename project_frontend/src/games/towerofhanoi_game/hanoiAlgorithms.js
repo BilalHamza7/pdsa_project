@@ -1,101 +1,120 @@
+// Recursive solution for solving the Tower of Hanoi puzzle
+export const solveHanoiRecursive = (n, source, destination, auxiliary, result = []) => { 
 
-export const solveHanoiRecursive = (n, source, destination, auxiliary, result = []) => { // Recursive solution for Tower of Hanoi
+  // Helper function to record each move in a readable format
   const recordMove = (disk, from, to) => {
     result.push(`${disk} Disk ${from} → ${to}`);
   };
 
+   // Recursive function to move 'd' disks from one peg to another
   const move = (d, from, to, aux) => {
+
+     // Base case: if there's only one disk, move it directly
     if (d === 1) {
-      recordMove(1, from, to);
+      recordMove(1, from, to); // Move disk 1 from source to destination
       return;
     }
+     // Step 1: Move top d-1 disks from 'from' to 'auxiliary' peg
     move(d - 1, from, aux, to);
+     // Step 2: Move the largest disk (disk d) from 'from' to 'to'
     recordMove(d, from, to);
+    // Step 3: Move the d-1 disks from 'auxiliary' to 'to' peg
     move(d - 1, aux, to, from);
   };
 
+   // Start the recursive process with the given number of disks
   move(n, source, destination, auxiliary);
+   // Return the list of all recorded moves
   return result;
 };
 
-// Iterative (non-recursive) solution for Tower of Hanoi
+
+
+// Iterative (non-recursive) solution for the 3-peg Tower of Hanoi
 export const solveHanoiIterative = (n, source, destination, auxiliary) => {
-  const result = [];
-  const totalMoves = Math.pow(2, n) - 1;
+  const result = [];    // To store the sequence of moves
+  const totalMoves = Math.pow(2, n) - 1;  // Total required moves for n disks
   const pegs = {
     A: [],
     B: [],
     C: [],
-  };
+  };  // Initialize pegs as stacks
 
-  // Initialize source peg
+  // Fill the source peg with disks in descending order (largest at bottom)
   for (let i = n; i >= 1; i--) {
     pegs[source].push(i);
   }
 
-  // For even number of disks, swap destination and auxiliary
+  // If the number of disks is even, swap destination and auxiliary
+  // This is needed to maintain correct move sequence in the iterative method
   if (n % 2 === 0) {
     [destination, auxiliary] = [auxiliary, destination];
   }
 
+  // Perform totalMoves number of moves using modular pattern
   for (let i = 1; i <= totalMoves; i++) {
     if (i % 3 === 1) {
-      moveDisk(pegs, source, destination, result);
+      moveDisk(pegs, source, destination, result); // Move between source and destination
     } else if (i % 3 === 2) {
-      moveDisk(pegs, source, auxiliary, result);
+      moveDisk(pegs, source, auxiliary, result); // Move between source and auxiliary
     } else if (i % 3 === 0) {
-      moveDisk(pegs, auxiliary, destination, result);
+      moveDisk(pegs, auxiliary, destination, result);  // Move between auxiliary and destination
     }
   }
 
   return result;
 };
 
+// Helper function to move the top disk between two pegs
 const moveDisk = (pegs, from, to, result) => {
-  const fromTop = pegs[from][pegs[from].length - 1];
-  const toTop = pegs[to][pegs[to].length - 1];
+  const fromTop = pegs[from][pegs[from].length - 1];  // Top disk from source peg
+  const toTop = pegs[to][pegs[to].length - 1];     // Top disk from target peg
 
-  // If from peg is empty, move from 'to' to 'from'
+   // If source peg is empty, move from target to source
   if (!fromTop) {
     const disk = pegs[to].pop();
     pegs[from].push(disk);
     result.push(`${disk} Disk ${to} → ${from}`);
   }
-  // If to peg is empty, move from 'from' to 'to'
+  // If target peg is empty, move from source to target
   else if (!toTop) {
     const disk = pegs[from].pop();
     pegs[to].push(disk);
     result.push(`${disk} Disk ${from} → ${to}`);
   }
-  // Move smaller disk on top of larger one
+   // Move smaller disk onto larger one
   else if (fromTop < toTop) {
     const disk = pegs[from].pop();
     pegs[to].push(disk);
     result.push(`${disk} Disk ${from} → ${to}`);
-  } else {
+  } 
+   // Otherwise move from target to source
+  else {
     const disk = pegs[to].pop();
     pegs[from].push(disk);
     result.push(`${disk} Disk ${to} → ${from}`);
   }
 };
 
+// Frame-Stewart algorithm for solving the 4-peg Tower of Hanoi
+
 export const solveHanoi4Pegs = (n, source, aux1, aux2, destination) => {
-  // Edge case: if there are no disks
-  if (n === 0) return [];
 
-  const result = [];
+  if (n === 0) return []; // No disks = no moves
 
-  // Main 4-peg recursive function
+  const result = []; // To store the move sequence
+
+   // Main recursive function for 4-peg solution
   const hanoi4 = (num, from, to, aux1, aux2, disks) => {
     if (num === 0) return;
 
     if (num === 1) {
-      const disk = disks[disks.length - 1];
-      result.push({ disk, from, to });
+      const disk = disks[disks.length - 1]; // Get smallest disk
+      result.push({ disk, from, to });       // Move it directly
       return;
     }
 
-    // Find the optimal k for minimizing moves
+     // Try different k values to find the one with fewest total moves
     let minMoves = Infinity;
     let bestK = 1;
 
@@ -123,7 +142,7 @@ export const solveHanoi4Pegs = (n, source, aux1, aux2, destination) => {
 
   // Move count with memoization
   const moveCount4Peg = (() => {
-    const memo = {};
+    const memo = {};  // Store previously computed results
     return function count(disks) {
       if (disks <= 0) return 0;
       if (disks === 1) return 1;
@@ -160,7 +179,10 @@ const solveHanoiRecursiveDSA = (n, source, destination, auxiliary, disks, result
   const remainingDisks = disks.slice(0, disks.length - 1); // Top disks
   const currentDisk = disks[disks.length - 1]; // Bottom disk
 
+  // Step 1: Move top n-1 disks to auxiliary peg
   solveHanoiRecursiveDSA(n - 1, source, auxiliary, destination, remainingDisks, result);
+   // Step 2: Move largest disk to destination
   result.push({ disk: currentDisk, from: source, to: destination });
+  // Step 3: Move n-1 disks from auxiliary to destination
   solveHanoiRecursiveDSA(n - 1, auxiliary, destination, source, remainingDisks, result);
 };
