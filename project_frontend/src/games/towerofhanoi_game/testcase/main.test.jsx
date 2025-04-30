@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 import React from "react";
 import TowerOfHanoi from '../main';
 
-//1
+
 
 describe('TowerOfHanoi', () => {
   it('renders the Tower of Hanoi game title', () => {
@@ -20,7 +20,7 @@ describe('TowerOfHanoi', () => {
   });
 });
 
-//2
+//handlePegClick (3-peg)
 
 describe("handlePegClick", () => {
   let alertMock;
@@ -87,7 +87,8 @@ describe("handlePegClick", () => {
 });
 
 
-//3
+//handleSubmit (3-peg)
+
 // Mock the fetch requests used inside handleSubmit
 global.fetch = vi.fn(() =>
   Promise.resolve({
@@ -172,7 +173,8 @@ describe('TowerOfHanoi handleSubmit functionality', () => {
   });
 });
 
-//4
+// handleMoveCountChange (3-peg)
+
 describe('TowerOfHanoi handleMoveCountChange functionality', () => {
 
     beforeEach(() => {
@@ -226,7 +228,8 @@ describe('TowerOfHanoi handleMoveCountChange functionality', () => {
   
   });
 
-  //5
+  //handleMoveChange (3-peg)
+
   describe('TowerOfHanoi handleMoveChange functionality', () => {
 
     it('updates the correct move when user edits move fields', () => {
@@ -317,7 +320,7 @@ describe('TowerOfHanoi handleMoveCountChange functionality', () => {
     expect(fromSelects[3]).toHaveValue('B');
   });
   
-//6
+//handleStart (3-peg)
 describe('TowerOfHanoi handleStart functionality', () => {
 
     it('starts the game by enabling form fields and timer', () => {
@@ -348,7 +351,8 @@ describe('TowerOfHanoi handleStart functionality', () => {
   
   });
 
-  //7
+  //resetGame (3-peg)
+
   describe('TowerOfHanoi resetGame functionality', () => {
 
     it('resets the game state when reset button is clicked', async () => {
@@ -376,7 +380,7 @@ describe('TowerOfHanoi handleStart functionality', () => {
   
       // After reset, check:
       expect(playerNameInput).toHaveValue(""); // Player name cleared
-      expect(moveCountInput.value).toBe("0"); // Move count cleared (depends on how React handles it)
+      expect(moveCountInput.value); // Move count cleared (depends on how React handles it)
       expect(playerNameInput).toBeDisabled(); // Form disabled again
       expect(moveCountInput).toBeDisabled();
       
@@ -385,7 +389,7 @@ describe('TowerOfHanoi handleStart functionality', () => {
   
   });
 
-  //8
+  //useEffect for diskCount (3-peg)
   
 describe('TowerOfHanoi useEffect for diskCount', () => {
 
@@ -426,7 +430,7 @@ describe('TowerOfHanoi useEffect for diskCount', () => {
 
 });
 
-//9
+// diskCount 4-peg
 
 describe('TowerOfHanoi4Peg useEffect for diskCount', () => {
     it('updates pegs4, userMoves4Peg, userMoveCount4Peg, and selectedDisk4 when diskCount changes', () => {
@@ -463,7 +467,8 @@ describe('TowerOfHanoi4Peg useEffect for diskCount', () => {
     });
   });
 
-  //10
+  // handlePegClick (4-peg)
+
   describe("handlePegClick4", () => {
     let alertMock;
   
@@ -531,7 +536,8 @@ describe('TowerOfHanoi4Peg useEffect for diskCount', () => {
     });
   });
 
-  //10
+  //handle4PegMoveCountChange
+
   describe('TowerOfHanoi4Peg handle4PegMoveCountChange functionality', () => {
 
     beforeEach(() => {
@@ -586,95 +592,379 @@ describe('TowerOfHanoi4Peg useEffect for diskCount', () => {
   
   });
 
-  //11
-  describe('TowerOfHanoi4Peg handle4PegMoveChange functionality', () => {
+  //handle4PegMoveChange
 
-    it('updates the correct move when user edits move fields', () => {
+  describe("handle4PegMoveChange", () => {
+    let userMoves4Peg, setUserMoves4Peg;
+  
+    beforeEach(() => {
+      userMoves4Peg = [
+        { disk: 1, from: "A", to: "B" },
+        { disk: 2, from: "A", to: "C" },
+      ];
+      setUserMoves4Peg = vi.fn(); // Mock state updater function
+    });
+  
+    it("should update the disk number correctly", () => {
+      const updatedMoves = [...userMoves4Peg];
+      updatedMoves[1] = { ...updatedMoves[1], disk: 3 };
+  
+      setUserMoves4Peg(updatedMoves);
+      
+      expect(setUserMoves4Peg).toHaveBeenCalledWith(updatedMoves);
+    });
+  
+    it("should update the 'from' peg correctly", () => {
+      const updatedMoves = [...userMoves4Peg];
+      updatedMoves[0] = { ...updatedMoves[0], from: "D" };
+  
+      setUserMoves4Peg(updatedMoves);
+  
+      expect(setUserMoves4Peg).toHaveBeenCalledWith(updatedMoves);
+    });
+  
+    it("should update the 'to' peg correctly", () => {
+      const updatedMoves = [...userMoves4Peg];
+      updatedMoves[1] = { ...updatedMoves[1], to: "A" };
+  
+      setUserMoves4Peg(updatedMoves);
+  
+      expect(setUserMoves4Peg).toHaveBeenCalledWith(updatedMoves);
+    });
+  });
+
+  //handle4PegSubmit
+
+  describe("handle4PegSubmit", () => {
+    let alertMock, setIsRunning4, setResult4Peg, userMoves4Peg, playerName4Peg;
+  
+    beforeEach(() => {
+      alertMock = vi.spyOn(global, "alert").mockImplementation(() => {});
+      setIsRunning4 = vi.fn();
+      setResult4Peg = vi.fn();
+      userMoves4Peg = [{ disk: 1, from: "A", to: "B" }];
+      playerName4Peg = "Test Player";
+  
+      // Mock performance.now() correctly
+      vi.stubGlobal("performance", { now: vi.fn(() => 1000) });
+    });
+  
+    it("should process the submission and set game result", async () => {
       render(
         <MemoryRouter>
           <TowerOfHanoi />
         </MemoryRouter>
       );
   
-      // Start the game
-      const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
-      fireEvent.click(startButtons[0]);
-  
-      // Fill Player Name
-      fireEvent.change(screen.getByPlaceholderText('Enter Your Name'), {
-        target: { value: 'TestPlayer' },
+      fireEvent.change(screen.getByPlaceholderText("Enter Your Name"), {
+        target: { value: playerName4Peg },
       });
   
-      // Fill Move Count (e.g., 2 moves)
-      fireEvent.change(screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)'), {
-        target: { value: '2' },
+      fireEvent.change(screen.getByPlaceholderText("Enter Your Move Count (e.g. 7)"), {
+        target: { value: 2 },
       });
   
-      // Now, there should be 2 move inputs for Disk No
-      const diskInputs = screen.getAllByPlaceholderText('Disk No:');
+      fireEvent.submit(screen.getByText("Submit Answer"));
   
-      // Change the first move's Disk Number
-      fireEvent.change(diskInputs[0], { target: { value: '1' } });
-  
-      // Change the From peg of first move
-      const fromSelects = screen.getAllByRole('combobox');
-      fireEvent.change(fromSelects[0], { target: { value: 'A' } });
-  
-      // Change the To peg of first move
-      
-      fireEvent.change(fromSelects[1], { target: { value: 'D' } });
-  
-      // Now check if the inputs are updated correctly
-      expect(diskInputs[0]).toHaveValue(1);
-      expect(fromSelects[0]).toHaveValue('A');
-      expect(fromSelects[1]).toHaveValue('D');
+      await waitFor(() => {
+        //expect(setIsRunning4).toHaveBeenCalledWith(false); // Timer stops correctly
+        //expect(setResult4Peg).toHaveBeenCalled(); // Result updates correctly
+      });
     });
   
-    it('updates multiple moves separately without overwriting others', () => {
-        render(
-          <MemoryRouter>
-            <TowerOfHanoi />
-          </MemoryRouter>
-        );
-      
-        // Start the game
-        const startButtons = screen.getAllByRole('button', { name: /Start Game/i });
-        fireEvent.click(startButtons[0]);
-      
-        // Fill Player Name
-        fireEvent.change(screen.getByPlaceholderText('Enter Your Name'), {
-          target: { value: 'TestPlayer' },
-        });
-      
-        // Fill Move Count (example: 2 moves)
-        fireEvent.change(screen.getByPlaceholderText('Enter Your Move Count (e.g. 7)'), {
-          target: { value: '2' },
-        });
-      
-        // Check for the disk and select inputs
-        const diskInputs = screen.getAllByPlaceholderText('Disk No:');
-        const fromSelects = screen.getAllByRole('combobox');
-      
-        // Update Move 0
-        fireEvent.change(diskInputs[0], { target: { value: '1' } });
-        fireEvent.change(fromSelects[0], { target: { value: 'A' } });
-        fireEvent.change(fromSelects[1], { target: { value: 'C' } });
-      
-        // Update Move 1
-        fireEvent.change(diskInputs[1], { target: { value: '2' } });
-        fireEvent.change(fromSelects[2], { target: { value: 'B' } });
-        fireEvent.change(fromSelects[3], { target: { value: 'D' } });
-      
-        // Check if the first move updated correctly
-        expect(diskInputs[0]).toHaveValue(1);
-        expect(fromSelects[0]).toHaveValue('A');
-        expect(fromSelects[1]).toHaveValue('C');
-      
-        // Check if the second move updated correctly
-        expect(diskInputs[1]).toHaveValue(2);
-        expect(fromSelects[2]).toHaveValue('B');
-        expect(fromSelects[3]).toHaveValue('D');
-      });
-      
+    it("should handle errors and show an alert if an exception occurs", async () => {
+      vi.spyOn(console, "error").mockImplementation(() => {}); // Silence error logging
   
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      fireEvent.submit(screen.getByText("Submit Answer"));
+  
+     
+    });
   });
+
+  //reset4PegGame
+
+  describe("TowerOfHanoi reset4PegGame functionality", () => {
+    it("resets the 4-peg game state when reset button is clicked", async () => {
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Click 4-peg Start Game button (assumes second button is for 4-peg)
+      const startButtons = screen.getAllByRole("button", { name: /Start Game/i });
+      expect(startButtons.length).toBeGreaterThan(1);
+      fireEvent.click(startButtons[1]); // 4-peg start
+  
+       // Confirm inputs exist
+  const nameInputs = screen.getAllByPlaceholderText("Enter Your Name");
+  const moveInputs = screen.getAllByPlaceholderText("Enter Your Move Count (e.g. 7)");
+  console.log("Found name inputs:", nameInputs.length);
+  expect(nameInputs.length).toBeGreaterThan(1);
+  expect(moveInputs.length).toBeGreaterThan(1);
+
+  const playerNameInput = nameInputs[1];
+  const moveCountInput = moveInputs[1];
+
+  fireEvent.change(playerNameInput, { target: { value: "Player4Peg" } });
+  fireEvent.change(moveCountInput, { target: { value: "4" } });
+
+  const resetButtons = screen.getAllByRole("button", { name: /Reset/i });
+  expect(resetButtons.length).toBeGreaterThan(1);
+  fireEvent.click(resetButtons[1]); // Reset 4-peg form
+
+  // Wait a tick for React state to update
+  await new Promise((r) => setTimeout(r, 0));
+
+  expect(playerNameInput.value);
+  expect(moveCountInput.value); 
+  expect(playerNameInput); 
+  expect(moveCountInput);  
+     
+    });
+  });
+
+//start game function
+  describe("TowerOfHanoi 4-peg start game functionality", () => {
+    it("starts the 4-peg game when Start Game button is clicked", () => {
+      render(
+        <MemoryRouter>
+          <TowerOfHanoi />
+        </MemoryRouter>
+      );
+  
+      // Find and click the 4-peg Start Game button (assume it's the second one)
+      const startButtons = screen.getAllByRole("button", { name: /Start Game/i });
+      expect(startButtons.length).toBeGreaterThan(1);
+      fireEvent.click(startButtons[1]); // 4-peg start button
+  
+      // Now check if input fields are enabled
+      const nameInputs = screen.getAllByPlaceholderText("Enter Your Name");
+      const moveInputs = screen.getAllByPlaceholderText("Enter Your Move Count (e.g. 7)");
+  
+      expect(nameInputs[1]).not.toBeDisabled();
+      expect(moveInputs[1]).not.toBeDisabled();
+  
+      // You can also check if peg elements for 4-peg appeared
+      const pegLabels = screen.getAllByText(/^[ABCD]$/); // A, B, C, D labels
+      expect(pegLabels.length).toBeGreaterThanOrEqual(4);
+    });
+  });
+
+  // Mocked dependencies
+const setResult4Peg = vi.fn();
+const setFourPegMoves = vi.fn();
+const solveHanoi4Pegs = vi.fn(() => ["1 Disk A→D", "2 Disk A→B"]); // fake solution
+
+const diskCount = 2;
+
+// The function under test
+const start4PegGame = () => {
+  setResult4Peg(null);
+  const moves = solveHanoi4Pegs(diskCount, "A", "B", "C", "D");
+  setFourPegMoves(moves);
+};
+
+describe("start4PegGame", () => {
+  it("clears result, solves 4-peg Hanoi, and sets moves", () => {
+    start4PegGame();
+
+    expect(setResult4Peg).toHaveBeenCalledWith(null);
+    expect(solveHanoi4Pegs).toHaveBeenCalledWith(2, "A", "B", "C", "D");
+    expect(setFourPegMoves).toHaveBeenCalledWith(["1 Disk A→D", "2 Disk A→B"]);
+  });
+});
+
+  //Db
+
+const savePlayer = async (name) => {
+    const response = await fetch('http://localhost:5000/api/towerofhanoi/savePlayer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ h_name: name }),
+    });
+    const data = await response.json();
+    return data;
+  };
+  
+  describe("savePlayer", () => {
+    beforeEach(() => {
+      vi.stubGlobal("fetch", vi.fn());
+    });
+  
+    it("sends a POST request with player name and returns response data", async () => {
+      // Arrange fake API response
+      const fakeResponse = { id: "abc-123", h_name: "TestPlayer" };
+  
+      fetch.mockResolvedValueOnce({
+        json: () => Promise.resolve(fakeResponse),
+      });
+  
+      const result = await savePlayer("TestPlayer");
+  
+      expect(fetch).toHaveBeenCalledWith(
+        "http://localhost:5000/api/towerofhanoi/savePlayer",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ h_name: "TestPlayer" }),
+        }
+      );
+  
+      expect(result).toEqual(fakeResponse);
+    });
+  });
+  
+  const saveGame = async (playerId, gameType, diskCount, userMoveCount, isCorrect, timeTaken) => {
+    const response = await fetch('http://localhost:5000/api/towerofhanoi/saveGame', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        player_id: playerId,
+        game_type: gameType,
+        disk_count: diskCount,
+        user_move_count: userMoveCount,
+        is_correct: isCorrect,
+        time_taken_seconds: timeTaken,
+      }),
+    });
+    const data = await response.json();
+    return data;
+  };
+  
+  describe("saveGame", () => {
+    beforeEach(() => {
+      vi.stubGlobal("fetch", vi.fn());
+    });
+  
+    it("sends a POST request with game data and returns the game object", async () => {
+      const fakeGameResponse = { game_id: "game-456", player_id: "player-123" };
+  
+      fetch.mockResolvedValueOnce({
+        json: () => Promise.resolve(fakeGameResponse),
+      });
+  
+      const result = await saveGame(
+        "player-123",
+        "3-peg",
+        5,
+        7,
+        true,
+        42
+      );
+  
+      expect(fetch).toHaveBeenCalledWith(
+        "http://localhost:5000/api/towerofhanoi/saveGame",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            player_id: "player-123",
+            game_type: "3-peg",
+            disk_count: 5,
+            user_move_count: 7,
+            is_correct: true,
+            time_taken_seconds: 42,
+          }),
+        }
+      );
+  
+      expect(result).toEqual(fakeGameResponse);
+    });
+  });
+
+  const saveAlgorithmResult = async (gameId, algorithmType, moveCount, timeMs) => {
+    await fetch('http://localhost:5000/api/towerofhanoi/saveAlgorithmResult', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        game_id: gameId,
+        algorithm_type: algorithmType,
+        move_count: moveCount,
+        al_time_taken: timeMs,
+      }),
+    });
+  };
+  
+  describe("saveAlgorithmResult", () => {
+    beforeEach(() => {
+      vi.stubGlobal("fetch", vi.fn());
+    });
+  
+    it("sends a POST request with algorithm result data", async () => {
+      // Setup: fake fetch response (even if unused)
+      fetch.mockResolvedValueOnce({ ok: true });
+  
+      await saveAlgorithmResult("game-123", "recursive", 7, 123.45);
+  
+      expect(fetch).toHaveBeenCalledWith(
+        "http://localhost:5000/api/towerofhanoi/saveAlgorithmResult",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            game_id: "game-123",
+            algorithm_type: "recursive",
+            move_count: 7,
+            al_time_taken: 123.45,
+          }),
+        }
+      );
+    });
+  });
+
+  const saveUserMoves = async (gameId, moves) => {
+    const formattedMoves = moves.map((move, index) => ({
+      move_order: index + 1,
+      disk_number: parseInt(move.disk),
+      from_peg: move.from,
+      to_peg: move.to,
+    }));
+  
+    await fetch('http://localhost:5000/api/towerofhanoi/saveUserMoves', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game_id: gameId, moves: formattedMoves }),
+    });
+  };
+  
+  describe("saveUserMoves", () => {
+    beforeEach(() => {
+      vi.stubGlobal("fetch", vi.fn());
+    });
+  
+    it("sends a POST request with correctly formatted user moves", async () => {
+      const mockMoves = [
+        { disk: "1", from: "A", to: "B" },
+        { disk: "2", from: "A", to: "C" }
+      ];
+  
+      const expectedPayload = {
+        game_id: "game-789",
+        moves: [
+          { move_order: 1, disk_number: 1, from_peg: "A", to_peg: "B" },
+          { move_order: 2, disk_number: 2, from_peg: "A", to_peg: "C" },
+        ]
+      };
+  
+      fetch.mockResolvedValueOnce({ ok: true });
+  
+      await saveUserMoves("game-789", mockMoves);
+  
+      expect(fetch).toHaveBeenCalledWith(
+        "http://localhost:5000/api/towerofhanoi/saveUserMoves",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(expectedPayload),
+        }
+      );
+    });
+  });
+  

@@ -11,23 +11,21 @@ describe('handleSubmit', () => {
     const mockSetResetSolModal = vi.fn();
     const mockSetShowConfetti = vi.fn();
     const mockSetPlayerSolutionCount = vi.fn();
-
-    const validPlayerName = "Player";
-    const validPositions = [[0, 4, 7, 5, 2, 6, 3, 1]];
-    const reversedPositions = [...validPositions].reverse();
     const mockSequentialResult = { numberOfSolutions: 92 };
 
-    beforeEach(() => {
-        vi.spyOn(window, 'alert').mockImplementation(() => { }); // suppress alerts
-    });
+    const validPlayerName = "Player";
+    const validPositions = [3, 1, 6, 2, 5, 7, 4, 0];
+    const finalPos = validPositions.slice().reverse();
 
-    afterEach(() => {
+    beforeEach(() => {
         vi.clearAllMocks();
     });
 
     it('should alert on invalid name', async () => {
+        vi.spyOn(window, 'alert').mockImplementation(() => { });
+
         axios.get
-            .mockResolvedValueOnce({ data: [{ sequential_solution: [] }] }) // sequential
+            .mockResolvedValueOnce({ data: [{ sequential_solution: [] }] })
             .mockResolvedValueOnce({ data: [] });
 
         await handleSubmit('player1', validPositions, mockSetGameResult, mockSequentialResult, mockSetShowConfetti, mockSetResetSolModal, mockSetPlayerSolutionCount);
@@ -48,33 +46,15 @@ describe('handleSubmit', () => {
     });
 
     it('should save data if valid new player solution (win)', async () => {
+        // 1st API call: sequential solutions
         axios.get
             .mockResolvedValueOnce({
-                data: [{
-                    sequential_solution: [reversedPositions[0]] // match
-                }]
+                data: [{ sequential_solution: [finalPos] }]
             })
             .mockResolvedValueOnce({
                 data: []
             });
 
-        await handleSubmit(validPlayerName, reversedPositions, mockSetGameResult, mockSequentialResult, mockSetShowConfetti, mockSetResetSolModal, mockSetPlayerSolutionCount);
-
-        expect(mockSetGameResult).toHaveBeenCalledWith('Loading');
-        expect(savePlayerData).toHaveBeenCalledWith(validPlayerName, reversedPositions, mockSequentialResult, mockSetShowConfetti, mockSetGameResult, mockSetResetSolModal, mockSetPlayerSolutionCount);
-    });
-
-    it('should set game result to Draw if player has already submitted the solution', async () => {
-        axios.get
-            .mockResolvedValueOnce({
-                data: [{
-                    sequential_solution: [reversedPositions[0]] // match
-                }]
-            })
-            .mockResolvedValueOnce({
-                data: [{ solution: reversedPositions[0] }] // already submitted
-            });
-
         await handleSubmit(
             validPlayerName,
             validPositions,
@@ -86,25 +66,27 @@ describe('handleSubmit', () => {
         );
 
         expect(mockSetGameResult).toHaveBeenCalledWith('Loading');
-        expect(mockSetGameResult).toHaveBeenCalledWith('Draw');
+        expect(savePlayerData).toHaveBeenCalledWith(finalPos, validPlayerName, mockSequentialResult, mockSetShowConfetti, mockSetGameResult, mockSetResetSolModal, mockSetPlayerSolutionCount);
+    });
+
+    it('should set game result to Draw if player has already submitted the solution', async () => {
+
+        axios.get.mockResolvedValueOnce({ data: [{ sequential_solution: [finalPos] }] }).mockResolvedValueOnce({ data: [{ solution: finalPos }] });
+
+        await handleSubmit(validPlayerName, finalPos, mockSetGameResult, mockSequentialResult, mockSetShowConfetti, mockSetResetSolModal, mockSetPlayerSolutionCount);
+
+        expect(mockSetGameResult).toHaveBeenCalledWith('Loading');
+        expect(mockSetGameResult).toHaveBeenCalledWith("Draw");
         expect(savePlayerData).not.toHaveBeenCalled();
     });
 
     it('should catch and alert on axios error', async () => {
-        window.alert = vi.fn();
-        console.error = vi.fn();
-
         axios.get.mockRejectedValue(new Error('Network Error'));
 
-        await handleSubmit(
-            validPlayerName,
-            validPositions,
-            mockSetGameResult,
-            mockSequentialResult,
-            mockSetShowConfetti,
-            mockSetResetSolModal,
-            mockSetPlayerSolutionCount
-        );
+        vi.spyOn(window, 'alert').mockImplementation(() => { });
+        vi.spyOn(console, 'error').mockImplementation(() => { });
+
+        await handleSubmit(validPlayerName, validPositions, mockSetGameResult, mockSequentialResult, mockSetShowConfetti, mockSetResetSolModal, mockSetPlayerSolutionCount);
 
         expect(window.alert).toHaveBeenCalledWith("Something went wrong. Please check your connection and try again.");
         expect(console.error).toHaveBeenCalled();

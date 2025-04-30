@@ -39,13 +39,13 @@ const TicTacToe = () => {
       let result = '';
   
       if (winner === 'X') {
-        setMessage(`${playerName} Wins!`);
+        setMessage(`${playerName} Win`);
         result = 'Win';
       } else if (winner === 'O') {
-        setMessage('Lose!');
+        setMessage('Lose');
         result = 'Lose';
       } else if (winner === 'Draw') {
-        setMessage('Draw Game');
+        setMessage('Draw');
         result = 'Draw';
       }
   

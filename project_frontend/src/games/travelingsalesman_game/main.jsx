@@ -4,7 +4,7 @@ import MapVisualizer from './MapVisualizer';
 
 const cities = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
-const generateDistanceMatrix = () => {
+export const generateDistanceMatrix = () => {
   const matrix = Array(10).fill(null).map(() => Array(10).fill(0));
   for (let i = 0; i < 10; i++) {
     for (let j = 0; j < 10; j++) {
@@ -75,32 +75,77 @@ const tspNearestNeighbor = (start, selectedCities, matrix) => {
 
 const tspDynamicProgramming = (start, selectedCities, matrix) => {
   const n = selectedCities.length;
-  const memo = {};
+  const memo = new Map();
+  const prev = new Map(); // To reconstruct the path
 
-  const dp = (pos, visited) => {
-    const key = `${pos}|${visited}`;
-    if (memo[key]) return memo[key];
+  // dp(pos, mask) returns the minimum distance starting from pos with visited cities in mask
+  const dp = (pos, mask) => {
+    if (mask === (1 << n) - 1) {
+      // All cities visited, return to start
+      return matrix[selectedCities[pos]][start];
+    }
 
-    if (visited === (1 << n) - 1) return matrix[selectedCities[pos]][start];
+    const key = `${pos}|${mask}`;
+    if (memo.has(key)) return memo.get(key);
 
-    let min = Infinity;
+    let minDist = Infinity;
+    let nextCity = -1;
+
     for (let i = 0; i < n; i++) {
-      if (!(visited & (1 << i))) {
-        const dist = matrix[selectedCities[pos]][selectedCities[i]] + dp(i, visited | (1 << i));
-        min = Math.min(min, dist);
+      if (!(mask & (1 << i))) {
+        const dist = matrix[selectedCities[pos]][selectedCities[i]] + dp(i, mask | (1 << i));
+        if (dist < minDist) {
+          minDist = dist;
+          nextCity = i;
+        }
       }
     }
-    memo[key] = min;
-    return min;
+
+    memo.set(key, minDist);
+    prev.set(key, nextCity);
+    return minDist;
   };
 
+  // Find the minimum distance starting from the start city
   let minDistance = Infinity;
+  let firstCity = -1;
   for (let i = 0; i < n; i++) {
-    const distance = matrix[start][selectedCities[i]] + dp(i, 1 << i);
-    if (distance < minDistance) minDistance = distance;
+    const dist = matrix[start][selectedCities[i]] + dp(i, 1 << i);
+    if (dist < minDistance) {
+      minDistance = dist;
+      firstCity = i;
+    }
   }
 
-  return { distance: minDistance, route: [start, ...selectedCities, start] };
+  // Reconstruct the route
+  let route = [start];
+  let current = firstCity;
+  let mask = firstCity >= 0 ? 1 << firstCity : 0;
+
+  if (firstCity >= 0) {
+    route.push(selectedCities[firstCity]);
+    while (mask !== (1 << n) - 1) {
+      const key = `${current}|${mask}`;
+      const next = prev.get(key);
+      if (next === -1 || next === undefined) break;
+      route.push(selectedCities[next]);
+      mask |= 1 << next;
+      current = next;
+    }
+  }
+
+  route.push(start); // Return to start
+
+  // Verify the route includes all selected cities
+  const routeSet = new Set(route.slice(1, -1)); // Exclude start and end
+  const selectedSet = new Set(selectedCities);
+  if (routeSet.size !== selectedSet.size || ![...selectedSet].every(city => route.includes(city))) {
+    // If route is invalid, fallback to a valid route (e.g., from Dijkstra)
+    const fallback = tspDijkstra(start, selectedCities, matrix);
+    return fallback;
+  }
+
+  return { distance: minDistance, route };
 };
 
 export default function Main() {
@@ -185,7 +230,6 @@ export default function Main() {
         .insert(algoStats);
       if (statsError) throw statsError;
 
-      // Refresh recent games after saving
       await fetchRecentGames();
     } catch (err) {
       console.error('Error saving to Supabase:', err);
@@ -245,8 +289,8 @@ export default function Main() {
 
       setResults(resultData);
 
-      const optimalDistance = dijkstra.distance;
-      const optimalRoute = dijkstra.route.map((i) => cities[i]);
+      const optimalDistance = dp.distance;
+      const optimalRoute = dp.route.map((i) => cities[i]);
       let status = 'incorrect';
       if (playerDistance === optimalDistance) {
         status = 'correct';
