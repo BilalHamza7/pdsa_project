@@ -21,14 +21,11 @@ describe('handleSubmit', () => {
         vi.clearAllMocks();
     });
 
-    afterEach(() => {
-    });
-
     it('should alert on invalid name', async () => {
         vi.spyOn(window, 'alert').mockImplementation(() => { });
 
         axios.get
-            .mockResolvedValueOnce({ data: [{ sequential_solution: [] }] }) // sequential
+            .mockResolvedValueOnce({ data: [{ sequential_solution: [] }] })
             .mockResolvedValueOnce({ data: [] });
 
         await handleSubmit('player1', validPositions, mockSetGameResult, mockSequentialResult, mockSetShowConfetti, mockSetResetSolModal, mockSetPlayerSolutionCount);
@@ -74,25 +71,9 @@ describe('handleSubmit', () => {
 
     it('should set game result to Draw if player has already submitted the solution', async () => {
 
-        axios.get
-            .mockResolvedValueOnce({
-                data: [{
-                    sequential_solution: [finalPos] // match
-                }]
-            })
-            .mockResolvedValueOnce({
-                data: [{ solution: finalPos }] // already submitted
-            });
+        axios.get.mockResolvedValueOnce({ data: [{ sequential_solution: [finalPos] }] }).mockResolvedValueOnce({ data: [{ solution: finalPos }] });
 
-        await handleSubmit(
-            validPlayerName,
-            finalPos,
-            mockSetGameResult,
-            mockSequentialResult,
-            mockSetShowConfetti,
-            mockSetResetSolModal,
-            mockSetPlayerSolutionCount
-        );
+        await handleSubmit(validPlayerName, finalPos, mockSetGameResult, mockSequentialResult, mockSetShowConfetti, mockSetResetSolModal, mockSetPlayerSolutionCount);
 
         expect(mockSetGameResult).toHaveBeenCalledWith('Loading');
         expect(mockSetGameResult).toHaveBeenCalledWith("Draw");
@@ -105,15 +86,7 @@ describe('handleSubmit', () => {
         vi.spyOn(window, 'alert').mockImplementation(() => { });
         vi.spyOn(console, 'error').mockImplementation(() => { });
 
-        await handleSubmit(
-            validPlayerName,
-            validPositions,
-            mockSetGameResult,
-            mockSequentialResult,
-            mockSetShowConfetti,
-            mockSetResetSolModal,
-            mockSetPlayerSolutionCount
-        );
+        await handleSubmit(validPlayerName, validPositions, mockSetGameResult, mockSequentialResult, mockSetShowConfetti, mockSetResetSolModal, mockSetPlayerSolutionCount);
 
         expect(window.alert).toHaveBeenCalledWith("Something went wrong. Please check your connection and try again.");
         expect(console.error).toHaveBeenCalled();

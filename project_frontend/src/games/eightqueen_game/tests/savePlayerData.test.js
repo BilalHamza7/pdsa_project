@@ -28,15 +28,7 @@ describe('savePlayerData', () => {
 
         axios.get.mockResolvedValue({ status: 200, data: 92 });  // get success scenario, all 92 sols are found hence resetSolModal is true
 
-        await savePlayerData(
-            mockPlayerPositions,
-            mockPlayerName,
-            mockSequentialResult,
-            mockSetShowConfetti,
-            mockSetGameResult,
-            mockSetResetSolModal,
-            mockSetPlayerSolutionCount
-        );
+        await savePlayerData(mockPlayerPositions, mockPlayerName, mockSequentialResult, mockSetShowConfetti, mockSetGameResult, mockSetResetSolModal, mockSetPlayerSolutionCount);
 
         expect(mockSetShowConfetti).toHaveBeenCalledWith(true);
         expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 4000);  // Timeout should be set to remove confetti after 4 seconds
@@ -59,15 +51,7 @@ describe('savePlayerData', () => {
         axios.get.mockResolvedValue({ status: 200, data: 1 });
 
         // Call the function
-        await savePlayerData(
-            mockPlayerPositions,
-            mockPlayerName,
-            mockSequentialResult,
-            mockSetShowConfetti,
-            mockSetGameResult,
-            mockSetResetSolModal,
-            mockSetPlayerSolutionCount
-        );
+        await savePlayerData(mockPlayerPositions, mockPlayerName, mockSequentialResult, mockSetShowConfetti, mockSetGameResult, mockSetResetSolModal, mockSetPlayerSolutionCount);
 
         // Check if the alert was called
         expect(window.alert).toHaveBeenCalledWith('Something went wrong while saving your solution. Please try again.');
@@ -85,15 +69,7 @@ describe('savePlayerData', () => {
         // Mocking axios GET to return an invalid response
         axios.get.mockResolvedValue({ status: 500, data: null });
 
-        await savePlayerData(
-            mockPlayerPositions,
-            mockPlayerName,
-            mockSequentialResult,
-            mockSetShowConfetti,
-            mockSetGameResult,
-            mockSetResetSolModal,
-            mockSetPlayerSolutionCount
-        );
+        await savePlayerData(mockPlayerPositions, mockPlayerName, mockSequentialResult, mockSetShowConfetti, mockSetGameResult, mockSetResetSolModal, mockSetPlayerSolutionCount);
 
         // Check if the alert for solution count error was called
         expect(window.alert).toHaveBeenCalledWith('Unable to fetch updated player count.');
