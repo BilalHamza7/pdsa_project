@@ -161,12 +161,12 @@ const KnightTourMain = () => {
             <h2>Knight Tour Game Setup</h2>
             <div className="knight-tour-game-user-container">
                 <div className="knight-tour-user-input">
-                    <label>Player Name</label>
-                    <input type='text' value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder='Enter your name' />
+                    <label htmlFor="player-name">Player Name</label>
+                    <input id="player-name" type='text' value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder='Enter your name' required />
                 </div>
                 <div className="knight-tour-user-input">
-                    <label>Algorithm</label>
-                    <select value={algorithm} onChange={(e) => setAlgorithm(e.target.value)}>
+                    <label htmlFor="algorithm-select">Algorithm</label>
+                    <select id="algorithm-select" value={algorithm} onChange={(e) => setAlgorithm(e.target.value)} required>
                         <option value=""></option>
                         <option value="backtracking">Backtracking</option>
                         <option value="warnsdorff">Warnsdorff's Rule</option>
@@ -186,11 +186,11 @@ const KnightTourMain = () => {
             <div className="knight-tour-game-input">
                 <div className="knight-tour-user-input">
                     <label>Next Column (0-7)</label>
-                    <input type='number' value={nextColumn || ''} onChange={(e) => setNextColumn(e.target.value)} />
+                    <input type='number' value={nextColumn || ''} onChange={(e) => setNextColumn(e.target.value)} required/>
                 </div>
                 <div className="knight-tour-user-input">
                     <label>Next Row (0-7)</label>
-                    <input type='number' value={nextRow || ''} onChange={(e) => setNextRow(e.target.value)} />
+                    <input type='number' value={nextRow || ''} onChange={(e) => setNextRow(e.target.value)} required/>
                 </div>
                 <div className="knight-tour-user-input">
                     <button onClick={handleMoveClick}>Apply</button>
