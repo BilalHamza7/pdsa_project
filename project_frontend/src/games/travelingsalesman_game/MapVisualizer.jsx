@@ -18,8 +18,8 @@ const MapVisualizer = ({ cities, distanceMatrix, homeCity, selectedCities }) => 
   const getLineKey = (i, j) => `${Math.min(i, j)}-${Math.max(i, j)}`;
 
   return (
-    <div style={{ marginTop: 30, padding: 16, borderRadius: 12, background: '#F3F4F6', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
-      <h3 style={{ textAlign: 'center', color: '#1F2937', marginBottom: 12 }}>City Map</h3>
+    <div style={{ marginTop: 30, padding: 16, borderRadius: 12, background: '#313131', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
+      <h3 style={{ textAlign: 'center', color: 'white', marginBottom: 12 }}>City Map</h3>
 
       <svg width={width} height={height} style={{ borderRadius: '10px', backgroundColor: '#FFFFFF' }}>
         {/* Distance lines */}

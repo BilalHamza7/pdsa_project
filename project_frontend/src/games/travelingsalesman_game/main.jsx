@@ -580,9 +580,7 @@ export default function Main() {
               <p style={styles.gameDetail}>
                 <strong>Status:</strong> {game.status}
               </p>
-              <p style={styles.gameDetail}>
-                <strong>Played:</strong> {new Date(game.created_at).toLocaleString()}
-              </p>
+           
             </div>
           ))
         )}
