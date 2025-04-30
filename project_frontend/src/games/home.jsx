@@ -60,9 +60,9 @@ export default function Home() {
                     <p className='member' style={{fontWeight:'bold', fontSize:'large'}}>Group Members</p>
                     <p className='member'>COBSCCOMP242P-026 - M.Z.M.B. Hamza</p>
                     <p className='member'>COBSCCOMP242P-007 - S.M.M. Shafran</p>
-                    <p className='member'>COBSCCOMP242P-026</p>
+                    <p className='member'>COBSCCOMP242P-024 - G.A.U. Perera</p>
                     <p className='member'>COBSCCOMP242P-039 - U.D.V.Madushamini</p>
-                    <p className='member'>COBSCCOMP242P-026</p>
+                    <p className='member'>COBSCCOMP242P-009 - C.H. Mallikarathne</p>
                 </div>
             </div>
         </div>
